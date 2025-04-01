@@ -37,6 +37,7 @@ BENCHMARK_MODALITY_MAP = {
     'beavertails': 'text_to_text',
     'mmmu': 'text_image_to_text',
     'mathvision': 'text_image_to_text',
+    'olympiadbench': 'text_image_to_text',
     'mmau': 'text_audio_to_text',
     'mmvu': 'text_video_to_text',
 }

@@ -149,7 +149,7 @@ class JudgeEqualList(BaseTool):
                             break
             return correct
         else:
-            return gold_answer in data_1
+            return str(gold_answer) in data_1
 
     def __call__(self, data_1, data_2) -> bool:
         return self.apply(data_1, data_2)

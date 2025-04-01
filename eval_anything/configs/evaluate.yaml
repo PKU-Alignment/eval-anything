@@ -19,6 +19,7 @@
       "CEval": ['accountant', 'advanced_mathematics', 'art_studies', 'basic_medicine', 'business_administration', 'chinese_language_and_literature', 'civil_servant', 'clinical_medicine', 'college_chemistry', 'college_economics', 'college_physics', 'college_programming', 'computer_architecture', 'computer_network', 'discrete_mathematics', 'education_science', 'electrical_engineer', 'environmental_impact_assessment_engineer', 'fire_engineer', 'high_school_biology', 'high_school_chemistry', 'high_school_chinese', 'high_school_geography', 'high_school_history', 'high_school_mathematics', 'high_school_physics', 'high_school_politics', 'ideological_and_moral_cultivation', 'law', 'legal_professional', 'logic', 'mao_zedong_thought', 'marxism', 'metrology_engineer', 'middle_school_biology', 'middle_school_chemistry', 'middle_school_geography', 'middle_school_history', 'middle_school_mathematics', 'middle_school_physics', 'middle_school_politics', 'modern_chinese_history', 'operating_system', 'physician', 'plant_protection', 'probability_and_statistics', 'professional_tour_guide', 'sports_science', 'tax_accountant', 'teacher_qualification', 'urban_and_rural_planner', 'veterinary_medicine'],
       "mmmu": ["Accounting"],
       "mathvision": ["default"],
+      "olympiadbench":  ["OE_MM_maths_en_COMP", "OE_MM_maths_zh_CEE", "OE_MM_maths_zh_COMP","OE_MM_physics_en_COMP", "OE_MM_physics_zh_CEE", "OE_TO_maths_en_COMP","OE_TO_maths_zh_CEE", "OE_TO_maths_zh_COMP", "OE_TO_physics_en_COMP","OE_TO_physics_zh_CEE"],
       "mmau": ["MMAU-mini"],
       "mmvu": ["default"],
       }
@@ -35,6 +36,7 @@
       "CEval": 5,
       "mmmu": 5,
       "mathvision": 0,
+      "olympiadbench": 0,
       "mmau": 0,
       "mmvu": 0,
       }
@@ -51,6 +53,7 @@
       "CEval": False,
       "mmmu": False,
       "mathvision": False,
+      "olympiadbench": False,
       "mmau": False,
       "mmvu": False,
       }
@@ -68,7 +71,7 @@
     # Model type ("LM" or "MM")
     model_type: "MM"
     # Chat template
-    chat_template: Llava
+    chat_template: Qwen2-VL
   infer_cfgs:
     # Inference backend
     infer_backend: "vllm"

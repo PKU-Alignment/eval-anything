@@ -37,6 +37,7 @@ BENCHMARK_MODALITY_MAP = {
     'beavertails': 'text_to_text',
     'mmmu': 'text_image_to_text',
     'mathvision': 'text_image_to_text',
+    'olympiadbench': 'text_image_to_text',
 }
 
 class MultiChoicePromptBuilder():

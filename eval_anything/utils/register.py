@@ -69,3 +69,20 @@ class MMDatasetRegistry:
         if name not in cls._registry:
             raise ValueError(f"Dataset '{name}' is not registered!")
         return cls._registry[name]
+
+class MMDataManagerRegistry:
+    _registry = {}
+
+    @classmethod
+    def register(cls, name: str):
+        def decorator(mm_data_manager_cls):
+            cls._registry[name] = mm_data_manager_cls
+            mm_data_manager_cls._registered_name = name
+            return mm_data_manager_cls
+        return decorator
+    
+    @classmethod
+    def get_mm_data_manager(cls, name: str):
+        if name not in cls._registry:
+            raise ValueError(f"DataManager '{name}' is not registered!")
+        return cls._registry[name]

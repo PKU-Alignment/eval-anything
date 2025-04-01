@@ -30,28 +30,6 @@ from .version import (
     check_version_compatibility
 )
 
-USAGE = (
-    "-" * 75 + "\n"
-    + "| Usage: " + " " * 65 + "|\n"
-    + "| eval-anything-cli eval <config_file>: evaluate models with config file " + " " * 1 + "|\n"
-    + "| eval-anything-cli clean: clean all evaluation results " + " " * 18 + "|\n"
-    + "| eval-anything-cli env: show environment info " + " " * 27 + "|\n"
-    + "| eval-anything-cli version: show version info " + " " * 27 + "|\n"
-    + "-" * 75
-)
-
-WELCOME = (
-    "-" * 70 + "\n"
-    + f"| Welcome to Eval-Anything {get_version_string()}"
-    + " " * (42 - len(get_version_string())) + "|\n"
-    + "|" + " " * 68 + "|\n"
-    + f"| Author: {get_version_info()['author']}"
-    + " " * (59 - len(get_version_info()['author'])) + "|\n"
-    + f"| License: {get_version_info()['license']}"
-    + " " * (58 - len(get_version_info()['license'])) + "|\n"
-    + "-" * 70
-)
-
 @unique
 class Command(str, Enum):
     EVAL = "eval"
@@ -92,27 +70,34 @@ def create_usage_table() -> Table:
         show_header=True,
         header_style="bold magenta",
         border_style="blue",
-        title="[bold]Available Commands"
+        title="[bold]Available Commands",
+        width=90,
+        padding=(0,1)
     )
     
-    table.add_column("Command", style="cyan", justify="left")
-    table.add_column("Description", style="green", justify="left")
-    table.add_column("Usage", style="yellow", justify="left")
+    table.add_column("Command", style="cyan", justify="left", width=10)
+    table.add_column("Description", style="green", justify="left", width=20)
+    table.add_column("Usage", style="yellow", justify="left", width=60)
     
     table.add_row(
         "eval",
         "Evaluate models",
-        "eval-anything-cli eval [config_file]"
+        "eval-anything-cli eval <config_file>"
     )
     table.add_row(
         "clean",
         "Clean cache",
-        "eval-anything-cli clean [--all]"
+        "eval-anything-cli clean <optional:cache_dir>"
     )
     table.add_row(
         "version",
         "Show version",
         "eval-anything-cli version"
+    )
+    table.add_row(
+        "help",
+        "Show help",
+        "eval-anything-cli help"
     )
     
     return table
@@ -149,13 +134,6 @@ def run_eval(config_path: Optional[str] = None):
     process = subprocess.run(cmd)
     sys.exit(process.returncode)
 
-def show_env_info():
-    print("-" * 70)
-    print("Environment Information:")
-    print(f"Python version: {sys.version}")
-    # TODO: add more info
-    print("-" * 70)
-
 def clean_cache(cache_dir: str="cache"):
     cache_dir = os.path.join(os.getcwd(), cache_dir)
     if os.path.exists(cache_dir):
@@ -165,17 +143,10 @@ def clean_cache(cache_dir: str="cache"):
     else:
         print(f"Cache folder not found: {cache_dir}")
 
-def show_version_info():
-    """Show detailed version information."""
-    print(WELCOME)
-    # Change the version to the latest version here
-    if not check_version_compatibility('0.0.1'):
-        print("Current version might not be compatible with latest features")
-
 def main():
     if len(sys.argv) == 1:
         show_welcome()
-        console.print()  # 空行
+        console.print()
         show_usage()
         return
 
@@ -201,7 +172,6 @@ def main():
         elif command == Command.VER:
             show_welcome()
             
-            # 版本兼容性检查
             if not check_version_compatibility('0.0.1'):
                 show_warning("Current version might not be compatible with latest features")
 
@@ -209,7 +179,7 @@ def main():
             show_welcome()
             console.print()
             show_usage()
-
+ 
         else:
             show_error(f"Unknown command: {command}")
             console.print()

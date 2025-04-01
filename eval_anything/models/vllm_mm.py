@@ -2,16 +2,14 @@
 (multi-modal)支持vllm推理
 """
 
-from PIL import Image
 from typing import Any, Dict, List
 
 from vllm import LLM, SamplingParams
 from vllm.utils import cuda_device_count_stateless
 
 from eval_anything.utils.data_type import InferenceInput, InferenceOutput
-from eval_anything.utils.register import TemplateRegistry
+from eval_anything.utils.register import TemplateRegistry, MMDataManagerRegistry
 from eval_anything.models.base_model import BaseModel
-from eval_anything.utils.mm_data_manager import ImageManager
 from transformers import AutoProcessor
 
 class vllmMM(BaseModel):
@@ -63,7 +61,7 @@ class vllmMM(BaseModel):
             tensor_parallel_size=self.llm_tensor_parallel_size,
             gpu_memory_utilization=self.llm_gpu_memory_utilization,
             # TODO: Add parameters for limit_mm_per_prompt
-            limit_mm_per_prompt={"image": 8},
+            limit_mm_per_prompt={"image": 8, "audio": 8, "video": 8},
         )
         self.processor = AutoProcessor.from_pretrained(self.model_name_or_path)
 
@@ -79,17 +77,19 @@ class vllmMM(BaseModel):
         Internal method to handle generation logic using the model.
         Processes input list and returns inference outputs.
         """
-
-        # TODO： Generalize the generation process for different modalities
     
         vllm_inputs = []
         for input in input_list:
             prompt = self.processor.apply_chat_template(input.conversation, add_generation_prompt=True)
-            images = ImageManager.extract_images_from_conversation(input.conversation)
-            vllm_inputs.append({
-                "prompt": prompt,
-                "multi_modal_data": {'image': images},
-            })
+            mm_data_manager = MMDataManagerRegistry.get_mm_data_manager(input.metadata)
+            mm_data, mm_processor_kwargs = mm_data_manager.extract_from_conversation(input.conversation)
+            vllm_inputs.append(
+                {
+                    "prompt": prompt,
+                    "multi_modal_data": {f"{input.metadata}": mm_data},
+                    "mm_processor_kwargs": mm_processor_kwargs,
+                }
+            )
             
         outputs = self.model.generate(
             prompts=vllm_inputs, sampling_params=self.samplingparams
@@ -105,4 +105,4 @@ class vllmMM(BaseModel):
     
     # TODO
     def shutdown_model(self):
-        pass
+        pass    

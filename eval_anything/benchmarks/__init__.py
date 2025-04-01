@@ -13,6 +13,8 @@ benchmark_modules = [
     "benchmarks.text_image_to_text.mmmu.eval",
     "benchmarks.text_image_to_text.mathvision.eval",
     "benchmarks.text_image_to_text.olympiadbench.eval",
+    "benchmarks.text_audio_to_text.mmau.eval",
+    "benchmarks.text_video_to_text.mmvu.eval",
 ]
 
 for module in benchmark_modules:

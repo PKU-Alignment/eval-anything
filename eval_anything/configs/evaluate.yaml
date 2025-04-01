@@ -20,6 +20,8 @@
       "mmmu": ["Accounting"],
       "mathvision": ["default"],
       "olympiadbench":  ["OE_MM_maths_en_COMP", "OE_MM_maths_zh_CEE", "OE_MM_maths_zh_COMP","OE_MM_physics_en_COMP", "OE_MM_physics_zh_CEE", "OE_TO_maths_en_COMP","OE_TO_maths_zh_CEE", "OE_TO_maths_zh_COMP", "OE_TO_physics_en_COMP","OE_TO_physics_zh_CEE"],
+      "mmau": ["MMAU-mini"],
+      "mmvu": ["default"],
       }
     # Num shot
     n_shot: {
@@ -35,6 +37,8 @@
       "mmmu": 5,
       "mathvision": 0,
       "olympiadbench": 0,
+      "mmau": 0,
+      "mmvu": 0,
       }
     # Chain of thought
     cot: {
@@ -50,6 +54,8 @@
       "mmmu": False,
       "mathvision": False,
       "olympiadbench": False,
+      "mmau": False,
+      "mmvu": False,
       }
     # Visualization
     visualization:

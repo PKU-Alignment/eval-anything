@@ -5,29 +5,19 @@ TODO
     - 代码鲁棒性
     - logger
 """
-from abc import ABC, abstractmethod
+from abc import ABC
 import os
-import hashlib
 import importlib
 import json
-import yaml
-from typing import Dict, List
 from collections import namedtuple
 import gradio as gr
 import pandas as pd
 
-# Third-party imports
-# from vllm.sequence import Logprob
-# from vllm.sequence import RequestOutput
-
-# Local imports
 from eval_anything.utils.logger import EvalLogger
 from eval_anything.models.base_model import MODEL_MAP, CLASS_MAP
-from eval_anything.evaluate_tools.t2t_tools import *
-import eval_anything.evaluate_tools.t2t_tools as T2T_TOOLS
 from eval_anything.utils.utils import (
     read_cfgs_from_yaml, update_dict, 
-    custom_cfgs_to_dict, BENCHMARK_MODALITY_MAP, pair_data_via_uuid,
+    custom_cfgs_to_dict, 
     dict_to_namedtuple, namedtuple_to_dict
 )
 from eval_anything.utils.cache_manager import CacheManager
@@ -94,7 +84,13 @@ class BaseTask(ABC):
         overall_results = {}
         for benchmark_name, task_list in self.benchmark_dict.items():
             benchmark_evaluator = BenchmarkRegistry.get_benchmark(benchmark_name)(self.model, self.eval_cfgs, self.model_cfgs, self.infer_cfgs, self.output_path, self.cache_manager, self.logger)
-            evaluation_details, evaluation_results, overall_result = benchmark_evaluator.run(task_list)
+            benchmark_evaluator.logger.log('info', f'Evaluating {benchmark_name}...')
+            
+            inference_inputs = benchmark_evaluator.to_InferenceInput(task_list)
+            inference_outputs = benchmark_evaluator.to_InferenceOutput(inference_inputs)
+            evaluation_details, evaluation_results, overall_result = benchmark_evaluator.to_EvaluationResult(task_list, inference_outputs)
+            
+            benchmark_evaluator.save_benchmark_details(self.output_path, benchmark_name, inference_inputs, evaluation_details)
             self.results[benchmark_name] = evaluation_results
             overall_results[benchmark_name] = overall_result
         self.display_task_results(overall_results)

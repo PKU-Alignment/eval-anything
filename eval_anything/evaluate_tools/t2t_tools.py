@@ -3,31 +3,16 @@ Evaluation tools package (including calculation of various metrics and extractio
 """
 from abc import ABC, abstractmethod
 from eval_anything.evaluate_tools.base_tools import BaseTool
+from eval_anything.utils.register import AnswerExtractorRegistry, JudgeRegistry
 from typing import Union, List, Iterable, Optional
-from latex2sympy2 import latex2sympy
+#from latex2sympy2 import latex2sympy
 from math import *
 import numpy as np
 import re
 
-T2T_EXTRACTOR_MAP = {
-    "regex_match_number": "RegexMatchNumber",
-    "regex_match_letter": "RegexMatchLetter",
-    "regex_match_multi_letter": "RegexMatchMultiLetter",
-    "regex_match_code": "RegexMatchCode",
-    "regex_match_math": "RegexMatchMath",
-    "regex_match_multi_open": "RegexMatchMultiOpen",
-    "regex_match_latex_math" : "RegexMatchLatexMath"
-}
+###### Answer Extractor ######
 
-T2T_JUDGER_MAP = {
-    "judge_equal": "JudgeEqual",
-    "judge_equal_list": "JudgeEqualList",
-    "judge_latex_equal":"JudgeLatexEqual",
-    "judge_mc1": "JudgeMC1",
-    "judge_mc2": "JudgeMC2",
-}
-
-
+@AnswerExtractorRegistry.register("regex_match")
 class RegexMatch(BaseTool):
     def __init__(self, pattern: str, match_index: int = None):
         self.pattern = pattern
@@ -55,10 +40,10 @@ class RegexMatch(BaseTool):
         matches = [match_text(item) for item in data]
         return matches
     
-    def __call__(self, data: Union[List, Iterable]) -> Union[List, None]:
+    def __call__(self, data: Union[List[str], Iterable[str]]) -> List[Union[str, None]]:
         return self.apply(data)
     
-
+@AnswerExtractorRegistry.register("regex_match_number")
 class RegexMatchNumber(RegexMatch):
     def __init__(self, additional_pattern: str = None, match_index: int = None):
         pattern_match_number = r"(?:[+-]?(?:\d+/\d+|(?:\d*\.\d+)|\d+)|√(?:\([+-]?(?:\d+/\d+|(?:\d*\.\d+)|\d+)\)|[+-]?(?:\d+/\d+|(?:\d*\.\d+)|\d+)))"
@@ -78,7 +63,8 @@ class RegexMatchNumber(RegexMatch):
 
     def __call__(self, data: Union[List[str], Iterable[str]]) -> List[Union[str, None]]:
         return self.apply(data)
-        
+
+@AnswerExtractorRegistry.register("regex_match_text")
 class RegexMatchText(RegexMatch):   
     def __init__(self, additional_pattern: str = None, match_index: int = None):
         # Pattern to match single letter answers A, B, C, D (case insensitive)
@@ -98,152 +84,7 @@ class RegexMatchText(RegexMatch):
         # Convert matched letters to uppercase for consistency
         return [match.upper() if match else None for match in matches]
 
-class JudgeEqual(BaseTool):
-    def __init__(self):
-        super().__init__()
-    
-    def apply(self, data_1, data_2) -> bool:
-            return data_1 == data_2
-    
-    def __call__(self, data_1, data_2) -> bool:
-        return self.apply(data_1, data_2)
-    
-class JudgeEqualList(BaseTool):
-    def __init__(self):
-        super().__init__()
-
-    def apply(self, data_1, data_2) -> bool:
-        """Compare model answer list with ground truth
-        
-        Args:
-            data_1: Model answer list
-            data_2: Ground truth (str representing float, list of str, or str)
-            
-        Returns:
-            bool: True if any ground truth matches any answer in model's list
-        """
-        if data_1 is None:
-            return False
-        
-        try:
-            gold_answer = eval(data_2)
-        except:
-            gold_answer = data_2
-
-        if isinstance(gold_answer, list):
-            correct = False
-            for gold_answer_i in gold_answer:
-                for pred_answer in data_1:
-                    if isinstance(pred_answer, str):
-                        if isinstance(gold_answer_i, str):
-                            if gold_answer_i in pred_answer:
-                                correct = True
-                                break
-                    else:
-                        try:
-                            gold_answer_i = float(gold_answer_i)
-                        except:
-                            gold_answer_i = gold_answer_i
-                        if gold_answer_i == pred_answer:
-                            correct = True
-                            break
-            return correct
-        else:
-            return gold_answer in data_1
-
-    def __call__(self, data_1, data_2) -> bool:
-        return self.apply(data_1, data_2)
-    
-    
-# refer: https://github.com/mathllm/MATH-V/blob/main/evaluation/utils.py
-class JudgeLatexEqual(BaseTool):
-    def __init__(self):
-        super().__init__()
-
-
-    def apply(self, data_1, data_2) -> bool:
-        def eval_tuple(s):
-            """
-            Evaluates the mathematical expressions within tuples or lists represented as strings.
-            
-            Args:
-                s (str): The string representation of a tuple or list.
-                         E.g., "(a,b,c,...)" or "[a,b,c,...]"
-            
-            Returns:
-                str: A string representation of the tuple or list with evaluated expressions.
-                     Returns the original string if it doesn't match the expected format or if an error occurs.
-            
-            Example:
-                eval_tuple("(2*3, 5+2)") -> "(6,7)"
-            
-            Note:
-                This function relies on the latex2sympy function which is assumed to be defined elsewhere in the code.
-            """
-            sl = s[1:-1].split(',')
-            
-            try:
-                if s[0] == '(' and s[-1] == ')' and len(sl) > 1:
-                    s = ','.join([str(round(eval(str(latex2sympy(sub))),2)) 
-                                  if 'infty' not in sub and sub not in ['a', '-a'] else sub for sub in sl])
-                    return f"({s})"
-                
-                elif s[0] == '[' and s[-1] == ']' and len(sl) > 1:
-                    s = ','.join([str(round(eval(str(latex2sympy(sub))),2)) 
-                                  if 'infty' not in sub and sub not in ['a', '-a'] else sub for sub in sl])
-                    return f"[{s}]"
-            
-            except Exception: 
-                return s
-            
-            return s
-
-        def is_equal(asw: str, gt_asw: str) -> bool:
-            """
-            Judge if `asw` is equivalent to `gt_asw`.
-
-            This function checks if the given answers are equivalent, considering
-            various scenarios such as tuples, lists separated by commas, and
-            mathematical equivalence in LaTeX format.
-
-            Args:
-                asw (str): The answer string to be checked.
-                gt_asw (str): The ground truth answer string to be matched against.
-
-            Returns:
-                bool: True if the answers are equivalent, otherwise False.
-
-            """
-            asw = asw.lower()
-            gt_asw = gt_asw.lower()
-            
-            if asw.replace(' ', '') == '' or gt_asw.replace(' ', '') == '':
-                return False
-
-            if gt_asw.strip() == asw.strip():
-                return True
-           
-            asw = eval_tuple(asw)
-            gt_asw = eval_tuple(gt_asw)
-
-            if gt_asw == asw:
-                return True
-
-            try:
-                # Convert LaTeX format to a sympy expression and evaluate both expressions.
-                # If the evaluated results are close enough (up to 2 decimal places), return True.
-                if round(eval(str(latex2sympy(gt_asw))), 2) == round(eval(str(latex2sympy(asw))), 2):
-                    return True
-                else:
-                    return False
-            except:
-                return False
-        
-        return is_equal(data_1, data_2)
-    
-    def __call__(self, data_1, data_2) -> bool:
-        return self.apply(data_1, data_2)
-
+@AnswerExtractorRegistry.register("regex_match_letter")
 class RegexMatchLetter(RegexMatch):
     def __init__(self, additional_pattern: str = None, match_index: int = None):
         # Base pattern to match letters in parentheses (A-Z)
@@ -267,27 +108,7 @@ class RegexMatchLetter(RegexMatch):
         matches = [match_text(item) for item in data]
         return matches
 
-class RegexMatchMultiLetter(RegexMatch):
-    def __init__(self, additional_pattern: str = None, match_index: int = None):
-        pattern_match_letter = r"\(([A-Za-z])\)"
-        self.pattern = additional_pattern.format(original_pattern=pattern_match_letter) if additional_pattern else pattern_match_letter
-        self.match_index = match_index
-
-    def apply(self, data: Union[List, Iterable]) -> Union[List, None]:
-        def match_text(text):
-            import re
-            pattern = re.compile(self.pattern, re.IGNORECASE)
-            match = list(pattern.finditer(text))
-            if match:
-                if self.match_index is not None:
-                    return [match[self.match_index].group(1).upper()]
-                else:
-                    return [match.group(1).upper()]
-            else:
-                return None
-        matches = [match_text(item) for item in data]
-        return matches
-    
+@AnswerExtractorRegistry.register("regex_match_code")
 class RegexMatchCode(RegexMatch):
     def __init__(self, additional_pattern: str = None, match_index: int = None, language: str = "python"):
         # Pattern to match code blocks between ```python ``` or ``` ```
@@ -341,6 +162,8 @@ class RegexMatchCode(RegexMatch):
         matches = [match_text(item) for item in data]
         return matches
 
+# refer: https://github.com/MMMU-Benchmark/MMMU/blob/main/mmmu/main_parse_and_eval.py
+@AnswerExtractorRegistry.register("regex_match_multi_open")
 class RegexMatchMultiOpen(RegexMatch):
     """
     Handle multi-choice and open-ended mixed tasks.
@@ -490,6 +313,7 @@ class RegexMatchMultiOpen(RegexMatch):
         return self.apply(data)
     
 # refer: https://github.com/mathllm/MATH-V/blob/main/evaluation/utils.py
+@AnswerExtractorRegistry.register("regex_match_latex_math")
 class RegexMatchLatexMath(RegexMatch):
     """
     Handle multi-choice and open-ended mixed tasks in Latex format.
@@ -653,31 +477,155 @@ class RegexMatchLatexMath(RegexMatch):
     def __call__(self, data: Union[List, Iterable]) -> Union[List, None]:
         return self.apply(data)
 
-    
-    
-class JudgeMC1(BaseTool):
+
+###### Judge Methods ######
+
+@JudgeRegistry.register("judge_equal")
+class JudgeEqual(BaseTool):
     def __init__(self):
         super().__init__()
     
-    def apply(self, scores, best_answer_index) -> bool:
-        return True if scores['scores_true'][best_answer_index] > max(scores['scores_false']) else False
+    def apply(self, data_1, data_2) -> bool:
+            return data_1 == data_2
     
-    def __call__(self, scores, best_answer_index) -> bool:
-        return self.apply(scores, best_answer_index)
-    
-class JudgeMC2(BaseTool):
+    def __call__(self, data_1, data_2) -> bool:
+        return self.apply(data_1, data_2)
+
+# refer: https://github.com/MMMU-Benchmark/MMMU/blob/main/mmmu/main_eval_only.py
+@JudgeRegistry.register("judge_equal_list")
+class JudgeEqualList(BaseTool):
     def __init__(self):
         super().__init__()
 
-    def apply(self, scores):
-        scores_true = scores['scores_true']
-        scores_false = scores['scores_false']
-
-        probs_true = np.exp(scores_true)
-        probs_false = np.exp(scores_false)
-        probs_true = probs_true / (sum(probs_true) + sum(probs_false))
+    def apply(self, data_1, data_2) -> bool:
+        """Compare model answer list with ground truth
         
-        return sum(probs_true)
+        Args:
+            data_1: Model answer list
+            data_2: Ground truth (str representing float, list of str, or str)
+            
+        Returns:
+            bool: True if any ground truth matches any answer in model's list
+        """
+        if data_1 is None:
+            return False
+        
+        try:
+            gold_answer = eval(data_2)
+        except:
+            gold_answer = data_2
 
-    def __call__(self, scores):
-        return self.apply(scores)
+        if isinstance(gold_answer, list):
+            correct = False
+            for gold_answer_i in gold_answer:
+                for pred_answer in data_1:
+                    if isinstance(pred_answer, str):
+                        if isinstance(gold_answer_i, str):
+                            if gold_answer_i in pred_answer:
+                                correct = True
+                                break
+                    else:
+                        try:
+                            gold_answer_i = float(gold_answer_i)
+                        except:
+                            gold_answer_i = gold_answer_i
+                        if gold_answer_i == pred_answer:
+                            correct = True
+                            break
+            return correct
+        else:
+            return gold_answer in data_1
+
+    def __call__(self, data_1, data_2) -> bool:
+        return self.apply(data_1, data_2)
+    
+    
+# refer: https://github.com/mathllm/MATH-V/blob/main/evaluation/utils.py
+@JudgeRegistry.register("judge_latex_equal")
+class JudgeLatexEqual(BaseTool):
+    def __init__(self):
+        super().__init__()
+
+
+    def apply(self, data_1, data_2) -> bool:
+        def eval_tuple(s):
+            """
+            Evaluates the mathematical expressions within tuples or lists represented as strings.
+            
+            Args:
+                s (str): The string representation of a tuple or list.
+                         E.g., "(a,b,c,...)" or "[a,b,c,...]"
+            
+            Returns:
+                str: A string representation of the tuple or list with evaluated expressions.
+                     Returns the original string if it doesn't match the expected format or if an error occurs.
+            
+            Example:
+                eval_tuple("(2*3, 5+2)") -> "(6,7)"
+            
+            Note:
+                This function relies on the latex2sympy function which is assumed to be defined elsewhere in the code.
+            """
+            sl = s[1:-1].split(',')
+            
+            try:
+                if s[0] == '(' and s[-1] == ')' and len(sl) > 1:
+                    s = ','.join([str(round(eval(str(latex2sympy(sub))),2)) 
+                                  if 'infty' not in sub and sub not in ['a', '-a'] else sub for sub in sl])
+                    return f"({s})"
+                
+                elif s[0] == '[' and s[-1] == ']' and len(sl) > 1:
+                    s = ','.join([str(round(eval(str(latex2sympy(sub))),2)) 
+                                  if 'infty' not in sub and sub not in ['a', '-a'] else sub for sub in sl])
+                    return f"[{s}]"
+            
+            except Exception: 
+                return s
+            
+            return s
+
+        def is_equal(asw: str, gt_asw: str) -> bool:
+            """
+            Judge if `asw` is equivalent to `gt_asw`.
+
+            This function checks if the given answers are equivalent, considering
+            various scenarios such as tuples, lists separated by commas, and
+            mathematical equivalence in LaTeX format.
+
+            Args:
+                asw (str): The answer string to be checked.
+                gt_asw (str): The ground truth answer string to be matched against.
+
+            Returns:
+                bool: True if the answers are equivalent, otherwise False.
+
+            """
+            asw = asw.lower()
+            gt_asw = gt_asw.lower()
+            
+            if asw.replace(' ', '') == '' or gt_asw.replace(' ', '') == '':
+                return False
+
+            if gt_asw.strip() == asw.strip():
+                return True
+           
+            asw = eval_tuple(asw)
+            gt_asw = eval_tuple(gt_asw)
+
+            if gt_asw == asw:
+                return True
+
+            try:
+                # Convert LaTeX format to a sympy expression and evaluate both expressions.
+                # If the evaluated results are close enough (up to 2 decimal places), return True.
+                if round(eval(str(latex2sympy(gt_asw))), 2) == round(eval(str(latex2sympy(asw))), 2):
+                    return True
+                else:
+                    return False
+            except:
+                return False
+        
+        return is_equal(data_1, data_2)
+    
+    def __call__(self, data_1, data_2) -> bool:
+        return self.apply(data_1, data_2)

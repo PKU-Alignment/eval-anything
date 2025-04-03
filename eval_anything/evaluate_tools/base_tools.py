@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from eval_anything.utils.logger import EvalLogger
 
+prompt_builder_logger = EvalLogger(name="PromptBuilderLogger")
 metric_logger = EvalLogger(name="MetricLogger")
 tool_logger = EvalLogger(name="ToolLogger")
 mm_data_manager_logger = EvalLogger(name="MMDataManagerLogger")
@@ -30,6 +31,16 @@ class BaseMetric(ABC):
     
     def __call__(self, **kwargs):
         return self.calculate(**kwargs)
+
+class PromptBuilder(ABC):
+    def __init__(self, **kwargs) -> None:
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        self.logger = prompt_builder_logger
+        
+    @abstractmethod
+    def build_prompt(self, **kwargs):
+        pass
 
 class BaseMMDataManager(ABC):
     def __init__(self, **kwargs) -> None:

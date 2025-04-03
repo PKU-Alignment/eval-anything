@@ -17,8 +17,6 @@ from openai.types.chat.chat_completion import ChatCompletion
 from vllm.outputs import RequestOutput
 from vllm.sequence import PromptLogprobs
 from enum import Enum
-from eval_anything.evaluate_tools.t2t_tools import T2T_JUDGER_MAP
-import eval_anything.evaluate_tools.t2t_tools as T2T_TOOLS
 import numpy as np
 from eval_anything.utils.uuid import UUIDGenerator
 
@@ -143,6 +141,7 @@ class InferenceOutput:
         mm_data: The multi-modal data of the request.
     """
     task: str    
+    ref_answer: str | int 
     uuid: str
     engine: str
     response: str
@@ -157,6 +156,7 @@ class InferenceOutput:
     def __init__(
         self,
         task: str,
+        ref_answer: str | int,
         uuid: str,
         response: str,
         engine: str = 'hand',
@@ -166,6 +166,7 @@ class InferenceOutput:
     ):
         self.engine = engine
         self.task = task
+        self.ref_answer = ref_answer
         self.uuid = uuid
         self.response = response
         self.response_token_ids = response_token_ids
@@ -174,11 +175,12 @@ class InferenceOutput:
 
     @classmethod
     def from_vllm_output(
-        cls, task, uuid, vllm_output: RequestOutput, store_raw: bool = False
+        cls, task, ref_answer, uuid, vllm_output: RequestOutput, store_raw: bool = False
     ):
         return cls(
             engine='vllm',
             task=task,
+            ref_answer=ref_answer,
             uuid=uuid,
             response=[output.text for output in vllm_output.outputs],
             response_token_ids=[output.token_ids for output in vllm_output.outputs],

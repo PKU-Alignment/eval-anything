@@ -1,13 +1,10 @@
 import re
 from eval_anything.utils.register import MMDatasetRegistry, MMDataManagerRegistry
-from eval_anything.utils.data_type import InferenceInput, MultiModalData
-from eval_anything.utils.utils import MultiChoicePromptBuilder, DialoguePromptBuilder
-from eval_anything.dataloader.base_dataloader import TASK_TYPE_MAP
+from eval_anything.utils.data_type import InferenceInput
 from datasets import Dataset
 from typing import List
 from collections import namedtuple
 from tqdm import tqdm
-import eval_anything.utils.mm_data_manager  
 
 class BaseMMDataset:
     def __init__(self, bench_cfgs: namedtuple, task: namedtuple, enable_cot: bool, num_shot: int):
@@ -25,23 +22,6 @@ class BaseMMDataset:
                 "candidate_answers": item[self.task.answer_key],
                 "ground_truth": item[self.task.ground_truth_key]
             })        
-
-    def build_multi_choice_prompt(self, item: dict):
-        self.prompt_builder = MultiChoicePromptBuilder(
-            candidate_labels=self.task.candidate_labels,
-            few_shot_examples=self.few_shot_examples,
-            cot=self.enable_cot
-        )
-        prompt = self.prompt_builder.build_prompt(item[self.task.question_key], item[self.task.answer_key])
-        return prompt
-
-    def build_dialogue_prompt(self, item: dict):
-        self.prompt_builder = DialoguePromptBuilder(
-            few_shot_examples=self.few_shot_examples,
-            cot=self.enable_cot
-        )
-        prompt = self.prompt_builder.build_prompt(item[self.task.question_key], item[self.task.answer_key])
-        return prompt
     
     def _to_InferenceInput(self, dataset: Dataset):
         pass

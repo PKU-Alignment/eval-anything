@@ -20,11 +20,12 @@ from typing import Any, Dict, List
 from collections import namedtuple
 from datasets import load_dataset
 
-from eval_anything.dataloader.base_dataloader import BaseDataLoader, TASK_TYPE_MAP
-from eval_anything.utils.register import MMDatasetRegistry
+from eval_anything.dataloader.base_dataloader import BaseDataLoader
+from eval_anything.utils.register import MMDatasetRegistry, DataloaderRegistry
 from eval_anything.utils.data_type import InferenceInput
 from eval_anything.utils.utils import get_project_root
 
+@DataloaderRegistry.register('MMDataLoader')
 class MMDataLoader(BaseDataLoader):
     
     def load_dataset(self, task_list: list[str]) -> Dict[str, List[InferenceInput]]:

@@ -127,6 +127,7 @@ answer_extractor:
     function: regex_match_multi_open
     args:
       match_index: -1   # Index for multiple choice
+judge_method: judge_equal_list
 metrics:
   - name: accuracy
     function: accuracy

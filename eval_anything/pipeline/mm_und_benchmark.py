@@ -20,14 +20,16 @@ from typing import Dict, List
 from eval_anything.utils.data_type import InferenceInput
 from eval_anything.utils.utils import pair_data_via_uuid
 from collections import namedtuple
-from eval_anything.utils.register import BenchmarkRegistry, MMDatasetRegistry
+from eval_anything.utils.register import BenchmarkRegistry, MMDatasetRegistry, DataloaderRegistry
 from eval_anything.utils.logger import EvalLogger
 
 @BenchmarkRegistry.register("mm_und")
 class MMUndBenchmark(BaseBenchmark):
     def init_dataloader(self, eval_cfgs: namedtuple, benchmark_cfgs: namedtuple):
-        dataset = MMDataLoader(eval_cfgs, benchmark_cfgs, self.logger)
-        return dataset
+        if hasattr(benchmark_cfgs.dataset, 'dataloader') and benchmark_cfgs.dataset.dataloader:
+            return DataloaderRegistry.get_dataloader(benchmark_cfgs.dataset.dataloader)(eval_cfgs, benchmark_cfgs, self.logger)
+        else:
+            return MMDataLoader(eval_cfgs, benchmark_cfgs, self.logger)
 
     def save_benchmark_details(self, save_path: str, benchmark_name: str, inputs: Dict[str, List[InferenceInput]], results: Dict[str, List[EvaluationResult]]):
         """Save evaluation result and config file of single benchmark.

@@ -95,7 +95,7 @@ class vllmLM(BaseModel):
             prompts=prompts, sampling_params=self.samplingparams
         )
         inference_outputs = [
-            InferenceOutput.from_vllm_output(task=input.task, uuid=input.uuid, vllm_output=output, store_raw=True)
+            InferenceOutput.from_vllm_output(task=input.task, ref_answer=input.ref_answer, uuid=input.uuid, vllm_output=output, store_raw=True)
             for input, output in zip(input_list, outputs)
         ]
 

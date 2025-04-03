@@ -23,6 +23,7 @@ dataset:
   cot_fewshot_data_split: null
   max_shot: 6
   default_task_list: ["generation"]
+  dataloader: TruthfulQA
 task: 
   - name: generation
     type: DialogueWithAnswer
@@ -40,6 +41,7 @@ answer_extractor:
     args:
       additional_pattern: "{original_pattern}"
       match_index: 0
+judge_method: judge_mc2 # judge_mc1
 metrics:
   - name: mc2
     function: mc2

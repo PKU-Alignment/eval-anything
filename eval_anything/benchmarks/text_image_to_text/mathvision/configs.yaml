@@ -29,16 +29,17 @@ task_defaults: &task_defaults
   answer_key: options
   ground_truth_key: answer
   candidate_labels: ["A", "B", "C", "D", "E"]
-  avalable_evaluate_tools: ["match_multi-choice_and_open-ended"]
+  avalable_evaluate_tools: ["match_latex_math"]
 task: 
   - name: default
     data_files: null
     <<: *task_defaults
 answer_extractor:
-  - name: match_multi-choice_and_open-ended
+  - name: match_latex_math
     function: regex_match_latex_math
     args:
       match_index: -1   # Index for multiple choice
+judge_method: judge_latex_equal
 metrics:
   - name: accuracy
     function: accuracy

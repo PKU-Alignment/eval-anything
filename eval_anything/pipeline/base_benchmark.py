@@ -2,24 +2,35 @@ from abc import ABC, abstractmethod
 from typing import Dict, List
 from collections import namedtuple
 
-# Local imports
 from eval_anything.utils.logger import EvalLogger
 from eval_anything.utils.data_type import InferenceInput, InferenceOutput, EvaluationResult
 from eval_anything.evaluate_tools.metrics import MetricCalculator, OverallMetricCalculator
-from eval_anything.models.base_model import MODEL_MAP, CLASS_MAP
-from eval_anything.evaluate_tools.t2t_tools import *
-import eval_anything.evaluate_tools.t2t_tools as T2T_TOOLS
 from eval_anything.evaluate_tools.metrics import MetricCalculator, OverallMetricCalculator
 from eval_anything.utils.utils import (
-    read_cfgs_from_yaml, update_dict, 
-    custom_cfgs_to_dict, BENCHMARK_MODALITY_MAP, pair_data_via_uuid,
+    read_cfgs_from_yaml, 
+    pair_data_via_uuid,
     dict_to_namedtuple
 )
 from eval_anything.utils.cache_manager import CacheManager
-import eval_anything.evaluate_tools.metrics as Metrics
 from eval_anything.models.base_model import BaseModel
-from eval_anything.utils.register import BenchmarkRegistry
+from eval_anything.utils.register import BenchmarkRegistry, AnswerExtractorRegistry
 
+BENCHMARK_MODALITY_MAP = {
+    'gsm8k': 'text_to_text',
+    'mmlu': 'text_to_text',
+    'truthfulqa': 'text_to_text',
+    'arc': 'text_to_text',
+    'cmmlu': 'text_to_text',
+    'mmlupro': 'text_to_text',
+    'ceval': 'text_to_text',
+    'humaneval': 'text_to_text',
+    'agieval': 'text_to_text',
+    'beavertails': 'text_to_text',
+    'mmmu': 'text_image_to_text',
+    'mathvision': 'text_image_to_text',
+    'mmau': 'text_audio_to_text',
+    'mmvu': 'text_video_to_text',
+}
 
 @BenchmarkRegistry.register("base")
 class BaseBenchmark(ABC):
@@ -41,7 +52,7 @@ class BaseBenchmark(ABC):
         self.cache_manager = cache_manager
         self.enable_cache = True if cache_manager else False
         self.benchmark_name = "base"
-    
+       
     def get_benchmark_cfgs(self, benchmark_name: str) -> dict:
         """Get benchmark configs from yaml file in benchmark folder
         Args:
@@ -55,18 +66,48 @@ class BaseBenchmark(ABC):
         return benchmark_cfgs
 
     @abstractmethod
-    def init_dataloader(self, eval_cfgs: namedtuple, data_cfgs: namedtuple):
+    def init_dataloader(self, eval_cfgs: namedtuple, benchmark_cfgs: namedtuple):
         """Load evaluation dataset
         Args:
             eval_cfgs (namedtuple): evaluation configs
-            data_cfgs (namedtuple): dataset configs
+            benchmark_cfgs (namedtuple): benchmark configs
             logger (EvalLogger): logger
 
         Returns:
             dataloader (BaseDataLoader): dataloader
         """
         pass
-    
+
+    def to_InferenceInput(self, task_list: list[str]) -> dict[str, list[InferenceInput]]:
+        """Convert a task list to a InferenceInput dict instances"""
+        dataloader = self.init_dataloader(self.eval_cfgs, self.benchmark_cfgs)
+        return dataloader.load_dataset(task_list)
+
+    def to_InferenceOutput(self, inference_inputs: dict[str, list[InferenceInput]]) -> dict[str, list[InferenceOutput]]:
+        """Convert a InferenceInput dict instances to a InferenceOutput dict instances"""
+        return self.batch_inference(self.model, inference_inputs)
+
+    def to_EvaluationResult(self, task_list: list[str], inference_outputs: dict[str, list[InferenceOutput]]) -> tuple[dict[str, list[EvaluationResult]], dict[str, dict[str, float]], dict[str, dict[str, float]]]:
+        """Convert a InferenceOutput dict instances to evaluation details, evaluation results, and overall results"""
+        evaluation_details = {}
+        evaluation_results = {}
+        for task in task_list:
+            if self.benchmark_cfgs.judge_method is not None:
+                evaluation_details[task], evaluation_results[task] = self.calculate_metrics(self.benchmark_name, inference_outputs[task], self.benchmark_cfgs.answer_extractor, self.benchmark_cfgs.metrics, self.benchmark_cfgs.judge_method)
+            else:
+                evaluation_details[task], evaluation_results[task] = self.calculate_metrics(self.benchmark_name, inference_outputs[task], self.benchmark_cfgs.answer_extractor, self.benchmark_cfgs.metrics)
+
+        if len(task_list) > 1:
+            overall_result = self.calculate_overall_metrics(self.benchmark_cfgs.overall_metrics, result=evaluation_results)
+        else:
+            overall_result = {}
+            
+        self.display_benchmark_results(self.benchmark_name, evaluation_results)
+        if overall_result != {}:
+            self.display_benchmark_results(self.benchmark_name, overall_result)
+        
+        return evaluation_details, evaluation_results, overall_result
+
     def batch_inference(self, model, input_dict: dict[str, list[InferenceInput]]) -> dict[str, list[InferenceOutput]]:
         # TODO 需要支持多轮
         """Model inference. Support multi-round inference.
@@ -126,38 +167,7 @@ class BaseBenchmark(ABC):
         overall_metric_calculator = OverallMetricCalculator(metric_list)
         return overall_metric_calculator(result)
     
-    def run(self,
-            task_list: list[str]) -> tuple[dict[str, list[EvaluationResult]], dict[str, dict[str, float]], dict[str, dict[str, float]]]:
-        """Run benchmark
-        Args:
-            task_list (list[str]): task list
-            
-        Returns:
-            evaluation_details (dict[str, list[EvaluationResult]]): evaluation details
-            evaluation_results (dict[str, dict[str, float]]): evaluation results
-        """
-        self.logger.log('info', f'Evaluating {self.benchmark_name}...')
-
-        dataloader = self.init_dataloader(self.eval_cfgs, self.benchmark_cfgs)
-        input_data = dataloader.load_dataset(task_list)    # Input_data: list[InferenceInput]
-        inference_outputs = self.batch_inference(self.model, input_data)
-        ref_answers = {task: self.get_ref_answer(input_data[task], inference_outputs[task]) for task in task_list}
-        evaluation_details = {}
-        evaluation_results = {}
-        for task in task_list:
-            evaluation_details[task], evaluation_results[task] = self.calculate_metrics(self.benchmark_name, inference_outputs[task], ref_answers[task], self.benchmark_cfgs.answer_extractor, self.benchmark_cfgs.metrics)
-
-        if len(task_list) > 1:
-            overall_result = self.calculate_overall_metrics(self.benchmark_cfgs.overall_metrics, result=evaluation_results)
-        else:
-            overall_result = {}
-        self.display_benchmark_results(self.benchmark_name, evaluation_results)
-        if overall_result != {}:
-            self.display_benchmark_results(self.benchmark_name, overall_result)
-        self.save_benchmark_details(self.output_path, self.benchmark_name, input_data, evaluation_details)
-        return evaluation_details, evaluation_results, overall_result
-    
-    def calculate_metrics(self, benchmark_name: str, inference_outputs: list[InferenceOutput], ref_answers: list[str], answer_extractors: list[namedtuple], metrics_list: list[dict], judge_method: str = 'judge_equal'):
+    def calculate_metrics(self, benchmark_name: str, inference_outputs: list[InferenceOutput], answer_extractors: list[namedtuple], metrics_list: list[dict], judge_method: str = 'judge_equal'):
         """Calculate metrics
         Args:
             benchmark_name (str): benchmark name
@@ -174,11 +184,14 @@ class BaseBenchmark(ABC):
         extracted_results = {}
         for answer_extractor in answer_extractors:
             if answer_extractor.function is not None:
-                extracted_results[answer_extractor.name] = getattr(T2T_TOOLS, T2T_EXTRACTOR_MAP[answer_extractor.function])(**(answer_extractor.args._asdict())).apply(output_text)
+                extractor_class = AnswerExtractorRegistry.get_extractor(answer_extractor.function)
+                extractor = extractor_class(**(answer_extractor.args._asdict()))
+                extracted_results[answer_extractor.name] = extractor.apply(output_text)
             else:
                 extracted_results[answer_extractor.name] = output_text
         
         evaluation_details = []
+        ref_answers = [item.ref_answer for item in inference_outputs]
         for inference_output, ref_answer, index in zip(inference_outputs, ref_answers, range(len(inference_outputs))):
             extracted_result = {extractor: extracted_results[extractor][index] for extractor in extracted_results.keys()}
             evaluation_details.append(EvaluationResult(benchmark_name, inference_output, extracted_result, ref_answer, inference_output.uuid))

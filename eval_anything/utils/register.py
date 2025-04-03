@@ -86,3 +86,72 @@ class MMDataManagerRegistry:
         if name not in cls._registry:
             raise ValueError(f"DataManager '{name}' is not registered!")
         return cls._registry[name]
+
+class PromptBuilderRegistry:
+    _registry = {}
+
+    @classmethod
+    def register(cls, name: str):
+        def decorator(prompt_builder_cls):
+            cls._registry[name] = prompt_builder_cls
+            prompt_builder_cls._registered_name = name
+            return prompt_builder_cls
+        return decorator
+    
+    @classmethod
+    def get_prompt_builder(cls, name: str):
+        if name not in cls._registry:
+            raise ValueError(f"Prompt builder '{name}' is not registered!")
+        return cls._registry[name]
+
+class DataloaderRegistry:
+    _registry = {}
+
+    @classmethod
+    def register(cls, name: str):
+        def decorator(dataloader_cls):
+            cls._registry[name] = dataloader_cls
+            dataloader_cls._registered_name = name
+            return dataloader_cls
+        return decorator
+    
+    @classmethod
+    def get_dataloader(cls, name: str):
+        if name not in cls._registry:
+            raise ValueError(f"Dataloader '{name}' is not registered!")
+        return cls._registry[name]
+
+class AnswerExtractorRegistry:
+    _registry = {}
+
+    @classmethod
+    def register(cls, name: str):
+        def decorator(extractor_cls):
+            cls._registry[name] = extractor_cls
+            extractor_cls._registered_name = name
+            return extractor_cls
+        return decorator
+    
+    @classmethod
+    def get_extractor(cls, name: str):
+        if name not in cls._registry:
+            raise ValueError(f"Answer extractor '{name}' is not registered!")
+        return cls._registry[name]
+
+class JudgeRegistry:
+    _registry = {}
+
+    @classmethod
+    def register(cls, name: str):
+        def decorator(judge_cls):
+            cls._registry[name] = judge_cls
+            judge_cls._registered_name = name
+            return judge_cls
+        return decorator
+    
+    @classmethod
+    def get_judge(cls, name: str):
+        if name not in cls._registry:
+            raise ValueError(f"Judge method '{name}' is not registered!")
+        return cls._registry[name]
+

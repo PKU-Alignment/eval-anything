@@ -9,16 +9,21 @@ eval-anything/
 │   │   │   └── mmmu/                   # benchmark子文件夹
 │   │   │       ├── mmmu.yaml           # 存储评测集的基本信息，包括数据集路径、size、评测方式、key值...
 │   │   │       └── eval.py             # 评测代码，继承自eval-anything/pipeline下的基类
-│   │   └── text_to_text/
-│   │       └── gsm8k/
-│   │           ├── gsm8k.yaml
+│   │   ├── text_to_text/
+│   │   │   └── gsm8k/
+│   │   │       ├── gsm8k.yaml
+│   │   │       └── eval.py
+│   │   └── text_vision_to_action/
+│   │       └── chores/
+│   │           ├── configs.yaml
 │   │           └── eval.py
 │   ├── configs/                        # 评测参数文件夹
 │   │   └── evaluate.yaml               # 包含了推理参数（top-k, temperature...）、评测参数(cot, few-shot...)
 │   ├── dataloader/                     # 数据集加载与预处理
 │   │   ├── base_dataloader.py          # dataloader基类，继承使用
 │   │   ├── mm_dataloader.py            # 多模态dataloader，支持多模态数据的本地和在线读取，支持数据预处理
-│   │   └── t2t_dataloader.py           # 纯文本dataloader，支持数据加载和预处理
+│   │   ├── t2t_dataloader.py           # 纯文本dataloader，支持数据加载和预处理
+│   │   └── tv2act_dataloader.py        # VLAdataloader，加载测试数据集和测试环境
 │   ├── models/                         # 各模型推理的代码，包含在线api、hf、vllm以及多模态生成模型各自的生成代码
 │   │   ├── base_model.py
 │   │   ├── api.py                      # 在线api访问
@@ -32,6 +37,7 @@ eval-anything/
 │   │   ├── mm_gen_benchmark.py         # 多模态生成任务benchmark
 │   │   ├── mm_und_benchmark.py         # 多模态理解任务benchmark
 │   │   └── t2t_benchmark.py            # t2t任务benchmark
+│   │   └── tv2act_benchmark.py         # tv2act任务benchmark
 │   ├── evaluate_tools/                 # 评测过程中常见的工具包，例如计算各种指标、pattern匹配等
 │   │   ├── base_tools.py               # 评测指标和评测工具的基类
 │   │   ├── metrics.py                  # 各种评测指标的计算 
@@ -45,6 +51,8 @@ eval-anything/
 │       └── template.py                 # chat_template
 ├── scripts/                        # 评测启动脚本文件夹
 │   └── run.sh                      # 评测启动脚本
+├── third_party/                    # 第三方VLA模型代码
+|   └── SPOC
 ├── setup.py
 └── README.md
 ```

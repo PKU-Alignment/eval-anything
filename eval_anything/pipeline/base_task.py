@@ -82,6 +82,7 @@ class BaseTask(ABC):
     def load_model(self, model_cfgs: namedtuple, infer_cfgs: namedtuple):
         backend_type = f"{infer_cfgs.infer_backend}_{model_cfgs.model_type}"
         module_name = f"eval_anything.models.{MODEL_MAP[backend_type]}"
+        
         module = importlib.import_module(module_name)
         model_class = getattr(module, CLASS_MAP[backend_type])
         model = model_class(model_cfgs, infer_cfgs)

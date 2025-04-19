@@ -90,7 +90,7 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 *.ipynb
-
+datasets/
 # IPython
 profile_default/
 ipython_config.py

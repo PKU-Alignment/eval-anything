@@ -39,6 +39,7 @@ BENCHMARK_MODALITY_MAP = {
     'mathvision': 'text_image_to_text',
     'mmau': 'text_audio_to_text',
     'mmvu': 'text_video_to_text',
+    'chores' : 'text_vision_to_action'
 }
 
 class MultiChoicePromptBuilder():

@@ -1,0 +1,32 @@
+data_cfgs:
+  dataset_path: /root/eval-anything/datasets
+  house_assets_path: /root/data/houses/objaverse_houses/houses_2023_07_28
+  shuffle: true
+  eval_subset: minival
+  seed: 123
+
+model_cfgs:
+  model: EarlyFusionCnnTransformer
+  ckpt_pth: /root/eval-anything/output/spoc_model
+  model_input_sensors:
+    - raw_navigation_camera
+    - raw_manipulation_camera
+    - last_actions
+    - an_object_is_in_hand
+  model_version: small_3
+  loss: action
+
+infer_cfgs:
+  max_eps_len: 600
+  eval_set_size: 200
+  gpu_devices: [0]
+  gpu_device: 0
+  task_type: ObjectNavType
+  skip_done: false
+  sampling: sample
+
+
+metrics:
+  logging_sensor: VideoLogging
+
+output_path: /root/eval-anything/output

@@ -50,7 +50,7 @@
 1. 在`benchmarks`文件夹下进行相关文件夹创建
     - 配置参数文件 `configs.yaml`，[参考示例](eval_anything/benchmarks/text_to_text/gsm8k/configs.yaml)
     - 评测代码 `eval.py`: 继承自benchmark基类进行开发
-2. 如有新的metric以及evaluate_tools请在`evaluate_tools`下进行新增
+2. 如有新的metric以及evaluate_tools请在新增的benchmark子文件夹下新增`metrics.py`和`tools.py`并分别进行register，[参考示例](eval-anything/eval_anything/benchmarks/text_to_text/TruthfulQA)
 3. 在`eval_anything/configs/evaluate.yaml`文件夹下进行评测任务配置
 4. 运行`eval_anything/scripts/run.sh`进行测试
 

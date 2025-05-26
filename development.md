@@ -45,16 +45,18 @@
 
 - `mm_data_manager`: 实现了各类模态数据的格式转换与conversation编制
 
-## 开发指南
+## 通用开发指南
 
 1. 在`benchmarks`文件夹下进行相关文件夹创建
-    - 配置参数文件 `configs.yaml`
+    - 配置参数文件 `configs.yaml`，[参考示例](eval_anything/benchmarks/text_to_text/gsm8k/configs.yaml)
     - 评测代码 `eval.py`: 继承自benchmark基类进行开发
 2. 如有新的metric以及evaluate_tools请在`evaluate_tools`下进行新增
 3. 在`eval_anything/configs/evaluate.yaml`文件夹下进行评测任务配置
 4. 运行`eval_anything/scripts/run.sh`进行测试
 
-## any2t开发指南
+## any2t数据集配置
+在进行多模态数据集开发时，可能会遇到多模态数据加载方式难以统一的问题，请依照以下步骤进行数据集预处理：
+
 1. 在`dataloader/format_mm_dataset.py`中注册数据集
 2. 在`dataloader/format_mm_dataset.py`中处理benchmark-specific的键值对和Prompt构造，以便完成数据加载。尽量使用已有的PromptBuilder，如有需要，请在`_to_InferenceInput`方法中定制
 3. 运用`utils/mm_data_manager.py`中的工具类实现图片、音频、视频向`base64`的转换，以便嵌入到conversation中

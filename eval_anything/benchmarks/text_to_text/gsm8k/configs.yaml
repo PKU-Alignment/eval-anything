@@ -1,38 +1,27 @@
-# ============================================
-# 评测配置：
-#   - 数据集hf路径
-#   - 数据集split
-#   - 数据集size
-#   - 数据集模态
-#   - 评测方式（multiple choice / generation / ...）
-#   - 评测指标（accuracy / ...）
-#   - 是否支持few_shot
-#   - 选项编号形式（ABCD或1234...），判断对错时的标识(true/false或者1/0...)
-# ============================================
 dataset:
   name: gsm8k
   path: openai/gsm8k
   split: test
   size: 
   modality: text-to-text
-  fewshot_data_path: openai/gsm8k
+  fewshot_data_path: openai/gsm8k  # Optional: if not specified, few-shot functionality will be disabled
   fewshot_data_file: null
   fewshot_data_split: train
-  cot_fewshot_data_path: benchmarks/cot_fewshot
+  cot_fewshot_data_path: benchmarks/cot_fewshot  # Optional: if not specified, Chain-of-Thought with few-shot functionality will be disabled
   cot_fewshot_data_file: gsm8k_main.json
   cot_fewshot_data_split: train
-  max_shot: 5
+  max_shot: 5   # Optional: if not specified, the maximum number of few-shot examples will default to 0
   default_task_list: ["main"]
 task: 
   - name: main
-    type: Dialogue
-    data_files: ["main/test*.parquet"]  # Optional, if not specified, dataset will be loaded through the task name
-    question_key: question
-    answer_key: null
-    ground_truth_key: answer
-    candidate_labels: null
-    avalable_evaluate_tools: ["match_number_after_pattern", "match_number_after_answer", "match_last_number", "match_first_number"] # first one as default
-  - name: multi_choice  # example
+    type: Dialogue  # Evaluation type specific to the dataset format; refer to eval_anything/dataloader/base_dataloader.py and eval_anything/dataloader/t2t_dataloader.py
+    data_files: ["main/test*.parquet"]  # Optional: if not specified, the dataset will be loaded using the task name
+    question_key: question  # Dataset key containing the input prompt/question
+    answer_key: null  # Dataset key containing the candidate answer (if applicable)
+    ground_truth_key: answer  # Dataset key containing the ground truth answer (if applicable)
+    candidate_labels: null  # Optional: if not specified, the answer field will be used as candidate labels
+    avalable_evaluate_tools: ["match_number_after_pattern", "match_number_after_answer", "match_last_number", "match_first_number"] # Available answer extractors (listed below); the first one serves as the default
+  - name: multi_choice  # Example configuration for multiple choice tasks
     type: MultiChoice
     data_files: null
     question_key: question
@@ -41,11 +30,11 @@ task:
     candidate_labels: [A, B, C, D]
     avalable_evaluate_tools: ["match_number_after_pattern", "match_number_after_answer", "match_last_number", "match_first_number"]
 answer_extractor:
-  - name: match_number_after_pattern
+  - name: match_number_after_pattern    # Method for extracting numerical answers from model responses; see eval_anything/evaluate_tools/t2t_tools.py
     function: regex_match_number
     args:
       additional_pattern: "#### {original_pattern}"
-      match_index: -1   # Take the last match
+      match_index: -1   # Extract the last matching number
   - name: match_number_after_answer
     function: regex_match_number
     args:
@@ -58,8 +47,8 @@ answer_extractor:
   - name: match_first_number
     function: regex_match_number
     args:
-      match_index: 0   # Take the first match
-metrics:
+      match_index: 0   # Extract the first matching number
+metrics:    # Evaluation metrics to be computed; see eval_anything/evaluate_tools/metrics.py
   - name: accuracy
     function: accuracy
     args:

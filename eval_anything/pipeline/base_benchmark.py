@@ -91,16 +91,19 @@ class BaseBenchmark(ABC):
         """Convert a InferenceOutput dict instances to evaluation details, evaluation results, and overall results"""
         evaluation_details = {}
         evaluation_results = {}
+        if task_list == []:
+            task_list = self.benchmark_cfgs.dataset.default_task_list
+            
         for task in task_list:
             if self.benchmark_cfgs.judge_method is not None:
                 evaluation_details[task], evaluation_results[task] = self.calculate_metrics(self.benchmark_name, inference_outputs[task], self.benchmark_cfgs.answer_extractor, self.benchmark_cfgs.metrics, self.benchmark_cfgs.judge_method)
             else:
                 evaluation_details[task], evaluation_results[task] = self.calculate_metrics(self.benchmark_name, inference_outputs[task], self.benchmark_cfgs.answer_extractor, self.benchmark_cfgs.metrics)
-
-        if len(task_list) > 1:
-            overall_result = self.calculate_overall_metrics(self.benchmark_cfgs.overall_metrics, result=evaluation_results)
-        else:
+        
+        if len(task_list) == 1:
             overall_result = {}
+        else:
+            overall_result = self.calculate_overall_metrics(self.benchmark_cfgs.overall_metrics, result=evaluation_results)
             
         self.display_benchmark_results(self.benchmark_name, evaluation_results)
         if overall_result != {}:

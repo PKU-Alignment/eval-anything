@@ -263,12 +263,14 @@ class InferenceOutput:
     def __repr__(self):
         return (
             f'InferenceOutput('
+            f'task={self.task!r}, '
             f'engine={self.engine!r}, '
             f'uuid={self.uuid!r}, '
-            f'prompt={self.prompt!r}, '
+            f'ref_answer={self.ref_answer!r}, '
             f'response={self.response!r}, '
             f'response_token_ids={self.response_token_ids!r}, '
             f'response_logprobs={self.response_logprobs!r})'
+            f'raw_output={self.raw_output!r}'
         )
 
 

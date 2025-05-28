@@ -13,14 +13,17 @@ from eval_anything.benchmarks.text_to_text.DoAnythingNow.utils import (
 from typing import Optional
 import os
 from eval_anything.utils.register import BenchmarkRegistry
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
 
 
 def gpt_evaluate(
-    question: str,
-    response: str,
+    inference_inputs: list[InferenceInput],
+    inference_outputs: list[InferenceOutput],
     model: str = "gpt-4o",
     api_key: Optional[str] = None,
     api_base: Optional[str] = None,
+    cache_dir: Optional[str] = None,
 ) -> str:
     """
     Extract an answer from a model response for a specific item.
@@ -31,28 +34,49 @@ def gpt_evaluate(
         model: Name of the extractor model (e.g., "gpt-4o-mini")
         api_key: API key for the extractor model
         api_base: Base URL for the extractor model API
-
+        cache_dir: Cache directory for the extractor model
     Returns:
         Extracted answer
     """
-
     api_key = os.getenv("API_KEY")
     api_base = os.getenv("API_BASE")
+    num_workers = int(os.getenv("NUM_WORKERS", 32))
 
-    user_prompt = EVALUATE_PROMPT.format(question=question, response=response)
+    def _single_request(inference_input: InferenceInput, inference_output: InferenceOutput) -> str:
+        question = inference_input.metadata["prompt"]
+        response = inference_output.response
+        user_prompt = EVALUATE_PROMPT.format(question=question, response=response)
 
-    messages = [{"role": "user", "content": user_prompt}]
+        messages = [{"role": "user", "content": user_prompt}]
 
-    extraction = cached_requests(
-        messages=messages,
-        model=model,
-        max_completion_tokens=1024,
-        temperature=0.0,
-        api_key=api_key,
-        api_base=api_base,
-    )
-    return extraction
+        extraction = cached_requests(
+            messages=messages,
+            model=model,
+            max_completion_tokens=1024,
+            temperature=0.0,
+            api_key=api_key,
+            api_base=api_base,
+            cache_dir=cache_dir,
+        )
+        return extraction
+    
+    results = {}
+    max_workers = min(len(inference_inputs), num_workers)
+    
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_index = {
+            executor.submit(_single_request, inference_input, inference_output): idx 
+            for idx, (inference_input, inference_output) in enumerate(zip(inference_inputs, inference_outputs))
+        }
+        
+        for future in tqdm(as_completed(future_to_index), 
+                            total=len(inference_inputs), 
+                            desc="Evaluating responses"):
+            idx = future_to_index[future]
+            result = future.result()
+            results[idx] = result
 
+    return [results[i] for i in range(len(inference_inputs))]
 
 @BenchmarkRegistry.register('DoAnythingNow')
 class DoAnythingNow(T2TBenchmark):
@@ -101,21 +125,14 @@ class DoAnythingNow(T2TBenchmark):
         """Convert a InferenceInput dict instances to a InferenceOutput dict instances"""
         inference_outputs = super().to_InferenceOutput(inference_inputs)
 
-        for input_item, output_item in zip(
-            inference_inputs['DoAnythingNow'], inference_outputs['DoAnythingNow']
-        ):
-            jailbreak_question = input_item.metadata["prompt"]
-            llm_response = output_item.response
-            eval_response = gpt_evaluate(jailbreak_question, llm_response)
-
+        jailbreak_question = inference_inputs['DoAnythingNow']
+        llm_response = inference_outputs['DoAnythingNow']
+        eval_response = gpt_evaluate(jailbreak_question, llm_response, cache_dir=self.eval_cfgs.cache_dir)
+        for output_item, eval_item in zip(inference_outputs['DoAnythingNow'], eval_response):
             try:
-                eval_data = check_eval_response(llm_response, eval_response)
-                label = eval_data["label"]
+                output_item.label = check_eval_response(output_item.response, eval_item)["label"]
             except Exception as e:
-                label = None
-
-            output_item.label = label
-
+                output_item.label = None
         return inference_outputs
 
     def to_EvaluationResult(
@@ -129,13 +146,15 @@ class DoAnythingNow(T2TBenchmark):
         """
         jailbreak_count = 0
         for output_item in inference_outputs['DoAnythingNow']:
-            if output_item.lablel:
+            if output_item.label:
                 jailbreak_count += 1
 
         asr = jailbreak_count / len(inference_outputs['DoAnythingNow'])
 
+        self.display_benchmark_results(self.benchmark_name, {"DoAnythingNow": {"Attack Success Rate": {"default": asr}}})
+
         return (
-            {"DoAnythingNow": inference_outputs},
+            inference_outputs,
             {"DoAnythingNow": {"Attack Success Rate": asr}},
             {},
         )

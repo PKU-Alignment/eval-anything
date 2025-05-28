@@ -32,7 +32,7 @@ def cached_requests(
     top_p: float = 0.9,
     api_key: Optional[str] = None,
     api_base: str = None,
-    cache_dir: str = "./cache",
+    cache_dir: str = None,
     max_try: int = 3,
     timeout: int = 3600,
 ) -> str:
@@ -75,18 +75,18 @@ def cached_requests(
             "model": model,
         }
     )
+    if cache_dir:
+        os.makedirs(cache_dir, exist_ok=True)
+        cache_path = os.path.join(cache_dir, f"{uuid}.json")
 
-    os.makedirs(cache_dir, exist_ok=True)
-    cache_path = os.path.join(cache_dir, f"{uuid}.json")
-
-    if os.path.exists(cache_path):
-        with open(cache_path, encoding="utf-8") as f:
-            try:
-                result = json.load(f)
-                return result
-            except json.JSONDecodeError:
-                logger.warning(f"Invalid cache file {cache_path}, removing it")
-                os.remove(cache_path)
+        if os.path.exists(cache_path):
+            with open(cache_path, encoding="utf-8") as f:
+                try:
+                    result = json.load(f)
+                    return result
+                except json.JSONDecodeError:
+                    logger.warning(f"Invalid cache file {cache_path}, removing it")
+                    os.remove(cache_path)
 
     while max_try > 0:
         try:
@@ -109,9 +109,9 @@ def cached_requests(
 
             if response.status_code == 200:
                 response_text = response.json()["choices"][0]["message"]["content"]
-
-                with open(cache_path, "w", encoding="utf-8") as f:
-                    json.dump(response_text, f, ensure_ascii=False)
+                if cache_dir:
+                    with open(cache_path, "w", encoding="utf-8") as f:
+                        json.dump(response_text, f, ensure_ascii=False)
 
                 return response_text
             else:

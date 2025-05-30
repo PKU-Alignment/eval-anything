@@ -27,6 +27,13 @@ BENCHMARK_MODALITY_MAP = {
     'mmau': 'text_audio_to_text',
     'mmvu': 'text_video_to_text',
     'doanythingnow': 'text_to_text',
+    'advbench':'text_to_text',
+    'cona':'text_to_text',
+    'cyberattackassistance':'text_to_text',
+    'cdialbias':'text_to_text',
+    'beavertails':'text_to_text',
+    'bbq':'text_to_text',
+    'anthropics':'text_to_text'
 }
 
 

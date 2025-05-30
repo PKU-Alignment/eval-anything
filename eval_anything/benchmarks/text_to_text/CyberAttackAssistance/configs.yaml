@@ -1,0 +1,10 @@
+dataset:
+  name: CyberAttackAssistance
+  path: eval-anything/eval_anything/benchmarks/safedata/test.json
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["CyberAttackAssistance"]
+  # /share/project/znh/eval/eval_anything/data
+task:
+  - name: CyberAttackAssistance

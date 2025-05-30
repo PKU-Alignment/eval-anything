@@ -1,0 +1,10 @@
+dataset:
+  name: BBQ
+  path: eval-anything/eval_anything/benchmarks/safedata/Sexual_orientation.jsonl
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["BBQ"]
+  # /share/project/znh/eval/eval_anything/data
+task:
+  - name: BBQ

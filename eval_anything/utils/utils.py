@@ -3,7 +3,7 @@ from typing import Optional
 from eval_anything.utils.data_type import InferenceInput, InferenceOutput, EvaluationResult
 import os
 import yaml
-from typing import Any, Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Union, List, Sequence, Literal
 from collections import namedtuple
 from pathlib import Path
 import numpy as np
@@ -15,7 +15,11 @@ import platform
 import signal
 import tempfile
 import itertools 
-
+import gzip
+import json
+import numpy as np
+from tqdm import tqdm
+from datasets import Dataset
 def read_cfgs_from_yaml(yaml_relative_dir: str, yaml_name: str) -> dict[str, Any]:
     current_file_path = os.path.abspath(__file__)
     parent_path = os.path.dirname(os.path.dirname(current_file_path))
@@ -527,3 +531,115 @@ def remove_boxed(s):
             answer = answer[len("\\boxed{"):-1] if answer.startswith("\\boxed{") else answer
             return answer.split("=")[-1].lstrip(" ") if "=" in answer else answer
     return None
+
+
+
+def read_jsonlgz(path: str, max_lines: Optional[int] = None):
+    with gzip.open(path, "r") as f:
+        lines = []
+        for line in tqdm(f, desc=f"Loading {path}"):
+            lines.append(line)
+            if max_lines is not None and len(lines) >= max_lines:
+                break
+    return lines
+
+
+def process_and_load_data(task_type, path):
+    filename = f"{task_type.lower()}.jsonl.gz"
+    full_path = os.path.join(path, filename)
+    print(path, filename, full_path)
+    with gzip.open(full_path, "rt") as f:
+        tasks = [line for line in tqdm(f, desc=f"Loading {full_path}")]
+
+    return tasks
+
+
+class Metadataset:
+    def __init__(
+        self, data: List[Any], dataset: str
+    ) -> None:
+        """Initialize a dataset split.
+
+        Args:
+            data: The data of the dataset split.
+            dataset: The name of the dataset.
+            split: The name of the dataset split.
+        """
+        self.data = data
+        self.dataset = dataset
+
+    def __iter__(self):
+        """Return an iterator over the dataset."""
+        for item in self.data:
+            yield item
+
+    def __len__(self) -> int:
+        """Return the number of items in the dataset."""
+        return len(self.data)
+
+    def __getitem__(self, index: int) -> Any:
+        """Return the item at the given index."""
+        return self.data[index]
+
+    def __repr__(self):
+        """Return a string representation of the dataset."""
+        return (
+            "Dataset(\n"
+            f"    dataset={self.dataset},\n"
+            f"    size={len(self.data)},\n"
+            ")"
+        )
+
+    def __str__(self):
+        """Return a string representation of the dataset."""
+        return self.__repr__()
+
+    def select(self, indices: Sequence[int]) -> "Metadataset":
+        """Return a new dataset containing only the given indices."""
+        # ignoring type checker due to mypy bug with attrs
+        return Metadataset(
+            data=[self.data[i] for i in indices],
+            dataset=self.dataset,
+        )  # type: ignore
+    
+class LazyJsonDataset(Metadataset):
+    """Lazily load the json house data."""
+
+    def __init__(
+        self, data: List[Any], dataset: str
+    ) -> None:
+        super().__init__(data, dataset)
+        self.cached_data: Dict[int, Union[list, dict]] = {}
+
+    def __getitem__(self, index: int) -> Any:
+        """Return the item at the given index."""
+        if index not in self.cached_data:
+            self.cached_data[index] = json.loads(self.data[index])
+        return self.cached_data[index]
+
+    def __len__(self) -> int:
+        """Return the number of items in the dataset."""
+        return super().__len__()
+
+    def __repr__(self):
+        """Return a string representation of the dataset."""
+        return super().__repr__()   
+
+    def __str__(self):
+        """Return a string representation of the dataset."""
+        return super().__str__()
+
+    def __iter__(self):
+        """Return an iterator over the dataset."""
+        for i, x in enumerate(self.data):
+            if i not in self.cached_data:
+                self.cached_data[i] = json.loads(x)
+            yield self.cached_data[i]
+
+    def select(self, indices: Sequence[int]) -> "Metadataset":
+        """Return a new dataset containing only the given indices."""
+        # ignoring type checker due to mypy bug with attrs
+        return LazyJsonDataset(
+            data=[self.data[i] for i in indices],
+            dataset=self.dataset,
+        )  # type: ignore

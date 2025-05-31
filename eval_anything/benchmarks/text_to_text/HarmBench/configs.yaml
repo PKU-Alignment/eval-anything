@@ -1,0 +1,9 @@
+dataset:
+  name: HarmBench
+  path: eval_anything/benchmarks/local_safe_eval_data/harmbench_behaviors_text_all.csv
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["HarmBench"]
+task:
+  - name: HarmBench

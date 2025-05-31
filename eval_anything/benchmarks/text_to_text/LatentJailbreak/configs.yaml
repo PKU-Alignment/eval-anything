@@ -1,0 +1,9 @@
+dataset:
+  name:  LatentJailbreak
+  path: eval-anything/eval_anything/benchmarks/local_safe_eval_data/latent_jailbreak_data.json
+  split: 
+  size:
+  modality: text-to-text
+  default_task_list: ["LatentJailbreak"]
+task:
+  - name: LatentJailbreak

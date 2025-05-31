@@ -7,6 +7,7 @@ MODEL_MAP = {
     "vllm_MM": "vllm_mm",
     "hf_LM": "hf_lm",
     "hf_MM": "hf_mm",
+    "hf_VLA": "hf_vla",
     "api_LM": "api_lm",
     "api_MM": "api_mm",
 }
@@ -15,6 +16,7 @@ CLASS_MAP = {
     "vllm_MM": "vllmMM",
     "hf_LM": "HFLM",
     "hf_MM": "HFMM",
+    "hf_VLA": "HFVLA",
     "api_LM": "APILM",
     "api_MM": "APIMM",
 }

@@ -9,7 +9,7 @@
     # Benchmark and task names; if task list is empty, all tasks will be evaluated
     benchmarks: {
       # "mmlu": [],
-       "DoNotAnswer": ["DoNotAnswer"],
+      "DoNotAnswer": ["DoNotAnswer"],
       }
     # Number of shots
     n_shot: {
@@ -19,7 +19,7 @@
     # Chain of thought
     cot: {
       # "mmlu": False,
-     "DoNotAnswer": False,
+      "DoNotAnswer": False,
       }
     # Visualization
     visualization:

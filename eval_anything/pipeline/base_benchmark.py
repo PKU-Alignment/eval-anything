@@ -37,6 +37,7 @@ BENCHMARK_MODALITY_MAP = {
     'salad_bench': 'text_to_text',
     'air_bench_2024': 'text_to_text',
     'chores': 'text_vision_to_action',
+    # 来自 my-dev 的新增映射
     'advbench': 'text_to_text',
     'beavertails': 'text_to_text',
     'cona': 'text_to_text',
@@ -45,7 +46,6 @@ BENCHMARK_MODALITY_MAP = {
     'bbq': 'text_to_text',
     'anthropics': 'text_to_text'
 }
-
 
 
 @BenchmarkRegistry.register("base")

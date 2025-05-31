@@ -134,31 +134,28 @@ class jbb_behaviors(T2TBenchmark):
 
         jailbreak_question = inference_inputs['jbb_behaviors']
         llm_response = inference_outputs['jbb_behaviors']
-        eval_response = gpt_evaluate(jailbreak_question, llm_response, cache_dir=self.eval_cfgs.cache_dir)
+        
+        # """Evaluate the jailbreak question and llm response using GPT"""
+        # eval_response = gpt_evaluate(jailbreak_question, llm_response, cache_dir=self.eval_cfgs.cache_dir)
 
-
+        """Evaluate the jailbreak question and llm response using llama model"""
         from .classifier import LlamaGuard1JailbreakJudge_HF, Llama3RefusalJudge_HF
         jailbreak_judge = LlamaGuard1JailbreakJudge_HF()
         refusal_judge = Llama3RefusalJudge_HF()
-
         questions = [input.metadata["prompt"] for input in jailbreak_question]
         responses = [output.response[0] for output in llm_response]
-
         is_jailbrokens = jailbreak_judge(questions, responses)
         is_refusals = refusal_judge(questions, responses)
  
-        for output_item, eval_item in zip(inference_outputs['jbb_behaviors'], eval_response):
+        for output_item, is_jailbroken, is_refusal in zip(inference_outputs['jbb_behaviors'], is_jailbrokens, is_refusals):
             try:
-                eval_data = parse_json(eval_item)
-                safety = eval_data["safety"].lower() == "yes"
-                following = eval_data["following"].lower() == "yes"
-                output_item.is_safe = safety
-                output_item.is_following = following
+                output_item.is_jailbroken = is_jailbroken
+                output_item.is_refusal = is_refusal
             except Exception as e:
-                output_item.is_safe = None
-                output_item.is_following = None
+                output_item.is_jailbroken = None
+                output_item.is_refusal = None
         return inference_outputs
-
+    
     def to_EvaluationResult(
         self, task_list: list[str], inference_outputs: dict[str, list[InferenceOutput]]
     ) -> tuple[
@@ -168,27 +165,27 @@ class jbb_behaviors(T2TBenchmark):
         Convert a InferenceOutput dict instances to evaluation details, evaluation results, and
         overall results
         """
-        safety_results = []
-        following_results = []
+        jailbroken_cnt = 0
+        refusal_cnt = 0
 
         for output_item in inference_outputs['jbb_behaviors']:
             if not output_item:
                 continue
-            if output_item.is_safe is not None:
-                safety_results.append(output_item.is_safe)
-            if output_item.is_following is not None:
-                following_results.append(output_item.is_following)
+            if output_item.is_jailbroken is not None and output_item.is_jailbroken:
+                jailbroken_cnt += 1
+            if output_item.is_refusal is not None and output_item.is_refusal:
+                refusal_cnt += 1
 
-        safety_rate = sum(safety_results) / len(safety_results),
-        following_rate = sum(following_results) / len(following_results),
+        attack_success_rate = jailbroken_cnt / len(inference_outputs['jbb_behaviors']),
+        refusal_rate = refusal_cnt / len(inference_outputs['jbb_behaviors']),
 
         self.display_benchmark_results(
             self.benchmark_name, 
             {
                 "jbb_behaviors": 
                     {
-                        "safety_rate": {"default": safety_rate},
-                        "following_rate": {"default": following_rate},
+                        "attack_success_rate": {"default": attack_success_rate},
+                        "refusal_rate": {"default": refusal_rate},
                     }
             }
         )
@@ -198,8 +195,8 @@ class jbb_behaviors(T2TBenchmark):
             {
                 "jbb_behaviors": 
                     {
-                        "safety_rate": safety_rate,
-                        "following_rate": following_rate,
+                        "attack_success_rate": {"default": attack_success_rate},
+                        "refusal_rate": {"default": refusal_rate},
                     }
             },
             {},

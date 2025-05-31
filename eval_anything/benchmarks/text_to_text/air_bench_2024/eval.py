@@ -7,9 +7,9 @@ from eval_anything.utils.logger import EvalLogger
 from datasets import load_dataset
 from eval_anything.utils.cached_requests import cached_requests
 from eval_anything.benchmarks.text_to_text.air_bench_2024.utils import (
-    EVALUATE_PROMPT,
-    parse_json,
-    merge_categories
+    sample_row,
+    extract_content,
+    gpt_eval
 )
 from typing import Optional
 import os
@@ -21,7 +21,7 @@ from tqdm import tqdm
 def gpt_evaluate(
     inference_inputs: list[InferenceInput],
     inference_outputs: list[InferenceOutput],
-    model: str = "gpt-4o-mini",
+    model: str = "gpt-4o",
     api_key: Optional[str] = None,
     api_base: Optional[str] = None,
     cache_dir: Optional[str] = None,
@@ -43,25 +43,38 @@ def gpt_evaluate(
     api_base = os.getenv("API_BASE")
     num_workers = int(os.getenv("NUM_WORKERS", 32))
 
+    judge_prompt_list = load_dataset("stanford-crfm/air-bench-2024", "judge_prompts", split="test")
+
+    def get_judge_prompt(idx):
+        for item in judge_prompt_list:
+            if item['cate-idx'] == idx:
+                return item['judge_prompt']
+        raise ValueError(f"No judge prompt found for index {idx}")
+
     def _single_request(inference_input: InferenceInput, inference_output: InferenceOutput) -> str:
         question = inference_input.metadata["prompt"]
-        category = inference_input.metadata["category"]
-        response = inference_output.response
-        user_prompt = EVALUATE_PROMPT.format(category=category, response=response)
+        cate_idx = inference_input.metadata["cate_idx"]
+        response = inference_output.response[0]
 
+        judge_prompt = get_judge_prompt(cate_idx)        
+        user_prompt = judge_prompt.replace("{{QUESTION}}", question).replace("{{ANSWER}}", response)
         messages = [{"role": "user", "content": user_prompt}]
 
         extraction = cached_requests(
             messages=messages,
             model=model,
-            max_completion_tokens=1024,
+            max_completion_tokens=512,
             temperature=0.0,
             api_key=api_key,
             api_base=api_base,
             cache_dir=cache_dir,
             timeout=300
         )
-        return extraction
+
+        reason = extract_content("##short_reasoning: ", extraction) 
+        score = float(extract_content("##the_score: ", extraction))
+
+        return (reason, score)
     
     results = {}
     max_workers = min(len(inference_inputs), num_workers)
@@ -101,14 +114,13 @@ class air_bench_2024(T2TBenchmark):
 
     def to_InferenceInput(self, task_list: list[str]) -> dict[str, list[InferenceInput]]:
         """Convert a task list to a list of InferenceInput dict instances"""
-        # assert self.data_path in "stanford-crfm/air-bench-2024"
+        # assert data_path  == "stanford-crfm/air-bench-2024"
         # assert split in ["test"], "Invalid split name"
         dataset = load_dataset(
             "stanford-crfm/air-bench-2024", 
             split='test'
         )
-        dataset = dataset.map(merge_categories)
-        dataset = dataset.shuffle(seed=42).select(range(100))  # Limit to 1000 samples for testing
+        # dataset = dataset.shuffle(seed=42).select(range(100))  # Limit to 100 samples for testing
 
         inference_inputs = []
         for item in dataset:
@@ -118,8 +130,11 @@ class air_bench_2024(T2TBenchmark):
                     conversation=[{"role": "user", "content": item["prompt"]}],
                     ref_answer=None,
                     metadata={
+                        "cate_idx": item["cate-idx"],
+                        "l2_name": item["l2-name"],
+                        "l3_name": item["l3-name"],
+                        "l4_name": item["l4-name"],
                         "prompt": item["prompt"],
-                        "category": item["category"],
                     },
                 )
             )
@@ -134,18 +149,19 @@ class air_bench_2024(T2TBenchmark):
 
         jailbreak_question = inference_inputs['air_bench_2024']
         llm_response = inference_outputs['air_bench_2024']
-        eval_response = gpt_evaluate(jailbreak_question, llm_response, cache_dir=self.eval_cfgs.cache_dir)
-        
-        for output_item, eval_item in zip(inference_outputs['air_bench_2024'], eval_response):
+
+        questions = [input.metadata["prompt"] for input in jailbreak_question]
+        responses = [output.response[0] for output in llm_response]
+        cate_idxs = [input.metadata["cate_idx"] for input in jailbreak_question]
+        eval_reasons, eval_scores = gpt_eval(questions, responses, cate_idxs)
+
+        for output_item, eval_reason, eval_score in zip(inference_outputs['air_bench_2024'], eval_reasons, eval_scores):
             try:
-                eval_data = parse_json(eval_item)
-                safety = eval_data["safety"].lower() == "yes"
-                following = eval_data["following"].lower() == "yes"
-                output_item.is_safe = safety
-                output_item.is_following = following
+                output_item.eval_reason = eval_reason
+                output_item.eval_score = eval_score
             except Exception as e:
-                output_item.is_safe = None
-                output_item.is_following = None
+                output_item.eval_reason = None
+                output_item.eval_score = None
         return inference_outputs
 
     def to_EvaluationResult(
@@ -157,27 +173,25 @@ class air_bench_2024(T2TBenchmark):
         Convert a InferenceOutput dict instances to evaluation details, evaluation results, and
         overall results
         """
-        safety_results = []
-        following_results = []
+        eval_score_results = []
+        eval_reasons_results = []
 
         for output_item in inference_outputs['air_bench_2024']:
             if not output_item:
                 continue
-            if output_item.is_safe is not None:
-                safety_results.append(output_item.is_safe)
-            if output_item.is_following is not None:
-                following_results.append(output_item.is_following)
+            if output_item.eval_score is not None:
+                eval_score_results.append(output_item.eval_score)
+            if output_item.eval_reason is not None:
+                eval_reasons_results.append(output_item.eval_reason)
 
-        safety_rate = sum(safety_results) / len(safety_results),
-        following_rate = sum(following_results) / len(following_results),
+        avg_eval_score = sum(eval_score_results) / len(eval_score_results),
 
         self.display_benchmark_results(
             self.benchmark_name, 
             {
                 "air_bench_2024": 
                     {
-                        "safety_rate": {"default": safety_rate},
-                        "following_rate": {"default": following_rate},
+                        "eval_score": {"default": avg_eval_score},
                     }
             }
         )
@@ -187,8 +201,7 @@ class air_bench_2024(T2TBenchmark):
             {
                 "air_bench_2024": 
                     {
-                        "safety_rate": safety_rate,
-                        "following_rate": following_rate,
+                        "eval_score": {"default": avg_eval_score},
                     }
             },
             {},

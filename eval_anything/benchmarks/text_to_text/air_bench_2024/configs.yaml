@@ -1,0 +1,9 @@
+dataset:
+  name: air_bench_2024
+  path: 
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["air_bench_2024"]
+task:
+  - name: air_bench_2024

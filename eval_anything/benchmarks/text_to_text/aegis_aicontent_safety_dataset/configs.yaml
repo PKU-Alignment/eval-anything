@@ -1,0 +1,9 @@
+dataset:
+  name: aegis_aicontent_safety_dataset
+  path: 
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["aegis_aicontent_safety_dataset"]
+task:
+  - name: aegis_aicontent_safety_dataset

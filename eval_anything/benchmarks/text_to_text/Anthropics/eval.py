@@ -38,10 +38,8 @@ def gpt_evaluate(
     Returns:
         Extracted answer
     """
-    # api_key = os.getenv("API_KEY")
-    # api_base = os.getenv("API_BASE")
-    api_key = "sk-MNl6PzbJPsbKtq2TE8D8DcD1A6Ce4d66A59dBa23AbA0664a"
-    api_base = "https://api.61798.cn/v1/chat/completions"
+    api_key = os.getenv("API_KEY")
+    api_base = os.getenv("API_BASE")
     num_workers = int(os.getenv("NUM_WORKERS", 32))
 
     def _single_request(inference_input: InferenceInput, inference_output: InferenceOutput) -> str:

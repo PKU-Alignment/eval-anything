@@ -1,0 +1,31 @@
+data_cfgs:
+  dataset_path: /path/to/dataset
+  house_assets_path: /path/to/house_assets
+  shuffle: true
+  seed: 123
+  task_type: ObjectNavType
+  house_type: val
+  eval_set_size: 10
+
+model_cfgs:
+  model_name_or_path: SafetyEmbodiedAI/SPOC
+  model_id: spoc_model
+  model_type: MM
+  model_version: small_3
+  loss: action
+  model_input_sensors:
+    - raw_navigation_camera
+    - raw_manipulation_camera
+    - last_actions
+    - an_object_is_in_hand
+  loss: action
+
+infer_cfgs:
+  max_eps_len: 600
+  gpu_devices: [0]
+  gpu_device: 0
+  task_type: ObjectNavType
+  skip_done: false
+  sampling: sample
+
+output_path: /path/to/output

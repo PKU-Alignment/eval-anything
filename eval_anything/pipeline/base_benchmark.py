@@ -35,6 +35,7 @@ BENCHMARK_MODALITY_MAP = {
     's_eval': 'text_to_text',
     'aegis_aicontent_safety_dataset': 'text_to_text',
     'air_bench_2024': 'text_to_text',
+    'chores': 'text_vision_to_action'
 }
 
 

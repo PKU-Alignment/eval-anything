@@ -25,8 +25,6 @@ pip install -e .
 
 ## To-do list
 
-[ ] 清点所有数据集并写相应的支持文档
-
-[ ] pre-commit 等格式清洗
-
-[ ] 包装首页 Readme
+- [ ] 清点所有数据集并写相应的支持文档
+- [ ] pre-commit 等格式清洗
+- [ ] 包装首页 Readme

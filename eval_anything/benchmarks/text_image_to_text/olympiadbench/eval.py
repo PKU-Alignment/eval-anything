@@ -45,7 +45,7 @@ class olympiadbenchBenchmark(MMUndBenchmark):
         evaluation_results = {}
 
         for task in task_list:
-            evaluation_details[task], evaluation_results[task] = self.calculate_metrics(self.benchmark_name, inference_outputs[task], ref_answers[task], self.benchmark_cfgs.answer_extractor, self.benchmark_cfgs.metrics, judge_method="judge_equal_list")
+            evaluation_details[task], evaluation_results[task] = self.calculate_metrics(self.benchmark_name, inference_outputs[task], ref_answers[task], self.benchmark_cfgs.answer_extractor, self.benchmark_cfgs.metrics, judge_method="judge_latex_math_equal")
 
         if len(task_list) > 1:
             overall_result = self.calculate_overall_metrics(self.benchmark_cfgs.overall_metrics, result=evaluation_results)

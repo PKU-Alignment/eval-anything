@@ -22,14 +22,14 @@ dataset:
   cot_fewshot_data_name: null
   cot_fewshot_data_split: null
   max_shot: 0
-  default_task_list: ["OE_MM_maths_en_COMP", "OE_MM_maths_zh_CEE", "OE_MM_maths_zh_COMP","OE_MM_physics_en_COMP", "OE_MM_physics_zh_CEE", "OE_TO_maths_en_COMP","OE_TO_maths_zh_CEE", "OE_TO_maths_zh_COMP", "OE_TO_physics_en_COMP","OE_TO_physics_zh_CEE",]
+  default_task_list: ["OE_MM_maths_en_COMP", "OE_MM_maths_zh_CEE", "OE_MM_maths_zh_COMP","OE_MM_physics_en_COMP", "OE_MM_physics_zh_CEE",] # "OE_TO_maths_en_COMP","OE_TO_maths_zh_CEE", "OE_TO_maths_zh_COMP", "OE_TO_physics_en_COMP","OE_TO_physics_zh_CEE",]
 task_defaults: &task_defaults
   type: MultiChoice
   question_key: question
   answer_key: options
-  ground_truth_key: answer
+  ground_truth_key: final_answer
   candidate_labels: ["A", "B", "C", "D", "E"]
-  avalable_evaluate_tools: ["match_multi-choice_and_open-ended"]
+  avalable_evaluate_tools: ["match_origin_response"]
 task: 
   - name: OE_MM_maths_en_COMP
     data_files: null
@@ -62,10 +62,11 @@ task:
     data_files: null
     <<: *task_defaults
 answer_extractor:
-  - name: match_multi-choice_and_open-ended
-    function: regex_match_latex_math
+  - name: match_origin_response
+    function: null
     args:
-      match_index: -1   # Index for multiple choice
+      additional_pattern: "{original_pattern}"
+      match_index: 0
 metrics:
   - name: accuracy
     function: accuracy

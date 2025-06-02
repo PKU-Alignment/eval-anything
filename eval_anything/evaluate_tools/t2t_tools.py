@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from eval_anything.evaluate_tools.base_tools import BaseTool
 from typing import Union, List, Iterable, Optional
 from latex2sympy2 import latex2sympy
+import math_verify
 from math import *
 import numpy as np
 import re
@@ -23,6 +24,7 @@ T2T_JUDGER_MAP = {
     "judge_equal": "JudgeEqual",
     "judge_equal_list": "JudgeEqualList",
     "judge_latex_equal":"JudgeLatexEqual",
+    "judge_latex_math_equal":"JudgeLatexMathEqual",
     "judge_mc1": "JudgeMC1",
     "judge_mc2": "JudgeMC2",
 }
@@ -58,7 +60,6 @@ class RegexMatch(BaseTool):
     def __call__(self, data: Union[List, Iterable]) -> Union[List, None]:
         return self.apply(data)
     
-
 class RegexMatchNumber(RegexMatch):
     def __init__(self, additional_pattern: str = None, match_index: int = None):
         pattern_match_number = r"(?:[+-]?(?:\d+/\d+|(?:\d*\.\d+)|\d+)|√(?:\([+-]?(?:\d+/\d+|(?:\d*\.\d+)|\d+)\)|[+-]?(?:\d+/\d+|(?:\d*\.\d+)|\d+)))"
@@ -149,11 +150,10 @@ class JudgeEqualList(BaseTool):
                             break
             return correct
         else:
-            return str(gold_answer) in data_1
+            return gold_answer in data_1
 
     def __call__(self, data_1, data_2) -> bool:
         return self.apply(data_1, data_2)
-    
     
 # refer: https://github.com/mathllm/MATH-V/blob/main/evaluation/utils.py
 class JudgeLatexEqual(BaseTool):
@@ -238,6 +238,36 @@ class JudgeLatexEqual(BaseTool):
                     return False
             except:
                 return False
+        
+        return is_equal(data_1, data_2)
+    
+    def __call__(self, data_1, data_2) -> bool:
+        return self.apply(data_1, data_2)
+
+# Directly using math_verify for mathematical expression verification
+class JudgeLatexMathEqual(BaseTool):
+    def __init__(self):
+        super().__init__()
+
+    def apply(self, data_1, data_2) -> bool:
+        def is_equal(asw: str, gt_asw: str) -> bool:
+            """
+            Judge if `asw` is equivalent to `gt_asw`.
+
+            We use the `math_verify` library to parse and verify the mathematical expressions.
+            This function checks if the given answers are equivalent.
+
+            Args:
+                asw (str): The answer string to be checked.
+                gt_asw (str): The ground truth answer string to be matched against.
+
+            Returns:
+                bool: True if the answers are equivalent, otherwise False.
+
+            """
+            answer = math_verify.parse(asw)
+            gt_answer = math_verify.parse(gt_asw)
+            return math_verify.verify(answer, gt_answer)
         
         return is_equal(data_1, data_2)
     
@@ -653,7 +683,6 @@ class RegexMatchLatexMath(RegexMatch):
     def __call__(self, data: Union[List, Iterable]) -> Union[List, None]:
         return self.apply(data)
 
-    
     
 class JudgeMC1(BaseTool):
     def __init__(self):

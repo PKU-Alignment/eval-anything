@@ -286,12 +286,11 @@ class olympiadbenchDataset(BaseMMDataset):
         raise NotImplementedError("olympiadbench does not support few-shot learning.")
 
     def get_image_indice(self, text: str)->List[int]:
-        pattern = r'<image (\d+)>'
+        pattern = r'<image_(\d+)>'
         matches = re.findall(pattern, text)
         return [int(num) for num in matches]
 
 
-    # refer: https://github.com/mathllm/MATH-V/blob/main/models/Qwen-VL.py#L19
     def _to_InferenceInput(self, dataset: Dataset) -> List["InferenceInput"]:
         """
         Convert a dataset to a list of InferenceInput objects.
@@ -408,23 +407,30 @@ class olympiadbenchDataset(BaseMMDataset):
                 subject = 'Math' if is_math else 'Physics'
                 system_prompt = f'You are an AI assistant. Please answer the following {subject} competition problems as required.'
                 
-            formatted_prompt = make_prompt(item, is_chinese, is_math, is_theorem_proving)  + item['question']
-            # original image placeholder is <image_1> , we need to transform it to <image 1> for the function prompt_to_conversation
-            formatted_prompt = re.sub(r'<image_(\d+)>', r'<image \1>', formatted_prompt)
-            
+            formatted_prompt = make_prompt(item, is_chinese, is_math, is_theorem_proving) 
+            if is_math:
+                formatted_prompt = formatted_prompt + '\n' + item['question']
+            else:
+                if 'context' in item.keys() and item['context']: # cannot be null
+                    formatted_prompt = formatted_prompt + '\n' + item['context']+'\n'+item['question']
+                else:
+                    formatted_prompt = formatted_prompt + '\n' + item['question']
             image_ids = self.get_image_indice(formatted_prompt)
             images = [item[f'image_{id}'] for id in image_ids]
-            conversation = ImageManager.prompt_to_conversation(user_prompt=formatted_prompt, system_prompt=system_prompt, images=images)
+            # Some subset like OE_MM_physics_en_COMP subset, some questions have no images, here we just skip them
+            # ref https://github.com/OpenBMB/OlympiadBench/issues/16
+            if images == []: 
+                continue
+            image_manager = MMDataManagerRegistry.get_mm_data_manager("image")
+            conversation = image_manager.prompt_to_conversation(user_prompt=formatted_prompt, system_prompt=system_prompt, images=images)
 
             inference_inputs.append(
                 InferenceInput(
                     task=self.task.name,
                     conversation=conversation,
-                    ref_answer=str(item['final_answer'][0])
+                    ref_answer=str(item['final_answer'][0]),
+                    metadata="image",
                 )
             )
-
-            if len(inference_inputs) > 10:
-                break
 
         return inference_inputs

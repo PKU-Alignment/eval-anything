@@ -13,7 +13,7 @@ dataset:
   name: MMLUPRO
   path: TIGER-Lab/MMLU-Pro
   split: test
-  size: 
+  size:
   modality: text-to-text
   fewshot_data_path: TIGER-Lab/MMLU-Pro
   fewshot_data_file: null
@@ -23,7 +23,7 @@ dataset:
   cot_fewshot_data_split: null
   max_shot: 8
   default_task_list: ['default']
-task: 
+task:
   - name: default
     type: MultiChoice
     data_files: null
@@ -47,4 +47,3 @@ overall_metrics:
     function: null
     args:
       null
-  

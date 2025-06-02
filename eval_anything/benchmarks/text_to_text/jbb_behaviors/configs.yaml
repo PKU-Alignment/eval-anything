@@ -1,0 +1,9 @@
+dataset:
+  name: jbb_behaviors
+  path: JailbreakBench/JBB-Behaviors
+  split: harmful
+  size:
+  modality: text-to-text
+  default_task_list: ["jbb_behaviors"]
+task:
+  - name: jbb_behaviors

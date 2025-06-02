@@ -4,4 +4,4 @@ set -x
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "${SCRIPT_DIR}/../eval_anything" || exit 1
 
-python -m benchmarks.text_vision_to_action.chores.eval    
+python -m benchmarks.text_vision_to_action.chores.eval

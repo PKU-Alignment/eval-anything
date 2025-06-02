@@ -7,6 +7,7 @@ from typing import Dict, Type
 from eval_anything.third_party.SPOC.tasks.abstract_task import AbstractSafeTask
 from eval_anything.third_party.SPOC.utils.type_utils import REGISTERED_TASK_PARAMS
 
+
 REGISTERED_TASKS: Dict[str, Type[AbstractSafeTask]] = {}
 
 

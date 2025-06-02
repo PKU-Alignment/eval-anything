@@ -1,5 +1,5 @@
 class AbstractSensor:
-    sensor_uuid = "sensor_name"
+    sensor_uuid = 'sensor_name'
 
 
 class ObservationSensor(AbstractSensor):
@@ -7,19 +7,19 @@ class ObservationSensor(AbstractSensor):
 
 
 class ManipulationCamera(ObservationSensor):
-    sensor_uuid = "raw_manipulation_camera"
+    sensor_uuid = 'raw_manipulation_camera'
 
 
 class NavigationCamera(ObservationSensor):
-    sensor_uuid = "raw_navigation_camera"
+    sensor_uuid = 'raw_navigation_camera'
 
 
 class NavigationCameraDuplicate(ObservationSensor):
-    sensor_uuid = "raw_navigation_camera_2"
+    sensor_uuid = 'raw_navigation_camera_2'
 
 
 class ManipulationCameraDuplicate(ObservationSensor):
-    sensor_uuid = "raw_manipulation_camera_2"
+    sensor_uuid = 'raw_manipulation_camera_2'
 
 
 def is_a_visual_sensor(sensor):

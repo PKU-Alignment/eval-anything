@@ -1,9 +1,12 @@
-from typing import Optional, Dict, Any
-
 import os
+from typing import Any, Dict, Optional
+
 import compress_json
 
-from eval_anything.third_party.SPOC.utils.constants.objaverse_data_dirs import OBJAVERSE_ANNOTATIONS_PATH
+from eval_anything.third_party.SPOC.utils.constants.objaverse_data_dirs import (
+    OBJAVERSE_ANNOTATIONS_PATH,
+)
+
 
 _OBJAVERSE_ANNOTATIONS: Optional[Dict[str, Any]] = None
 

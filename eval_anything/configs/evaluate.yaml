@@ -9,17 +9,17 @@
     # Benchmark and task names; if task list is empty, all tasks will be evaluated
     benchmarks: {
       # "mmlu": [],
-      "DoAnythingNow": ["DoAnythingNow"],
+      "DoNotAnswer": ["DoNotAnswer"],
       }
     # Number of shots
     n_shot: {
       # "mmlu": 0,
-      "DoAnythingNow": 0,
+      "DoNotAnswer": 0,
       }
     # Chain of thought
     cot: {
       # "mmlu": False,
-      "DoAnythingNow": False,
+      "DoNotAnswer": False,
       }
     # Visualization
     visualization:
@@ -42,9 +42,9 @@
     # Whether to trust remote code
     trust_remote_code: True
     # Maximum token length
-    model_max_length: 512
+    model_max_length: 1024 #256
     # Maximum new tokens
-    max_new_tokens: 256
+    max_new_tokens: 1024 #256
     # Number of outputs
     num_output: 1
     # Top-K
@@ -64,6 +64,6 @@
     # Number of GPUs
     num_gpu: 4
     # Available GPU IDs; if not specified, the first num_gpu GPUs will be used
-    gpu_ids: [0,1,2,3]
+    gpu_ids: [4,5,6,7]
     # GPU utilization
     gpu_utilization: 0.5

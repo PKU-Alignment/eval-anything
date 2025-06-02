@@ -1,36 +1,28 @@
 # from eval_anything.dataloader.base_dataloader import BaseDataLoader
 
-import glob
-import gzip
+import json
 import multiprocessing as mp
 import os
-import pickle
-import shutil
-import warnings
-from collections import defaultdict
-from typing import Optional, Dict, Sequence, List, Any, Union, TypedDict
-import json
-import copy
-from typing import Literal, Union
-from tqdm import tqdm
-import compress_json
-from eval_anything.utils.data_type import InferenceInput
-from eval_anything.utils.utils import process_and_load_data, read_jsonlgz, LazyJsonDataset, Metadataset
-import numpy as np
 import random
-from collections import namedtuple
-import json
+from collections import defaultdict
+from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+
+import numpy as np
+
+from eval_anything.utils.data_type import InferenceInput
+from eval_anything.utils.utils import (
+    LazyJsonDataset,
+    Metadataset,
+    process_and_load_data,
+    read_jsonlgz,
+)
 
 
+class TV2ACTDataLoader:
 
-
-        
-class TV2ACTDataLoader():
-    
     def __init__(self, data_cfgs):
         self.data_cfgs = data_cfgs
-        pass
-    
+
     def load_task_dataset(self) -> List[InferenceInput]:
         """Load the houses dataset."""
         task_type = self.data_cfgs.task_type
@@ -42,43 +34,44 @@ class TV2ACTDataLoader():
         tasks = process_and_load_data(task_type, path)
         tasks = LazyJsonDataset(data=tasks, dataset='chores')
         samples: List[EvalSample] = tasks
-        
+
         sample_ids = list(range(len(samples)))
         if shuffle:
             random.seed(seed)
             random.shuffle(sample_ids)
         if eval_set_size is not None:
-            sample_ids = sample_ids[: eval_set_size]
-        
+            sample_ids = sample_ids[:eval_set_size]
+
         normalized_samples = [
             eval_sample_to_normalized_eval_sample(task_type=task_type, sample=samples[i], index=i)
             for i in sample_ids
         ]
         tasks = [
             NormalizedEvalSample(
-            sample_id=f"task={task_type},house={samples[i]['house_index']},sub_house_id={i}",
-            house_id=str(samples[i]["house_index"]).zfill(6),
-            task_type=task_type,
-            sub_house_id=i,
-            needs_video=False,
-            raw_navigation_camera="",
-            sensors_path="",
-            observations=Observations(
-                goal=samples[i]["natural_language_spec"],
-                initial_agent_location=np.array(
-                    samples[i]["agent_starting_position"] + [0, samples[i]["agent_y_rotation"], 0]
+                sample_id=f"task={task_type},house={samples[i]['house_index']},sub_house_id={i}",
+                house_id=str(samples[i]['house_index']).zfill(6),
+                task_type=task_type,
+                sub_house_id=i,
+                needs_video=False,
+                raw_navigation_camera='',
+                sensors_path='',
+                observations=Observations(
+                    goal=samples[i]['natural_language_spec'],
+                    initial_agent_location=np.array(
+                        samples[i]['agent_starting_position']
+                        + [0, samples[i]['agent_y_rotation'], 0]
+                    ),
+                    actions=[],
+                    time_ids=[],
+                    templated_task_type=json.dumps(samples[i]),
                 ),
-                actions=[],
-                time_ids=[],
-                templated_task_type=json.dumps(samples[i]),
-            ),
-        ) for i in sample_ids
+            )
+            for i in sample_ids
         ]
         return normalized_samples, tasks
-    
-    
+
     def load_house_assets(
-        self, 
+        self,
         num_workers: int = 0,
         max_houses_per_split: Optional[Union[int, Dict[str, int]]] = None,
     ) -> Metadataset:
@@ -92,11 +85,11 @@ class TV2ACTDataLoader():
             num_workers = mp.cpu_count()
 
         house_strs = []
-        path = os.path.join(path, house_type + ".jsonl.gz")
+        path = os.path.join(path, house_type + '.jsonl.gz')
         house_strs = read_jsonlgz(
             path=path,
         )
-        dd = LazyJsonDataset(data=house_strs, dataset="procthor-100k-house")
+        dd = LazyJsonDataset(data=house_strs, dataset='procthor-100k-house')
 
         return dd
 
@@ -109,7 +102,7 @@ class EvalSample(TypedDict):
     agent_starting_position: List[float]
     agent_y_rotation: float
 
-    expert_length_bucket: Literal["long", "medium", "short"]
+    expert_length_bucket: Literal['long', 'medium', 'short']
     expert_length: int
     synsets: List[str]
     synset_to_object_ids: Dict[str, List[str]]
@@ -117,14 +110,16 @@ class EvalSample(TypedDict):
     extras: Dict[str, Any]
     task_path: str
     hypernyms: List[str]
-    
+
+
 class Observations(TypedDict):
     goal: str
     initial_agent_location: Union[np.ndarray, List[float]]  # 6 floats (xyz + 0rotation0)
     actions: List[str]
     time_ids: List[int]
     templated_task_type: str
-    
+
+
 class NormalizedEvalSample(TypedDict):
     task_type: str
     house_id: str
@@ -137,28 +132,30 @@ class NormalizedEvalSample(TypedDict):
     sensors_path: str
 
     observations: Observations
-    
+
+
 def eval_sample_to_normalized_eval_sample(
-    task_type: str, sample: EvalSample, index: int) -> InferenceInput:
+    task_type: str, sample: EvalSample, index: int
+) -> InferenceInput:
     return InferenceInput(
         task=f"task={task_type},house={sample['house_index']},sub_house_id={index}",
-        conversation = '123123',
+        conversation='123123',
         metadata=NormalizedEvalSample(
             sample_id=f"task={task_type},house={sample['house_index']},sub_house_id={index}",
-            house_id=str(sample["house_index"]).zfill(6),
+            house_id=str(sample['house_index']).zfill(6),
             task_type=task_type,
             sub_house_id=index,
             needs_video=False,
-            raw_navigation_camera="",
-            sensors_path="",
+            raw_navigation_camera='',
+            sensors_path='',
             observations=Observations(
-                goal=sample["natural_language_spec"],
+                goal=sample['natural_language_spec'],
                 initial_agent_location=np.array(
-                    sample["agent_starting_position"] + [0, sample["agent_y_rotation"], 0]
+                    sample['agent_starting_position'] + [0, sample['agent_y_rotation'], 0]
                 ),
                 actions=[],
                 time_ids=[],
                 templated_task_type=json.dumps(sample),
             ),
-        )
+        ),
     )

@@ -13,7 +13,7 @@ dataset:
   name: AGIEval
   path: zacharyxxxxcr/AGIEval
   split: test
-  size: 
+  size:
   modality: text-to-text
   fewshot_data_path: zacharyxxxxcr/AGIEval
   fewshot_data_file: null
@@ -23,7 +23,7 @@ dataset:
   cot_fewshot_data_split: null
   max_shot: 5
   default_task_list: ['aqua-rat', 'gaokao-biology', 'gaokao-chemistry', 'gaokao-chinese', 'gaokao-english', 'gaokao-geography', 'gaokao-history', 'gaokao-mathcloze', 'gaokao-mathqa', 'gaokao-physics', 'jec-qa-ca', 'jec-qa-kd', 'logiqa-en', 'logiqa-zh', 'lsat-ar', 'lsat-lr', 'lsat-rc', 'math', 'sat-en', 'sat-en-without-passage', 'sat-math']
-task: 
+task:
   - name: aqua-rat
     type: MultiChoice
     data_files: ["aqua-rat/test*.parquet"]
@@ -217,4 +217,3 @@ overall_metrics:
     function: null
     args:
       null
-  

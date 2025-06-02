@@ -2,7 +2,7 @@ dataset:
   name: mmvu
   path: yale-nlp/MMVU
   split: validation
-  size: 
+  size:
   modality: text-audio-to-text
   fewshot_data_path: null
   fewshot_data_name: null
@@ -19,7 +19,7 @@ task_defaults: &task_defaults
   ground_truth_key: answer
   candidate_labels: ["A", "B", "C", "D", "E"]
   avalable_evaluate_tools: ["match_multi-choice_and_open-ended"]
-task: 
+task:
   - name: default
     data_files: null
     <<: *task_defaults
@@ -38,4 +38,3 @@ overall_metrics:
     function: average_across_tasks
     args:
       null
-

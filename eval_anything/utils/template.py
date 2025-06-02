@@ -27,7 +27,9 @@ class Llava:
 @TemplateRegistry.register('Qwen2-VL')
 class QWEN2VL:
     system_prompt: str = '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n'
-    user_prompt: str = '<|im_start|>user\n{input}<|vision_start|><|image_pad|><|vision_end|><|im_end|>\n'
+    user_prompt: str = (
+        '<|im_start|>user\n{input}<|vision_start|><|image_pad|><|vision_end|><|im_end|>\n'
+    )
     assistant_prompt: str = '<|im_start|>assistant\n{output}'
     split_token: str = '\n'
     separator: str = 'assistant\n'

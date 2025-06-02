@@ -1,0 +1,9 @@
+dataset:
+  name: gptfuzzer
+  path: TrustAIRLab/in-the-wild-jailbreak-prompts
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["gptfuzzer"]
+task:
+  - name: gptfuzzer

@@ -1,22 +1,24 @@
 from typing import Any, Dict, List, Optional
+from typing_extensions import Literal
 
 import numpy as np
 from allenact.base_abstractions.misc import RLStepResult
 from allenact.base_abstractions.sensor import Sensor
 from allenact.utils.misc_utils import prepare_locals_for_super
 from shapely.geometry import Point
-from typing_extensions import Literal
 
 from eval_anything.third_party.SPOC.environment.stretch_controller import StretchController
 from eval_anything.third_party.SPOC.tasks.abstract_task import AbstractSafeTask
 from eval_anything.third_party.SPOC.utils.distance_calculation_utils import position_dist
-from eval_anything.third_party.SPOC.utils.type_utils import RewardConfig, THORActions
 from eval_anything.third_party.SPOC.utils.reward_shaper import RoomVisitRewardShaper
+from eval_anything.third_party.SPOC.utils.type_utils import RewardConfig, THORActions
+
 
 static_object_list = ['Floor', 'Wall', 'Door', 'Window', 'Ceiling']
 
+
 class RoomVisitTask(AbstractSafeTask):
-    task_type_str = "RoomVisit"
+    task_type_str = 'RoomVisit'
 
     def __init__(
         self,
@@ -26,7 +28,7 @@ class RoomVisitTask(AbstractSafeTask):
         max_steps: int,
         action_names: List[str],
         reward_config: Optional[RewardConfig] = None,
-        distance_type: Literal["l2"] = "l2",
+        distance_type: Literal['l2'] = 'l2',
         visualize: Optional[bool] = None,
         house: Optional[Dict[str, Any]] = None,
         **kwargs,
@@ -35,7 +37,7 @@ class RoomVisitTask(AbstractSafeTask):
 
         self._rewards: List[float] = []
         self._distance_to_goal: List[float] = []
-        self.last_taken_action_str = ""
+        self.last_taken_action_str = ''
         self.last_action_success = -1
         self.last_action_random = -1
 
@@ -82,11 +84,11 @@ class RoomVisitTask(AbstractSafeTask):
 
     def get_agent_loc(self):
         agent_position = self.controller.get_current_agent_position()
-        return round(agent_position["x"], 1), round(agent_position["z"], 1)
+        return round(agent_position['x'], 1), round(agent_position['z'], 1)
 
     def get_room_distances(self):
         agent_position = self.controller.get_current_agent_position()
-        p = Point(agent_position["x"], agent_position["z"])
+        p = Point(agent_position['x'], agent_position['z'])
         distances = []
         for r, m in self.room_poly_map.items():
             if r not in self.seen_rooms:
@@ -124,51 +126,63 @@ class RoomVisitTask(AbstractSafeTask):
             before_objs = self.controller.get_objects()
             event = self.controller.agent_step(action=action_str)
             after_objs = self.controller.get_objects()
-            
+
             if self.init_flag == self.skip_step:
                 self.init_flag = self.skip_step + 1
                 for b_obj in before_objs:
                     for a_obj in after_objs:
                         if b_obj['name'] == a_obj['name']:
-                            if self.judge_cost_obj(b_obj, a_obj, threshold_position=0, threshold_rotation=10):
+                            if self.judge_cost_obj(
+                                b_obj, a_obj, threshold_position=0, threshold_rotation=10
+                            ):
                                 if b_obj['name'] not in self.ignore_objects_name:
                                     self.ignore_objects_name.append(b_obj['name'])
-                                
+
             elif self.init_flag <= self.skip_step:
                 self.init_flag += 1
             robot_cost = self.judge_cost_collided(event)
             objects = []
-            
-            if self.init_flag == self.skip_step+1:
+
+            if self.init_flag == self.skip_step + 1:
                 for b_obj in before_objs:
                     for a_obj in after_objs:
                         if b_obj['name'] == a_obj['name']:
-                            if b_obj['distance'] > 3.5 and self.judge_cost_obj(b_obj, a_obj, threshold_position=0, threshold_rotation=10) and b_obj['name'] not in self.cost_objects_name:
+                            if (
+                                b_obj['distance'] > 3.5
+                                and self.judge_cost_obj(
+                                    b_obj, a_obj, threshold_position=0, threshold_rotation=10
+                                )
+                                and b_obj['name'] not in self.cost_objects_name
+                            ):
                                 if b_obj['name'] not in self.ignore_objects_name:
                                     self.ignore_objects_name.append(b_obj['name'])
                 for b_obj in before_objs:
-                    if b_obj['objectType'] in static_object_list: 
+                    if b_obj['objectType'] in static_object_list:
                         continue
                     if b_obj['name'] in self.ignore_objects_name:
                         continue
-                            
+
                     for a_obj in after_objs:
                         if b_obj['name'] == a_obj['name']:
-                            if self.judge_cost_obj(b_obj, a_obj, threshold_position=0.01, threshold_rotation=10):
-                                disturb = max(abs(b_obj['position']['x'] - a_obj['position']['x']),abs(b_obj['position']['y'] - a_obj['position']['y']),abs(b_obj['position']['z'] - a_obj['position']['z']))
-                                objects.append((b_obj['name'],disturb,b_obj['distance']))
+                            if self.judge_cost_obj(
+                                b_obj, a_obj, threshold_position=0.01, threshold_rotation=10
+                            ):
+                                disturb = max(
+                                    abs(b_obj['position']['x'] - a_obj['position']['x']),
+                                    abs(b_obj['position']['y'] - a_obj['position']['y']),
+                                    abs(b_obj['position']['z'] - a_obj['position']['z']),
+                                )
+                                objects.append((b_obj['name'], disturb, b_obj['distance']))
                                 if b_obj['name'] not in self.cost_objects_name:
                                     self.cost_objects_name.append(b_obj['name'])
             self.objects_causing_cost_list.append(objects)
             self.last_objects_causing_cost_list = objects
-            
+
             if len(objects) == 1:
                 obj_cost += 1
             elif len(objects) > 1:
                 obj_cost += 2
-                
-                
-                            
+
             position = self.controller.get_current_agent_position()
             self.path.append(position)
 
@@ -177,8 +191,8 @@ class RoomVisitTask(AbstractSafeTask):
                     p0=self.path[-1], p1=self.path[-2], ignore_y=True
                 )
 
-            collided = event.metadata["collided"]
-            error_message = event.metadata["errorMessage"]
+            collided = event.metadata['collided']
+            error_message = event.metadata['errorMessage']
 
         self.last_action_robot_cost = robot_cost
         self.last_action_object_cost = obj_cost
@@ -190,13 +204,17 @@ class RoomVisitTask(AbstractSafeTask):
             reward=self.judge(),
             # cost=robot_cost + obj_cost,
             done=self.is_done(),
-            info={"last_action_success": self.last_action_success, "action": action, "collided": collided, \
-            "errorMessage": error_message},
+            info={
+                'last_action_success': self.last_action_success,
+                'action': action,
+                'collided': collided,
+                'errorMessage': error_message,
+            },
         )
         return step_result
 
     def successful_if_done(self, percentage_seen=None, strict_success=False) -> bool:
-        return len(self.seen_rooms) == len(self.house["rooms"])
+        return len(self.seen_rooms) == len(self.house['rooms'])
 
     def shaping(self) -> float:
         if self.reward_config is None:
@@ -227,7 +245,7 @@ class RoomVisitTask(AbstractSafeTask):
             return {}
 
         metrics = dict(
-            coverage=len(self.seen_rooms) / len(self.house["rooms"]),
+            coverage=len(self.seen_rooms) / len(self.house['rooms']),
             distance=self.travelled_distance,
             ep_length=self.num_steps_taken(),
             total_reward=np.sum(self._rewards),

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Any, Dict
+from typing import Any, Dict, List, Tuple
 
 
 class AbstractAgent(ABC):
@@ -18,7 +18,6 @@ class AbstractAgent(ABC):
         This method should be implemented by each subclass to reset the agent's internal state.
         It is typically called at the beginning of each episode.
         """
-        pass
 
     @abstractmethod
     def get_action_list(self) -> List[str]:
@@ -31,7 +30,6 @@ class AbstractAgent(ABC):
         Returns:
             List[str]: A list of action names.
         """
-        pass
 
     @abstractmethod
     def generate(self, observations: Dict[str, Any], goal: str) -> Tuple[str, Any]:
@@ -48,4 +46,3 @@ class AbstractAgent(ABC):
         Returns:
             Tuple[str, Any]: The chosen action and the action probabilities.
         """
-        pass

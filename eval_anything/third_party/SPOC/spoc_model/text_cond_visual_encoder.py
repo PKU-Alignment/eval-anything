@@ -1,19 +1,19 @@
 import math
-
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Literal, Tuple
 
 import torch
 import torch.nn as nn
 from open_clip.transformer import TextTransformer
+from PIL import Image
 from transformers import T5EncoderModel
 
 from eval_anything.third_party.SPOC.utils.sensor_constant_utils import is_a_visual_sensor
-from PIL import Image
+
 
 @dataclass
 class Dinov2Config:
-    model: str = "dinov2_vits14"
+    model: str = 'dinov2_vits14'
     output_size: Tuple[int, int, int] = (384, 7, 12)
 
 
@@ -21,17 +21,17 @@ class Dinov2(nn.Module):
     def __init__(self, cfg: Dinov2Config):
         super().__init__()
         self.cfg = cfg
-        self.model = torch.hub.load("facebookresearch/dinov2", cfg.model)
+        self.model = torch.hub.load('facebookresearch/dinov2', cfg.model)
         self.pool = nn.AdaptiveAvgPool2d(cfg.output_size[1:])
         self.eval()
 
     def forward(self, x):
         # 2. 移除批次维度
-        image_tensor = x.squeeze(0) # 形状: [3, 360, 628]
+        image_tensor = x.squeeze(0)  # 形状: [3, 360, 628]
 
         # 3. 调整维度顺序
         # 将 (C, H, W) 格式转换为 (H, W, C) 格式，这是图像库（如Pillow, Matplotlib）期望的格式
-        image_tensor_hwc = image_tensor.permute(1, 2, 0) # 形状: [360, 628, 3]
+        image_tensor_hwc = image_tensor.permute(1, 2, 0)  # 形状: [360, 628, 3]
 
         # 4. 将数值范围从 [0, 1] 转换为 [0, 255] 并改变数据类型
         # 图像文件通常使用 8-bit 无符号整数 (uint8)
@@ -45,11 +45,11 @@ class Dinov2(nn.Module):
         pil_image_manual = Image.fromarray(numpy_array)
 
         # 7. 保存图像
-        file_path_manual = "output_image_manual.png"
+        file_path_manual = 'output_image_manual.png'
         pil_image_manual.save(file_path_manual)
         assert x.shape[-2:] == (224, 384), f"Expected shape is 224x384; got {x.shape}"
         with torch.no_grad():
-            x = self.model.forward_features(x[:, :, :, 3:-3])["x_norm_patchtokens"]
+            x = self.model.forward_features(x[:, :, :, 3:-3])['x_norm_patchtokens']
             B, _, D = x.shape  # Bx432x384
             x = x.permute(0, 2, 1)  # Bx384x432
             x = x.reshape(B, D, 16, 27)
@@ -59,35 +59,32 @@ class Dinov2(nn.Module):
 
 IMAGE_ENCODERS = dict(
     Dinov2Small=(Dinov2, Dinov2Config()),
-    Dinov2Base=(Dinov2, Dinov2Config(model="dinov2_vitb14", output_size=(768, 7, 12))),
+    Dinov2Base=(Dinov2, Dinov2Config(model='dinov2_vitb14', output_size=(768, 7, 12))),
 )
+
 
 @dataclass
 class TransformerConfig:
     num_layers: int = 3
     d_model: int = 512
     nhead: int = 8
-    
+
     def to_dict(self):
-        return {
-            "num_layers": self.num_layers,
-            "d_model": self.d_model,
-            "nhead": self.nhead
-        }
+        return {'num_layers': self.num_layers, 'd_model': self.d_model, 'nhead': self.nhead}
 
 
 TEXT_ENCODER_DIMS = {
-    "t5-small": 512,
-    "t5-base": 768,
-    "t5-large": 1024,
+    't5-small': 512,
+    't5-base': 768,
+    't5-large': 1024,
 }
 
 
 def create_text_encoder(encoder_name):
-    if "t5" in encoder_name.lower():
+    if 't5' in encoder_name.lower():
         return T5EncoderModel.from_pretrained(encoder_name)
     else:
-        raise NotImplementedError("Only SigLIP and T5 text encoders are supported.")
+        raise NotImplementedError('Only SigLIP and T5 text encoders are supported.')
 
 
 class TextCondVisualEncoderConfig:
@@ -98,33 +95,36 @@ class TextCondVisualEncoderConfig:
         fusion_xformer: dict = None,  # 从 json 加载时，这里会是一个字典
         input_sensors: List[str] = None,
         bbox_encoding_type: Literal['positional'] = 'positional',
-        **kwargs # 虽然这里暂时没用到，但加上是个好习惯
+        **kwargs,  # 虽然这里暂时没用到，但加上是个好习惯
     ):
         self.image_encoder = image_encoder
         self.text_encoder = text_encoder
-        
+
         # 关键修复：将传入的字典转换为 TransformerConfig 对象
-        self.fusion_xformer = TransformerConfig(**fusion_xformer) if fusion_xformer else TransformerConfig()
-        
+        self.fusion_xformer = (
+            TransformerConfig(**fusion_xformer) if fusion_xformer else TransformerConfig()
+        )
+
         self.input_sensors = input_sensors if input_sensors is not None else []
         self.bbox_encoding_type = bbox_encoding_type
 
     def to_dict(self):
         return {
-            "image_encoder": self.image_encoder,
-            "text_encoder": self.text_encoder,
-            "fusion_xformer": self.fusion_xformer.to_dict() if self.fusion_xformer else None,
-            "input_sensors": self.input_sensors,
-            "bbox_encoding_type": self.bbox_encoding_type
+            'image_encoder': self.image_encoder,
+            'text_encoder': self.text_encoder,
+            'fusion_xformer': self.fusion_xformer.to_dict() if self.fusion_xformer else None,
+            'input_sensors': self.input_sensors,
+            'bbox_encoding_type': self.bbox_encoding_type,
         }
+
 
 class TextCondMultiCameraVisualEncoder(nn.Module):
     def __init__(self, cfg: TextCondVisualEncoderConfig):
         super().__init__()
         self.cfg = cfg
-        if cfg.image_encoder == "dinov2" and cfg.image_encoder not in IMAGE_ENCODERS:
-            cfg.image_encoder = "Dinov2Small"
-            print("REAPLACING DINOV2 WITH DINOV2SMALL")
+        if cfg.image_encoder == 'dinov2' and cfg.image_encoder not in IMAGE_ENCODERS:
+            cfg.image_encoder = 'Dinov2Small'
+            print('REAPLACING DINOV2 WITH DINOV2SMALL')
 
         if cfg.image_encoder in IMAGE_ENCODERS:
             image_encoder_model_cls, image_encoder_cfg = IMAGE_ENCODERS[cfg.image_encoder]
@@ -254,7 +254,7 @@ class PositionalEncoder(nn.Module):
         self.d_model = d_model
         self.max_len = max_len
         div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
-        self.register_buffer("div_term", div_term)
+        self.register_buffer('div_term', div_term)
 
     def forward(self, position):
         """

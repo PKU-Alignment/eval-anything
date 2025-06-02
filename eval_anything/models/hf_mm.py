@@ -3,26 +3,24 @@
 """
 
 import gc
-import torch
 from typing import Any, Dict, List
-from transformers import (
-    Qwen2VLForConditionalGeneration,
-    LlavaForConditionalGeneration,
-    LlavaNextForConditionalGeneration,
-)
-from transformers import AutoConfig, AutoProcessor
+
+import torch
 from accelerate import Accelerator
 from PIL import Image
+from transformers import AutoConfig, AutoProcessor
+
+from eval_anything.models.base_model import BaseModel
 from eval_anything.utils.data_type import InferenceInput, InferenceOutput
 from eval_anything.utils.register import TemplateRegistry as get_template
-from eval_anything.models.base_model import BaseModel
 from eval_anything.utils.utils import get_messages
+
 
 class AccelerateMultimodalModel(BaseModel):
     def __init__(self, model_cfgs: Dict[str, Any], infer_cfgs, **kwargs):
         self.model_cfgs = model_cfgs
         self.infer_cfgs = infer_cfgs
-        
+
         self.model_id = self.model_cfgs.model_id
         self.model_name_or_path = self.model_cfgs.model_name_or_path
         self.chat_template = self.model_cfgs.chat_template
@@ -34,14 +32,14 @@ class AccelerateMultimodalModel(BaseModel):
         self.task2details = {}
         self.detailed_filename = f'{self.model_id}_detailed'
         self.brief_filename = f'{self.model_id}_brief'
-        
+
         self.init_model()
 
     def init_model(self) -> None:
         self.model_config = AutoConfig.from_pretrained(self.model_name_or_path)
         self.ModelForConditionalGeneration = self.model_config.architectures[0]
         self.model_class = globals().get(self.ModelForConditionalGeneration)
-        
+
         if self.model_class:
             self.model = getattr(self.model_class, 'from_pretrained')(self.model_name_or_path)
         else:
@@ -52,7 +50,9 @@ class AccelerateMultimodalModel(BaseModel):
         self.accelerator = Accelerator()
         self.model = self.accelerator.prepare(self.model)
 
-    def generation(self, inputs: Dict[str, List[InferenceInput]]) -> Dict[str, List[InferenceOutput]]:
+    def generation(
+        self, inputs: Dict[str, List[InferenceInput]]
+    ) -> Dict[str, List[InferenceOutput]]:
         return self._generation(inputs)
 
     def _generation(self, input_list: List[InferenceInput]) -> Dict[str, List[InferenceOutput]]:
@@ -66,7 +66,9 @@ class AccelerateMultimodalModel(BaseModel):
             ]
         else:
             prompts = [
-                self.processor.apply_chat_template(get_messages(self.modality, input.text), add_generation_prompt=True)
+                self.processor.apply_chat_template(
+                    get_messages(self.modality, input.text), add_generation_prompt=True
+                )
                 for input in input_list
             ]
 
@@ -85,11 +87,11 @@ class AccelerateMultimodalModel(BaseModel):
             if isinstance(image_file, Image.Image):
                 image = image_file
             elif isinstance(image_file, str):
-                image = Image.open(image_file).convert("RGB")
+                image = Image.open(image_file).convert('RGB')
             else:
-                raise ValueError("image_file is neither a PIL Image nor a string.")
+                raise ValueError('image_file is neither a PIL Image nor a string.')
 
-            inputs = self.processor(images=image, text=prompt, return_tensors="pt")
+            inputs = self.processor(images=image, text=prompt, return_tensors='pt')
             inputs = inputs.to(self.accelerator.device)
             output_id = self.model.generate(**inputs, max_new_tokens=self.max_new_tokens)
             outputs.append(output_id)
@@ -102,7 +104,13 @@ class AccelerateMultimodalModel(BaseModel):
             responses.append(response[0])
 
         inference_outputs = [
-            InferenceOutput.from_hf_output(task=input.task, uuid=input.uuid, response=response, hf_output=output, store_raw=True)
+            InferenceOutput.from_hf_output(
+                task=input.task,
+                uuid=input.uuid,
+                response=response,
+                hf_output=output,
+                store_raw=True,
+            )
             for input, response, output in zip(input_list, responses, outputs)
         ]
 

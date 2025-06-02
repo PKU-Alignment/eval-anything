@@ -15,13 +15,12 @@ dataloader基类，不直接使用，而是继承后实现具体的数据加载�
     - InferenceInput类
 """
 
-from abc import ABC, abstractmethod
-from datasets import load_dataset
-import os
-from eval_anything.utils.data_type import InferenceInput
-from eval_anything.utils.utils import get_project_root
+from abc import abstractmethod
 from collections import defaultdict
-from typing import List, Dict
+from typing import Dict, List
+
+from eval_anything.utils.data_type import InferenceInput
+
 
 class BaseDataLoader:
 

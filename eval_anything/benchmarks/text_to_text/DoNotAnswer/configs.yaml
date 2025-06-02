@@ -1,0 +1,9 @@
+dataset:
+  name: DoNotAnswer
+  path: eval-anything/eval_anything/benchmarks/local_safe_eval_data/DoNotAnswer_data_en.csv
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["DoNotAnswer"]
+task:
+  - name: DoNotAnswer

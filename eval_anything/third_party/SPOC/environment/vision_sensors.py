@@ -55,7 +55,7 @@ class RawNavigationStretchRGBSensor(RawRGBSensorTHOR):
 
 
 class ReadyForDoneActionSensor(Sensor):
-    def __init__(self, uuid: str = "expert_done") -> None:
+    def __init__(self, uuid: str = 'expert_done') -> None:
         observation_space = self._get_observation_space()
         super().__init__(**prepare_locals_for_super(locals()))
 
@@ -73,7 +73,7 @@ class ReadyForDoneActionSensor(Sensor):
 
 
 class ReadyForSubDoneActionSensor(Sensor):
-    def __init__(self, uuid: str = "expert_subdone") -> None:
+    def __init__(self, uuid: str = 'expert_subdone') -> None:
         observation_space = self._get_observation_space()
         super().__init__(**prepare_locals_for_super(locals()))
 

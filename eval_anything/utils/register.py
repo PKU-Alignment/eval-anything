@@ -2,6 +2,7 @@
 注册器，实现metric和template的注册
 """
 
+
 class MetricRegistry:
     _registry = {}
 
@@ -11,6 +12,7 @@ class MetricRegistry:
             cls._registry[name] = metric_cls
             metric_cls._registered_name = name
             return metric_cls
+
         return decorator
 
     @classmethod
@@ -18,7 +20,8 @@ class MetricRegistry:
         if name not in cls._registry:
             raise ValueError(f"Metric '{name}' is not registered!")
         return cls._registry[name](*args, **kwargs)
-    
+
+
 class TemplateRegistry:
     _registry = {}
 
@@ -28,6 +31,7 @@ class TemplateRegistry:
             cls._registry[name] = template_cls
             template_cls.__name__ = name
             return template_cls
+
         return decorator
 
     @classmethod
@@ -35,7 +39,8 @@ class TemplateRegistry:
         if name not in cls._registry:
             raise ValueError(f"Template '{name}' is not registered!")
         return cls._registry[name](*args, **kwargs)
-    
+
+
 class BenchmarkRegistry:
     _registry = {}
 
@@ -45,14 +50,16 @@ class BenchmarkRegistry:
             cls._registry[name] = benchmark_cls
             benchmark_cls._registered_name = name
             return benchmark_cls
+
         return decorator
-    
+
     @classmethod
     def get_benchmark(cls, name: str):
         if name not in cls._registry:
             raise ValueError(f"Benchmark '{name}' is not registered!")
         return cls._registry[name]
-    
+
+
 class MMDatasetRegistry:
     _registry = {}
 
@@ -62,13 +69,15 @@ class MMDatasetRegistry:
             cls._registry[name] = mm_dataset_cls
             mm_dataset_cls._registered_name = name
             return mm_dataset_cls
+
         return decorator
-    
+
     @classmethod
     def get_mm_dataset(cls, name: str):
         if name not in cls._registry:
             raise ValueError(f"Dataset '{name}' is not registered!")
         return cls._registry[name]
+
 
 class MMDataManagerRegistry:
     _registry = {}
@@ -79,13 +88,15 @@ class MMDataManagerRegistry:
             cls._registry[name] = mm_data_manager_cls
             mm_data_manager_cls._registered_name = name
             return mm_data_manager_cls
+
         return decorator
-    
+
     @classmethod
     def get_mm_data_manager(cls, name: str):
         if name not in cls._registry:
             raise ValueError(f"DataManager '{name}' is not registered!")
         return cls._registry[name]
+
 
 class PromptBuilderRegistry:
     _registry = {}
@@ -96,13 +107,15 @@ class PromptBuilderRegistry:
             cls._registry[name] = prompt_builder_cls
             prompt_builder_cls._registered_name = name
             return prompt_builder_cls
+
         return decorator
-    
+
     @classmethod
     def get_prompt_builder(cls, name: str):
         if name not in cls._registry:
             raise ValueError(f"Prompt builder '{name}' is not registered!")
         return cls._registry[name]
+
 
 class DataloaderRegistry:
     _registry = {}
@@ -113,13 +126,15 @@ class DataloaderRegistry:
             cls._registry[name] = dataloader_cls
             dataloader_cls._registered_name = name
             return dataloader_cls
+
         return decorator
-    
+
     @classmethod
     def get_dataloader(cls, name: str):
         if name not in cls._registry:
             raise ValueError(f"Dataloader '{name}' is not registered!")
         return cls._registry[name]
+
 
 class AnswerExtractorRegistry:
     _registry = {}
@@ -130,13 +145,15 @@ class AnswerExtractorRegistry:
             cls._registry[name] = extractor_cls
             extractor_cls._registered_name = name
             return extractor_cls
+
         return decorator
-    
+
     @classmethod
     def get_extractor(cls, name: str):
         if name not in cls._registry:
             raise ValueError(f"Answer extractor '{name}' is not registered!")
         return cls._registry[name]
+
 
 class JudgeRegistry:
     _registry = {}
@@ -147,11 +164,11 @@ class JudgeRegistry:
             cls._registry[name] = judge_cls
             judge_cls._registered_name = name
             return judge_cls
+
         return decorator
-    
+
     @classmethod
     def get_judge(cls, name: str):
         if name not in cls._registry:
             raise ValueError(f"Judge method '{name}' is not registered!")
         return cls._registry[name]
-

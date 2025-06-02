@@ -13,7 +13,7 @@ dataset:
   name: mathvision
   path: MathLLMs/MathVision
   split: test
-  size: 
+  size:
   modality: text-image-to-text
   fewshot_data_path: null
   fewshot_data_name: null
@@ -30,7 +30,7 @@ task_defaults: &task_defaults
   ground_truth_key: answer
   candidate_labels: ["A", "B", "C", "D", "E"]
   avalable_evaluate_tools: ["match_latex_math"]
-task: 
+task:
   - name: default
     data_files: null
     <<: *task_defaults
@@ -49,4 +49,3 @@ overall_metrics:
     function: average_across_tasks
     args:
       null
-  

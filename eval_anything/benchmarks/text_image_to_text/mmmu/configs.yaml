@@ -13,7 +13,7 @@ dataset:
   name: mmmu
   path: MMMU/MMMU
   split: validation
-  size: 
+  size:
   modality: text-image-to-text
   fewshot_data_path: MMMU/MMMU
   fewshot_data_name: "{task_name}"
@@ -30,7 +30,7 @@ task_defaults: &task_defaults
   ground_truth_key: answer
   candidate_labels: ["A", "B", "C", "D", "E"]
   avalable_evaluate_tools: ["match_multi-choice_and_open-ended"]
-task: 
+task:
   - name: Accounting
     data_files: null
     <<: *task_defaults
@@ -121,7 +121,7 @@ task:
   - name: Sociology
     data_files: null
     <<: *task_defaults
-    
+
 answer_extractor:
   - name: match_multi-choice_and_open-ended
     function: regex_match_multi_open
@@ -137,4 +137,3 @@ overall_metrics:
     function: average_across_tasks
     args:
       null
-  

@@ -4,7 +4,7 @@
 
 import sys
 import warnings
-from typing import Dict, List, Optional, Tuple
+from typing import List
 
 import numpy as np
 import torch
@@ -20,6 +20,7 @@ from transformers import (
 from .model_utils import auto_or_half, auto_or_half_dtype, is_ampere_or_newer
 from .template import MD_Prompter
 from .text_utils import extract_label_from_content
+
 
 try:
     import ray
@@ -37,7 +38,7 @@ class MDJudgeEvaluator:
         model_name_or_path,
         use_flash_attn=False,
         use_vllm=False,
-        template_policy="task",
+        template_policy='task',
         model_parallel_size=1,
         gpu_memory_utilization=0.95,
     ):
@@ -75,7 +76,7 @@ class MDJudgeEvaluator:
         if not self._tokenizer:
             model_name_or_path = self.model_name_or_path
             tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, **kwargs)
-            assert tokenizer.padding_side == "left"
+            assert tokenizer.padding_side == 'left'
             tokenizer.pad_token = tokenizer.unk_token
             self._tokenizer = tokenizer
         return self._tokenizer
@@ -97,17 +98,17 @@ class MDJudgeEvaluator:
 
             if self.use_flash_attn:
                 if is_ampere_or_newer():
-                    kwargs["attn_implementation"] = "flash_attention_2"
+                    kwargs['attn_implementation'] = 'flash_attention_2'
                 else:
                     warnings.warn(
-                        "\nFlash attention is only available on Ampere or newer GPUs."
-                        "\nChanged to default attention implementation."
+                        '\nFlash attention is only available on Ampere or newer GPUs.'
+                        '\nChanged to default attention implementation.'
                     )
 
             model_name_or_path = self.model_name_or_path
             model = AutoModelForCausalLM.from_pretrained(
                 model_name_or_path,
-                device_map="cuda",
+                device_map='cuda',
                 torch_dtype=auto_or_half_dtype(),
                 **kwargs,
             )
@@ -183,7 +184,7 @@ class MDJudgeEvaluator:
         all_probs = []
         left = 0
 
-        pbar = tqdm(total=len(queries), desc="Evaluating", disable=not use_tqdm)
+        pbar = tqdm(total=len(queries), desc='Evaluating', disable=not use_tqdm)
         while left < len(queries):
             right = min(left + batch_size, len(queries))
             # batch of prompts
@@ -192,11 +193,11 @@ class MDJudgeEvaluator:
 
             try:
                 inputs = tokenizer(
-                    sub_q, return_tensors="pt", add_special_tokens=True, padding=True
+                    sub_q, return_tensors='pt', add_special_tokens=True, padding=True
                 )  # add special tokens
-                inputs = inputs.to("cuda")
+                inputs = inputs.to('cuda')
                 outputs = model(**inputs)
-                logits = outputs["logits"][:, -1, :]
+                logits = outputs['logits'][:, -1, :]
                 probs = torch.nn.functional.softmax(logits, dim=-1)
                 probs = probs.detach().cpu().numpy()
                 probs_list = []
@@ -264,8 +265,8 @@ class MDJudgeEvaluator:
         gen_config = GenerationConfig(
             do_sample=False, temerature=0.0, max_new_tokens=max_new_tokens
         )
-        for prompt in tqdm(queries, desc="Evaluating", disable=not use_tqdm):
-            inputs = tokenizer(prompt, add_special_tokens=True, return_tensors="pt")
+        for prompt in tqdm(queries, desc='Evaluating', disable=not use_tqdm):
+            inputs = tokenizer(prompt, add_special_tokens=True, return_tensors='pt')
             inputs = inputs.to(device=hf_model.device)
             outputs = hf_model.generate(**inputs, generation_config=gen_config)
             resp = tokenizer.batch_decode(
@@ -291,15 +292,11 @@ class MDJudgeEvaluator:
         responses = []
         vllm_model = self._load_vllm_model()
 
-        sampling_params = SamplingParams(
-            n=1, temperature=0.0, max_tokens=max_new_tokens
-        )
-        outputs = vllm_model.generate(
-            queries, sampling_params=sampling_params, use_tqdm=use_tqdm
-        )
+        sampling_params = SamplingParams(n=1, temperature=0.0, max_tokens=max_new_tokens)
+        outputs = vllm_model.generate(queries, sampling_params=sampling_params, use_tqdm=use_tqdm)
         for output in outputs:
             resp = output.outputs[0].text
-            resp = resp.split("<eos>")[0]
+            resp = resp.split('<eos>')[0]
             responses.append(resp.strip())
         return responses
 
@@ -329,9 +326,7 @@ class MDJudgeEvaluator:
 
         queries = self.prompter.generate(questions, answers, add_inst=True)
         if sort:
-            qs_and_indicis = sorted(
-                enumerate(queries), key=lambda i_and_x: len(i_and_x[1])
-            )
+            qs_and_indicis = sorted(enumerate(queries), key=lambda i_and_x: len(i_and_x[1]))
         all_idx, all_probs = self._hf_first_token(qs_and_indicis, batch_size, use_tqdm)
         # make sure output as the same order
         all_idx_and_logprob = sorted(
@@ -370,9 +365,7 @@ class MDJudgeEvaluator:
                 queries, max_new_tokens=max_new_tokens, use_tqdm=use_tqdm
             )
         else:
-            responses = self._hf_generate(
-                queries, max_new_tokens=max_new_tokens, use_tqdm=use_tqdm
-            )
+            responses = self._hf_generate(queries, max_new_tokens=max_new_tokens, use_tqdm=use_tqdm)
 
         resp_list = [extract_label_from_content(resp) for resp in responses]
         eval_labels = [label for label, cls in resp_list]
@@ -387,9 +380,9 @@ class DDPMDJudgeEvaluator:
         model_name_or_path,
         use_flash_attn=False,
         use_vllm=False,
-        template_policy="task",
-        ray_address="local",
-        max_replicas="max",
+        template_policy='task',
+        ray_address='local',
+        max_replicas='max',
     ):
         """Data parallel MD-Judge Evaluator.
 
@@ -403,8 +396,8 @@ class DDPMDJudgeEvaluator:
         """
         ray.init(ignore_reinit_error=True, address=ray_address)
 
-        total_gpus = int(ray.available_resources()["GPU"])
-        if max_replicas == "max":
+        total_gpus = int(ray.available_resources()['GPU'])
+        if max_replicas == 'max':
             num_models = total_gpus
         else:
             num_models = min(total_gpus, int(max_replicas))
@@ -466,9 +459,7 @@ class DDPMDJudgeEvaluator:
 
             except ray.exceptions.RayActorError as e:
                 print(f"Error in model {i}, corresponding result will be None.")
-                all_probs.extend(
-                    [None] * (min((i + 1) * chunk_size, len_) - i * chunk_size)
-                )
+                all_probs.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
 
         return all_probs
 
@@ -513,11 +504,7 @@ class DDPMDJudgeEvaluator:
 
             except ray.exceptions.RayActorError as e:
                 print(f"Error in model {i}, corresponding result will be None.")
-                all_eval_labels.extend(
-                    [None] * (min((i + 1) * chunk_size, len_) - i * chunk_size)
-                )
-                all_eval_clses.extend(
-                    [None] * (min((i + 1) * chunk_size, len_) - i * chunk_size)
-                )
+                all_eval_labels.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
+                all_eval_clses.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
 
         return all_eval_labels, all_eval_clses

@@ -1,11 +1,11 @@
 import math
-from typing import Optional, List, Sequence, Dict, Tuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
-from shapely.geometry import Point, Polygon, GeometryCollection
+from shapely.geometry import GeometryCollection, Point, Polygon
 from shapely.ops import triangulate
 from skimage.morphology import skeletonize
+
 
 if TYPE_CHECKING:
     from eval_anything.third_party.SPOC.environment.stretch_controller import StretchController
@@ -14,22 +14,23 @@ if TYPE_CHECKING:
 ALIGNMENT_THRESHOLD = 10  # degrees allowed between agent heading and object center
 PROP_VISIBLE_THRESHOLD = 0.8
 
+
 def locs2grids(locations, grid_spacing):
-    min_r = math.floor(min(locations, key=lambda x: x["x"])["x"] / grid_spacing)
-    max_r = math.ceil(max(locations, key=lambda x: x["x"])["x"] / grid_spacing)
-    min_c = math.floor(min(locations, key=lambda x: x["z"])["z"] / grid_spacing)
-    max_c = math.ceil(max(locations, key=lambda x: x["z"])["z"] / grid_spacing)
+    min_r = math.floor(min(locations, key=lambda x: x['x'])['x'] / grid_spacing)
+    max_r = math.ceil(max(locations, key=lambda x: x['x'])['x'] / grid_spacing)
+    min_c = math.floor(min(locations, key=lambda x: x['z'])['z'] / grid_spacing)
+    max_c = math.ceil(max(locations, key=lambda x: x['z'])['z'] / grid_spacing)
 
     imsize = (max_r - min_r + 1, max_c - min_c + 1)
 
-    rows = [round(loc["x"] / grid_spacing) - min_r for loc in locations]
-    cols = [round(loc["z"] / grid_spacing) - min_c for loc in locations]
+    rows = [round(loc['x'] / grid_spacing) - min_r for loc in locations]
+    cols = [round(loc['z'] / grid_spacing) - min_c for loc in locations]
 
     valid_grid = np.zeros(imsize, dtype=bool)
     valid_grid[rows, cols] = True
 
     locs_grid = np.zeros(imsize + (3,), dtype=np.float32)
-    locs_grid[rows, cols] = [[loc["x"], loc["y"], loc["z"]] for loc in locations]
+    locs_grid[rows, cols] = [[loc['x'], loc['y'], loc['z']] for loc in locations]
 
     return valid_grid, locs_grid
 
@@ -40,17 +41,17 @@ def grids2locs(valid_grid, locs_grid):
 
 
 def vector_dif(loc_start, loc_goal):
-    cur_x = loc_start["x"]
-    cur_z = loc_start["z"]
-    goal_x = loc_goal["x"]
-    goal_z = loc_goal["z"]
+    cur_x = loc_start['x']
+    cur_z = loc_start['z']
+    goal_x = loc_goal['x']
+    goal_z = loc_goal['z']
     vector = (goal_x - cur_x, goal_z - cur_z)
     return vector
 
 
 def rotation_from(full_agent_pose, goal_obj_position):
-    cur_heading = full_agent_pose["rotation"]["y"]
-    vector = vector_dif(full_agent_pose["position"], goal_obj_position)
+    cur_heading = full_agent_pose['rotation']['y']
+    vector = vector_dif(full_agent_pose['position'], goal_obj_position)
     if vector[1] == 0 and vector[0] == 0:
         result = cur_heading
     else:
@@ -64,8 +65,8 @@ def rotation_from(full_agent_pose, goal_obj_position):
 
 
 def get_room_id_from_location(room_polymap, position, verbose=True):
-    if type(position) == dict and "x" in position and "z" in position:
-        point = Point(position["x"], position["z"])
+    if type(position) == dict and 'x' in position and 'z' in position:
+        point = Point(position['x'], position['z'])
     else:
         assert len(position) == 3
         point = Point(position[0], position[2])
@@ -79,13 +80,13 @@ def get_room_id_from_location(room_polymap, position, verbose=True):
     on_walls_of_room_ids = [room_id for room_id, dist in room_id_to_dist.items() if dist < 1e-3]
     if len(on_walls_of_room_ids) == 0:
         if verbose:
-            print(position, "is out of house in get_room_id_from_location")
+            print(position, 'is out of house in get_room_id_from_location')
         return None
     elif len(on_walls_of_room_ids) == 1:
         return on_walls_of_room_ids[0]
     else:
         if verbose:
-            print(position, "is on walls of multiple rooms, cannot return unique room id")
+            print(position, 'is on walls of multiple rooms, cannot return unique room id')
         return None
 
 
@@ -93,9 +94,9 @@ def get_rooms_polymap_and_type(house):
     room_poly_map = {}
     room_type_dict = {}
     # NOTE: Map the rooms
-    for i, room in enumerate(house["rooms"]):
-        room_poly_map[room["id"]] = Polygon([(p["x"], p["z"]) for p in room["floorPolygon"]])
-        room_type_dict[room["id"]] = room["roomType"]
+    for i, room in enumerate(house['rooms']):
+        room_poly_map[room['id']] = Polygon([(p['x'], p['z']) for p in room['floorPolygon']])
+        room_type_dict[room['id']] = room['roomType']
     return room_poly_map, room_type_dict
 
 
@@ -113,7 +114,7 @@ def thinned_starting_positions(locations, grid_spacing=0.25):
 
 
 def get_wall_center_floor_level(wall_id, y):
-    wall_xzs = wall_id.split("|")[2:]
+    wall_xzs = wall_id.split('|')[2:]
     assert len(wall_xzs) == 4
 
     return dict(
@@ -121,15 +122,18 @@ def get_wall_center_floor_level(wall_id, y):
         y=y,
         z=(float(wall_xzs[1]) + float(wall_xzs[3])) / 2,
     )
-    
+
+
 def vector_lengths(vectors):
     return np.sqrt((vectors * vectors).sum(1))
+
 
 def first_corner_to_other_vertices_vectors(box):
     corner_to_others = box - box[:1, :]
     assert np.isclose(corner_to_others[0].sum(), 0.0)
     without_corner = corner_to_others[1:]
     return without_corner
+
 
 def get_basis_for_3d_box_from_bbox_corners(bbox_corners) -> Tuple[np.ndarray, np.ndarray]:
     # stacked along columns
@@ -162,15 +166,17 @@ def get_basis_for_3d_box_from_bbox_corners(bbox_corners) -> Tuple[np.ndarray, np
 
     return orth_mat, magnitudes1[[v0_ind, v1_ind, v2_ind]]
 
+
 def get_box_from_object(obj, verbose=False):
-    if obj.get("objectOrientedBoundingBox") is not None:
-        box = obj["objectOrientedBoundingBox"]["cornerPoints"]
+    if obj.get('objectOrientedBoundingBox') is not None:
+        box = obj['objectOrientedBoundingBox']['cornerPoints']
     else:
         if verbose:
             print(f"Using axisAlignedBoundingBox for {obj['objectId']} ({obj['synset']})")
-        box = obj["axisAlignedBoundingBox"]["cornerPoints"]
+        box = obj['axisAlignedBoundingBox']['cornerPoints']
 
     return np.array(box)
+
 
 def get_basis_for_3d_box(obj) -> Tuple[np.ndarray, np.ndarray]:
     # should get object aligned but might return axis aligned
@@ -178,8 +184,9 @@ def get_basis_for_3d_box(obj) -> Tuple[np.ndarray, np.ndarray]:
 
     return get_basis_for_3d_box_from_bbox_corners(bbox_corners)
 
+
 def is_any_object_sufficiently_visible_and_in_center_frame(
-    controller: "StretchController",
+    controller: 'StretchController',
     object_ids: List[str],
     scale: float = 1.5e4,
     manipulation_camera=False,
@@ -242,30 +249,30 @@ def is_any_object_sufficiently_visible_and_in_center_frame(
                 empty_top = False
 
             target_visibility_quant[oid] = {
-                "alignment": alignment,
-                "pixel_mass": pixel_mass,
-                "empty_top": empty_top,
+                'alignment': alignment,
+                'pixel_mass': pixel_mass,
+                'empty_top': empty_top,
             }
 
     sufficient_visibility = False
     for obj_id, obj_data in target_visibility_quant.items():
-        if obj_data["alignment"] >= ALIGNMENT_THRESHOLD:
+        if obj_data['alignment'] >= ALIGNMENT_THRESHOLD:
             continue
 
-        if obj_data["pixel_mass"] < absolute_min_pixels:
+        if obj_data['pixel_mass'] < absolute_min_pixels:
             continue
 
-        if obj_data["pixel_mass"] <= pixel_mass_thresholds[obj_id]:
+        if obj_data['pixel_mass'] <= pixel_mass_thresholds[obj_id]:
             # The pixel mass threshold can be overly strict so we include here an approximate check
             # to see if the object is > prop_visible_threshold visible and, if it is, we say its ok.
             prop_visible = controller.step(
-                action="ProportionOfObjectVisible",
+                action='ProportionOfObjectVisible',
                 objectId=list(target_visibility_quant.keys())[0],
-            ).metadata["actionReturn"]
+            ).metadata['actionReturn']
             if prop_visible < PROP_VISIBLE_THRESHOLD:
                 continue
 
-        if obj_data["empty_top"] is not None and (not obj_data["empty_top"]):
+        if obj_data['empty_top'] is not None and (not obj_data['empty_top']):
             continue
 
         sufficient_visibility = True
@@ -279,7 +286,7 @@ def triangulate_room_polygon(room_polygon: Polygon) -> GeometryCollection:
 
 
 def snap_to_skeleton(
-    controller: "StretchController",
+    controller: 'StretchController',
     corners: Sequence[Dict[str, float]],
     thinned_locs: Optional[Sequence[Dict[str, float]]] = None,
     dist_threshold: float = 0.25,
@@ -296,14 +303,14 @@ def snap_to_skeleton(
         if thinned_locs is None:
             thinned_locs = thinned_starting_positions(controller.get_reachable_positions())
 
-        thinned_pts = np.array([[p["x"], p["z"]] for p in thinned_locs])
+        thinned_pts = np.array([[p['x'], p['z']] for p in thinned_locs])
 
         for i, corner in list(enumerate(corners))[1:-1]:
-            p = np.array([[corner["x"], corner["z"]]])
+            p = np.array([[corner['x'], corner['z']]])
             dists = np.linalg.norm(p - thinned_pts, axis=1)
             if dists.min() <= dist_threshold:
                 closest_thinned = thinned_pts[dists.argmin()]
-                corner["x"] = float(closest_thinned[0])
-                corner["z"] = float(closest_thinned[1])
+                corner['x'] = float(closest_thinned[0])
+                corner['z'] = float(closest_thinned[1])
 
     return corners

@@ -6,27 +6,26 @@ TODO
     - logger
 """
 
-from abc import ABC
-import os
 import importlib
 import json
+import os
+from abc import ABC
 from collections import namedtuple
+
 import gradio as gr
 import pandas as pd
 
+from eval_anything.models.base_model import CLASS_MAP, MODEL_MAP
+from eval_anything.utils.cache_manager import CacheManager
 from eval_anything.utils.logger import EvalLogger
-from eval_anything.models.base_model import MODEL_MAP, CLASS_MAP
+from eval_anything.utils.register import BenchmarkRegistry
 from eval_anything.utils.utils import (
-    read_cfgs_from_yaml,
-    update_dict,
     custom_cfgs_to_dict,
     dict_to_namedtuple,
     namedtuple_to_dict,
+    read_cfgs_from_yaml,
+    update_dict,
 )
-from eval_anything.utils.cache_manager import CacheManager
-from eval_anything.utils.register import BenchmarkRegistry
-import eval_anything.benchmarks
-import eval_anything.dataloader.format_mm_dataset
 
 
 class BaseTask(ABC):
@@ -78,7 +77,7 @@ class BaseTask(ABC):
     def load_model(self, model_cfgs: namedtuple, infer_cfgs: namedtuple):
         backend_type = f"{infer_cfgs.infer_backend}_{model_cfgs.model_type}"
         module_name = f"eval_anything.models.{MODEL_MAP[backend_type]}"
-        
+
         module = importlib.import_module(module_name)
         model_class = getattr(module, CLASS_MAP[backend_type])
         model = model_class(model_cfgs, infer_cfgs)
@@ -181,20 +180,20 @@ class BaseTask(ABC):
         """
         results_df = self._create_visualization_data(results)
         if results_df.empty:
-            self.logger.warning("No results data available for visualization")
+            self.logger.warning('No results data available for visualization')
             return
 
         with gr.Blocks() as demo:
             gr.Markdown(f"# {self._get_modality_type().title()} Task Evaluation Results")
 
-            with gr.Tab("Results Overview"):
+            with gr.Tab('Results Overview'):
                 gr.Dataframe(
                     value=results_df,
                     headers=results_df.columns.tolist(),
-                    row_count=(len(results_df), "dynamic"),
+                    row_count=(len(results_df), 'dynamic'),
                 )
 
-            with gr.Tab("Metrics Visualization"):
+            with gr.Tab('Metrics Visualization'):
                 metric_columns = [
                     col for col in results_df.columns if col not in ['Benchmark', 'Modality']
                 ]
@@ -206,10 +205,10 @@ class BaseTask(ABC):
                         ).figure
                         gr.Plot(value=plot_fig)
 
-            with gr.Tab("Export"):
+            with gr.Tab('Export'):
                 gr.File(
                     value=os.path.join(self.output_path, 'evaluation_details.json'),
-                    label="Download Complete Results",
+                    label='Download Complete Results',
                 )
 
         # Create visualization directory and launch interface
@@ -222,7 +221,7 @@ class BaseTask(ABC):
         share = vis_config.share if hasattr(vis_config, 'share') else False
 
         try:
-            demo.launch(server_port=server_port, server_name="0.0.0.0", share=share, quiet=True)
+            demo.launch(server_port=server_port, server_name='0.0.0.0', share=share, quiet=True)
         except Exception as e:
             self.logger.error(f"Failed to launch visualization interface: {str(e)}")
 

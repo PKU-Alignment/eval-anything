@@ -6,16 +6,18 @@ EvaluationResult: 存储评估结果
 TODO 还需适配
 """
 
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Union, Any
 import json
+from dataclasses import dataclass
+from enum import Enum
+from typing import Dict, List, Optional, Union
+
+import numpy as np
 import PIL
 import torch
 from openai.types.chat.chat_completion import ChatCompletion
 from vllm.outputs import RequestOutput
 from vllm.sequence import PromptLogprobs
-from enum import Enum
-import numpy as np
+
 from eval_anything.utils.uuid import UUIDGenerator
 
 
@@ -25,11 +27,11 @@ class RewardModelOutput:
 
 
 class ModalityType(Enum):
-    TEXT = "text"
-    IMAGE = "image"
-    VIDEO = "video"
-    AUDIO = "audio"
-    VISION = "vision"  # For Imagebind
+    TEXT = 'text'
+    IMAGE = 'image'
+    VIDEO = 'video'
+    AUDIO = 'audio'
+    VISION = 'vision'  # For Imagebind
 
     def __str__(self):
         return self.value
@@ -101,11 +103,11 @@ class InferenceInput:
         self.metadata = metadata or {}  # Store benchmark-specific data
 
         self.uuid_generator = UUIDGenerator()
-        self.uuid = self.uuid_generator({"task": self.task, "conversation": self.conversation})
+        self.uuid = self.uuid_generator({'task': self.task, 'conversation': self.conversation})
 
     def __str__(self):
         return json.dumps(
-            {"task": self.task, "conversation": self.conversation}, ensure_ascii=False, indent=4
+            {'task': self.task, 'conversation': self.conversation}, ensure_ascii=False, indent=4
         )
 
     def __repr__(self):
@@ -118,10 +120,10 @@ class InferenceInput:
 
     def to_dict(self):
         return {
-            "task": self.task,
-            "conversation": self.conversation,
-            "uuid": self.uuid,
-            "ref_answer": self.ref_answer,
+            'task': self.task,
+            'conversation': self.conversation,
+            'uuid': self.uuid,
+            'ref_answer': self.ref_answer,
         }
 
 
@@ -202,10 +204,10 @@ class InferenceOutput:
 
     def to_dict(self):
         return {
-            "task": self.task,
-            "uuid": self.uuid,
-            "response": self.response,
-            "engine": self.engine,
+            'task': self.task,
+            'uuid': self.uuid,
+            'response': self.response,
+            'engine': self.engine,
         }
 
     # TODO

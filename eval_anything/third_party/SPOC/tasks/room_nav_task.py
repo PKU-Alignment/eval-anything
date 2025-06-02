@@ -1,25 +1,28 @@
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
+
 
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
 
-from allenact.utils.system import get_logger
-from allenact.utils.misc_utils import prepare_locals_for_super
-from allenact.base_abstractions.sensor import Sensor
-from allenact_plugins.robothor_plugin.robothor_tasks import spl_metric
 import numpy as np
+from allenact.base_abstractions.sensor import Sensor
+from allenact.utils.misc_utils import prepare_locals_for_super
+from allenact.utils.system import get_logger
+from allenact_plugins.robothor_plugin.robothor_tasks import spl_metric
 
-from eval_anything.third_party.SPOC.tasks.abstract_task import AbstractSafeTask
-from eval_anything.third_party.SPOC.utils.data_generation_utils.navigation_utils import get_room_id_from_location
-from eval_anything.third_party.SPOC.utils.distance_calculation_utils import position_dist
-from eval_anything.third_party.SPOC.utils.type_utils import Vector3, RewardConfig
 from eval_anything.third_party.SPOC.environment.stretch_controller import StretchController
+from eval_anything.third_party.SPOC.tasks.abstract_task import AbstractSafeTask
+from eval_anything.third_party.SPOC.utils.data_generation_utils.navigation_utils import (
+    get_room_id_from_location,
+)
+from eval_anything.third_party.SPOC.utils.distance_calculation_utils import position_dist
+from eval_anything.third_party.SPOC.utils.type_utils import RewardConfig, Vector3
 
 
 class RoomNavTask(AbstractSafeTask):
-    task_type_str = "RoomNav"
+    task_type_str = 'RoomNav'
 
     def __init__(
         self,
@@ -29,7 +32,7 @@ class RoomNavTask(AbstractSafeTask):
         max_steps: int,
         action_names: List[str],
         reward_config: Optional[RewardConfig] = None,
-        distance_type: Literal["l2"] = "l2",
+        distance_type: Literal['l2'] = 'l2',
         visualize: Optional[bool] = None,
         house: Optional[Dict[str, Any]] = None,
         **kwargs,
@@ -38,7 +41,7 @@ class RoomNavTask(AbstractSafeTask):
 
         self._rewards: List[float] = []
         self._distance_to_goal: List[float] = []
-        self.last_taken_action_str = ""
+        self.last_taken_action_str = ''
         self.last_action_success = -1
         self.last_action_random = -1
 
@@ -58,12 +61,12 @@ class RoomNavTask(AbstractSafeTask):
         self.visualize = visualize
 
     def successful_if_done(self, strict_success=False) -> bool:
-        room_type = self.task_info["room_types"][0]
+        room_type = self.task_info['room_types'][0]
         return (
             get_room_id_from_location(
                 self.room_poly_map, self.controller.get_current_agent_position()
             )
-            in self.task_info["room_ids"][room_type]
+            in self.task_info['room_ids'][room_type]
         )
 
     def shaping(self) -> float:
@@ -75,7 +78,7 @@ class RoomNavTask(AbstractSafeTask):
         reward = 0.0
         cur_distance = self.dist_to_target_func()
 
-        if self.distance_type == "l2":
+        if self.distance_type == 'l2':
             reward += self.reward_config.shaping_weight * max(
                 self.closest_distance - cur_distance, 0
             )
@@ -107,18 +110,18 @@ class RoomNavTask(AbstractSafeTask):
             return {}
 
         metrics = super().metrics()
-        metrics["ep_length"] = self.num_steps_taken()
-        metrics["dist_to_target"] = self.dist_to_target_func()
-        metrics["total_reward"] = np.sum(self._rewards)
-        metrics["spl"] = spl_metric(
+        metrics['ep_length'] = self.num_steps_taken()
+        metrics['dist_to_target'] = self.dist_to_target_func()
+        metrics['total_reward'] = np.sum(self._rewards)
+        metrics['spl'] = spl_metric(
             success=self._success,
             optimal_distance=self.optimal_distance,
             travelled_distance=self.travelled_distance,
         )
-        metrics["spl"] = (
-            0.0 if metrics["spl"] is None or np.isnan(metrics["spl"]) else metrics["spl"]
+        metrics['spl'] = (
+            0.0 if metrics['spl'] is None or np.isnan(metrics['spl']) else metrics['spl']
         )
-        metrics["success"] = self._success
+        metrics['success'] = self._success
 
         self._metrics = metrics
         return metrics
@@ -133,9 +136,9 @@ class RoomNavTask(AbstractSafeTask):
         return self._room_centroids
 
     def min_l2_distance_to_target(self) -> float:
-        min_dist = float("inf")
-        room_type = self.task_info["room_types"][0]
-        for room_id in self.task_info["room_ids"][room_type]:
+        min_dist = float('inf')
+        room_type = self.task_info['room_types'][0]
+        for room_id in self.task_info['room_ids'][room_type]:
             min_dist = min(
                 min_dist,
                 position_dist(
@@ -144,7 +147,7 @@ class RoomNavTask(AbstractSafeTask):
                     ignore_y=True,
                 ),
             )
-        if min_dist == float("inf"):
+        if min_dist == float('inf'):
             get_logger().error(
                 f"No target room among {self.task_info['room_ids']} at finite distance"
                 f" from agent in house {self.task_info['house_index']}."
@@ -153,8 +156,8 @@ class RoomNavTask(AbstractSafeTask):
         return min_dist
 
     def min_geodesic_distance_to_target(self) -> float:
-        room_type = self.task_info["room_types"][0]
+        room_type = self.task_info['room_types'][0]
         closest_room_id, min_dist = self.controller.find_closest_room_of_list(
-            self.task_info["room_ids"][room_type], return_id_and_dist=True
+            self.task_info['room_ids'][room_type], return_id_and_dist=True
         )
         return min_dist

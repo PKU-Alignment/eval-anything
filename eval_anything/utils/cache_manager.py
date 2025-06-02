@@ -2,33 +2,32 @@
 Cache management utilities for storing and retrieving inference results.
 
 Use abstract cache keys instead of concrete file paths for `save` and `load` interfaces,
-so that the cache manager is independent of the file system. This is convenient for 
+so that the cache manager is independent of the file system. This is convenient for
 switching to other storage backends in the future.
 
 Use pickle to automatically handle the serialization and deserialization of complex objects.
 """
 
-import hashlib
-from typing import List, Tuple, Optional, Any, Dict
-import pickle
 import os
-from pathlib import Path
+import pickle
 from collections import namedtuple
-import time
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from eval_anything.utils.data_type import InferenceInput, InferenceOutput
 from eval_anything.utils.logger import EvalLogger
 from eval_anything.utils.uuid import UUIDGenerator
 
+
 class BinaryCache:
     """Binary cache implementation with support for multiple tensor types"""
-    
-    def __init__(self, cache_dir: str = ".cache/eval_anything", logger: EvalLogger = None):
+
+    def __init__(self, cache_dir: str = '.cache/eval_anything', logger: EvalLogger = None):
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.logger = logger
         self.uuid_generator = UUIDGenerator()
-        
+
     def _get_cache_path(self, key: Dict[str, Any]) -> Path:
         """Get cache file path from key"""
         return self.cache_dir / f"{self.uuid_generator(key)}.pkl"
@@ -37,7 +36,7 @@ class BinaryCache:
         """Check if the key is cached"""
         cache_path = self._get_cache_path(key)
         return cache_path.exists()
-    
+
     def get(self, key: Dict[str, Any]) -> Optional[Any]:
         """Retrieve object from cache"""
         cache_path = self._get_cache_path(key)
@@ -47,19 +46,23 @@ class BinaryCache:
         try:
             with open(cache_path, 'rb') as f:
                 data = pickle.load(f)
-            self.logger.log('info', f"Get inference outputs from cache: {os.path.join(__file__, cache_path)}")
+            self.logger.log(
+                'info', f"Get inference outputs from cache: {os.path.join(__file__, cache_path)}"
+            )
             return data
         except Exception as e:
             self.logger.log('error', f"Failed to load cached object with key {key}. Error: {e}")
             return None
-            
+
     def put(self, key: Dict[str, Any], value: Any) -> bool:
         """Store object in cache"""
         cache_path = self._get_cache_path(key)
         try:
             with open(cache_path, 'wb') as f:
                 pickle.dump(value, f)
-            self.logger.log('info', f"Save inference outputs to cache: {os.path.join(__file__, cache_path)}")
+            self.logger.log(
+                'info', f"Save inference outputs to cache: {os.path.join(__file__, cache_path)}"
+            )
             return True
         except Exception as e:
             self.logger.log('error', f"Failed to cache object with key {key}. Error: {e}")
@@ -68,33 +71,37 @@ class BinaryCache:
     def clear(self):
         """Clear all cache files"""
         count = 0
-        for cache_file in self.cache_dir.glob("*.pkl"):
+        for cache_file in self.cache_dir.glob('*.pkl'):
             try:
                 cache_file.unlink()
                 count += 1
             except Exception as e:
-                self.logger.log('error', f"Failed to delete cache file {os.path.join(__file__, cache_file)}. Error: {e}")
+                self.logger.log(
+                    'error',
+                    f"Failed to delete cache file {os.path.join(__file__, cache_file)}. Error: {e}",
+                )
         self.logger.log('info', f"Cleared {count} cache files from {self.cache_dir}")
+
 
 class CacheManager:
     """Cache manager for inference results"""
-    
+
     def __init__(self, cache_dir: str, logger: EvalLogger):
         """Initialize cache manager
-        
+
         Args:
             cache_dir: Directory path for caching results
         """
         self.cache_dir = cache_dir
         self.binary_cache = BinaryCache(cache_dir, logger)
         self.uuid_generator = UUIDGenerator()
-    
-    def get_cache_path(self, model_cfg: namedtuple, infer_cfg: namedtuple, inputs: List[InferenceInput]) -> Tuple[str, bool]:
-        cache_key = self.uuid_generator({
-            'model_cfg': model_cfg,
-            'infer_cfg': infer_cfg,
-            'inputs': inputs
-        })
+
+    def get_cache_path(
+        self, model_cfg: namedtuple, infer_cfg: namedtuple, inputs: List[InferenceInput]
+    ) -> Tuple[str, bool]:
+        cache_key = self.uuid_generator(
+            {'model_cfg': model_cfg, 'infer_cfg': infer_cfg, 'inputs': inputs}
+        )
         return cache_key, self.binary_cache.is_cached(cache_key)
 
     def _normalize_value(self, value: any) -> str:

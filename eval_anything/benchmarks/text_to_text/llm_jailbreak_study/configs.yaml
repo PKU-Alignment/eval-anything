@@ -1,6 +1,6 @@
 dataset:
   name: gptfuzzer
-  path: 
+  path:
   split: train
   size:
   modality: text-to-text

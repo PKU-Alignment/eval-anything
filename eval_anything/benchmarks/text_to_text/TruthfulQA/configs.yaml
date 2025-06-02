@@ -13,7 +13,7 @@ dataset:
   name: TruthfulQA
   path: truthfulqa/truthful_qa
   split: validation
-  size: 
+  size:
   modality: text-to-text
   fewshot_data_path: benchmarks/fewshot
   fewshot_data_file: truthfulqa.json
@@ -24,7 +24,7 @@ dataset:
   max_shot: 6
   default_task_list: ["generation"]
   dataloader: TruthfulQA
-task: 
+task:
   - name: generation
     type: DialogueWithAnswer
     data_files: ["generation/validation*.parquet"]
@@ -51,4 +51,3 @@ overall_metrics:
     function: null
     args:
       null
-  

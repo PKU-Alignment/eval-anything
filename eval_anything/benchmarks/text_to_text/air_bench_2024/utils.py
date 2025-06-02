@@ -4,50 +4,50 @@ import os
 import random
 import time
 
+from datasets import load_dataset
 from openai import OpenAI
 from tqdm import tqdm
-from datasets import load_dataset
-from typing import Optional
-from eval_anything.utils.cached_requests import cached_requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
 
 def extract_content(tag, text):
     start_idx = text.find(tag)
     # if start_idx == -1:
     #     return None
     start_of_content = start_idx + len(tag)
-    if tag == "##the_score: ":
-        end_idx = text.find("\n", start_of_content)
+    if tag == '##the_score: ':
+        end_idx = text.find('\n', start_of_content)
     else:
-        end_idx = text.find(".\n##", start_of_content)
+        end_idx = text.find('.\n##', start_of_content)
     if end_idx == -1:
         content = text[start_of_content:].strip()
     else:
         content = text[start_of_content:end_idx].strip()
     return content
 
+
 def sample_row(raw_data, sample_num):
     sample_row_list = []
     for l2 in range(1, 17):
 
         l2_specific_rows = []
-        for i,data in enumerate(raw_data):
+        for i, data in enumerate(raw_data):
             cate_idx, l2_name, l3_name, l4_name, prompt = data.values()
             l2_index = int(cate_idx.split('.')[0])
             if l2_index == l2:
                 l2_specific_rows.append((cate_idx, l2_name, l3_name, l4_name, prompt))
-        
+
         l2_specific_sampled_row = random.sample(l2_specific_rows, sample_num)
         sample_row_list.extend(l2_specific_sampled_row)
-    
+
     return sample_row_list
 
 
 def gpt_eval(questions, responses, cate_idxs):
-    api_key = os.getenv("API_KEY")
-    api_base = os.getenv("API_BASE")
+    api_key = os.getenv('API_KEY')
+    api_base = os.getenv('API_BASE')
     client = OpenAI(api_key=api_key, base_url=api_base)
-    judge_prompt_list = load_dataset("stanford-crfm/air-bench-2024", "judge_prompts", split="test")
+    judge_prompt_list = load_dataset('stanford-crfm/air-bench-2024', 'judge_prompts', split='test')
 
     def get_judge_prompt(idx):
         for item in judge_prompt_list:
@@ -62,21 +62,27 @@ def gpt_eval(questions, responses, cate_idxs):
             while True:
                 try:
                     judge_prompt = get_judge_prompt(cate_index)
-                    
+
                     response = client.chat.completions.create(
-                        model="gpt-4o",
+                        model='gpt-4o',
                         messages=[
-                        {
-                            "role": "user",
-                            "content": judge_prompt.replace("{{QUESTION}}", QApair[0]).replace("{{ANSWER}}", QApair[1])
-                        }
+                            {
+                                'role': 'user',
+                                'content': judge_prompt.replace('{{QUESTION}}', QApair[0]).replace(
+                                    '{{ANSWER}}', QApair[1]
+                                ),
+                            }
                         ],
                         temperature=0,
-                        max_tokens=512
+                        max_tokens=512,
                     )
 
-                    reason = extract_content("##short_reasoning: ", response.choices[0].message.content) 
-                    score = float(extract_content("##the_score: ", response.choices[0].message.content))
+                    reason = extract_content(
+                        '##short_reasoning: ', response.choices[0].message.content
+                    )
+                    score = float(
+                        extract_content('##the_score: ', response.choices[0].message.content)
+                    )
                     reasons.append(reason)
                     scores.append(score)
                     break
@@ -91,13 +97,10 @@ def gpt_eval(questions, responses, cate_idxs):
     eval_reasons = []
     eval_scores = []
     for question, response, cate_idx in tqdm(
-        zip(questions, responses, cate_idxs),
-        total=len(questions),
-        desc="Running Evaluation"
+        zip(questions, responses, cate_idxs), total=len(questions), desc='Running Evaluation'
     ):
         reasons, scores = judger(cate_idx, (question, response))
         eval_reasons.append(reasons[0])
         eval_scores.append(scores[0])
 
     return eval_reasons, eval_scores
-

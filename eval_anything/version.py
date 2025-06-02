@@ -16,10 +16,12 @@
 
 from typing import Dict, Tuple
 
+
 __version__ = '0.0.1.dev0'
 __license__ = 'Apache License, Version 2.0'
 __author__ = 'PKU-Alignment Team'
 __release__ = False
+
 
 def get_version_info() -> Dict[str, str]:
     """Get detailed version information.
@@ -31,8 +33,9 @@ def get_version_info() -> Dict[str, str]:
         'version': __version__,
         'license': __license__,
         'author': __author__,
-        'status': 'release' if __release__ else 'development'
+        'status': 'release' if __release__ else 'development',
     }
+
 
 def parse_version() -> Tuple[int, ...]:
     """Parse version string into tuple of integers.
@@ -52,9 +55,10 @@ def parse_version() -> Tuple[int, ...]:
     # Split version string and convert to integers
     try:
         return tuple(map(int, version.split('.')))
-    except ValueError as e:
+    except ValueError:
         print(f"Failed to parse version number: {version}")
         return (0, 0, 0)
+
 
 def get_version_string() -> str:
     """Get formatted version string with status.
@@ -62,8 +66,9 @@ def get_version_string() -> str:
     Returns:
         Formatted version string.
     """
-    status = "Release" if __release__ else "Development"
+    status = 'Release' if __release__ else 'Development'
     return f"{__version__} ({status})"
+
 
 if not __release__:
     import os
@@ -96,6 +101,7 @@ if not __release__:
 
     del os, subprocess
 
+
 def check_version_compatibility(required_version: str) -> bool:
     """Check if current version meets the required version.
 
@@ -107,4 +113,4 @@ def check_version_compatibility(required_version: str) -> bool:
     """
     current = parse_version()
     required = tuple(map(int, required_version.split('.')))
-    return current >= required[:len(current)]
+    return current >= required[: len(current)]

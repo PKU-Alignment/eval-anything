@@ -1,7 +1,7 @@
 dataset:
   name: HExPHI
   path: LLM-Tuning-Safety/HEx-PHI
-  split: 
+  split:
   size:
   modality: text-to-text
   default_task_list: ["HExPHI"]

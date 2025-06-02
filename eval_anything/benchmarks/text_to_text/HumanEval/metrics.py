@@ -53,7 +53,7 @@ class PassAtK(BaseMetric):
                     evaluation_results
                 ), 'Some problems are not attempted.'
 
-                self.logger.log('info', f"Running test suites for {extractor}...")
+                self.logger.log('info', f'Running test suites for {extractor}...')
                 for future in tqdm(as_completed(futures), total=len(futures)):
                     result = future.result()
                     results[result['task_id']].append((result['completion_id'], result))

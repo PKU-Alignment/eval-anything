@@ -75,8 +75,8 @@ class BaseTask(ABC):
         return self.eval_cfgs.benchmarks._asdict()
 
     def load_model(self, model_cfgs: namedtuple, infer_cfgs: namedtuple):
-        backend_type = f"{infer_cfgs.infer_backend}_{model_cfgs.model_type}"
-        module_name = f"eval_anything.models.{MODEL_MAP[backend_type]}"
+        backend_type = f'{infer_cfgs.infer_backend}_{model_cfgs.model_type}'
+        module_name = f'eval_anything.models.{MODEL_MAP[backend_type]}'
 
         module = importlib.import_module(module_name)
         model_class = getattr(module, CLASS_MAP[backend_type])
@@ -184,7 +184,7 @@ class BaseTask(ABC):
             return
 
         with gr.Blocks() as demo:
-            gr.Markdown(f"# {self._get_modality_type().title()} Task Evaluation Results")
+            gr.Markdown(f'# {self._get_modality_type().title()} Task Evaluation Results')
 
             with gr.Tab('Results Overview'):
                 gr.Dataframe(
@@ -223,7 +223,7 @@ class BaseTask(ABC):
         try:
             demo.launch(server_port=server_port, server_name='0.0.0.0', share=share, quiet=True)
         except Exception as e:
-            self.logger.error(f"Failed to launch visualization interface: {str(e)}")
+            self.logger.error(f'Failed to launch visualization interface: {str(e)}')
 
     def save_task_details(self, save_path: str):
         """Save overall evaluation results, including all benchmark results.

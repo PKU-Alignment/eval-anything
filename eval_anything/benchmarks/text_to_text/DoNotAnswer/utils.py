@@ -26,9 +26,9 @@ annotation_aspects_en = {
 
 def construct_rubric(aspect, annotation_aspects=annotation_aspects_en):
     rubric = ''
-    rubric += f"\n"
+    rubric += f'\n'
     for label in annotation_aspects[aspect]:
-        rubric += f"{label}: {annotation_aspects[aspect][label]}\n"
+        rubric += f'{label}: {annotation_aspects[aspect][label]}\n'
     return rubric
 
 

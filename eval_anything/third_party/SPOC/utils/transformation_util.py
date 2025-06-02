@@ -44,7 +44,7 @@ def get_full_transformation_list(size, version='v2'):
         ]
     else:
         raise NotImplementedError(
-            f"data augmentation versions supported are v1 and v2, got {version}"
+            f'data augmentation versions supported are v1 and v2, got {version}'
         )
 
 

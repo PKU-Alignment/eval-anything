@@ -113,9 +113,9 @@ class MultiTaskSampler(AbstractSafeTaskSampler):
 
         if len(remaining_keys) > 0:
             raise NotImplementedError(
-                f"Some keys require by the task are missing. You have given {task_info.keys()} but we require"
+                f'Some keys require by the task are missing. You have given {task_info.keys()} but we require'
                 f" {REGISTERED_TASK_PARAMS.get(task_spec['task_type'])}, i.e. {remaining_keys} are missing."
-                f" Ping Jordi if this is surprising."
+                f' Ping Jordi if this is surprising.'
             )
 
         return task_info
@@ -180,7 +180,7 @@ class MultiTaskSampler(AbstractSafeTaskSampler):
         house_index = int(task_info['house_index'])
         if house_index != self.current_house_index:
             raise RuntimeError(
-                f"House index does not match! {house_index} != {self.current_house_index}"
+                f'House index does not match! {house_index} != {self.current_house_index}'
             )
 
         starting_pose = AgentPose(
@@ -211,7 +211,7 @@ class MultiTaskSampler(AbstractSafeTaskSampler):
                 self.controller.calibrate_agent()
                 if not event:
                     get_logger().warning(
-                        f"Teleport failing in {self.current_house_index} at {starting_pose}"
+                        f'Teleport failing in {self.current_house_index} at {starting_pose}'
                     )
                     get_logger().warning(event)
                     return self.next_task(

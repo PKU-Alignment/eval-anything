@@ -172,7 +172,7 @@ class TaskSpecSamplerInfiniteList(TaskSpecSampler):
 
         if house_index is not None:
             if house_index not in self.house_index_to_task_specs:
-                raise ValueError(f"House index {house_index} not in `house_index_to_task_specs`")
+                raise ValueError(f'House index {house_index} not in `house_index_to_task_specs`')
 
             if house_index not in self.house_inds:
                 self.reset_houses_inds_list()

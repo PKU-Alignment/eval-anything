@@ -136,12 +136,12 @@ class MultiChoiceAutoLabelPromptBuilder:
 
         if ground_truth.isdigit():
             ground_truth = [candidate_labels[int(ground_truth)]]
-        prompt = f"{question}\n"
+        prompt = f'{question}\n'
         for label, answer in zip(candidate_labels, candidate_answers):
-            prompt += f"({label}) {answer} "
+            prompt += f'({label}) {answer} '
 
         if ground_truth:
-            answer = f"\nAnswer: ({ground_truth})"
+            answer = f'\nAnswer: ({ground_truth})'
         else:
             answer = ''
 
@@ -159,9 +159,9 @@ class MultiChoiceAutoLabelPromptBuilder:
             ):
                 prompt += self.marge_QA(q, c, str(a))
 
-        prompt += f"{self.multi_choice_prompt}\n\n"
+        prompt += f'{self.multi_choice_prompt}\n\n'
 
         prompt += self.marge_QA(question, candidate_answers)
         if self.enable_cot:
-            prompt += f"\n{self.cot_context}"
+            prompt += f'\n{self.cot_context}'
         return prompt

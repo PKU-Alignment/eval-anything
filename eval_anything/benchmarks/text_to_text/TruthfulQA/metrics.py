@@ -54,7 +54,7 @@ class BLEURT(BaseMetric):
                         references=evaluation_result.ground_truth['incorrect_answers'],
                     )
                 except Exception as e:
-                    print(f"Error in BLEURT calculation for extractor {extractor}: {e}")
+                    print(f'Error in BLEURT calculation for extractor {extractor}: {e}')
                     continue
 
                 max_score = max(scores_true)

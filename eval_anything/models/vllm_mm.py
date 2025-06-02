@@ -94,7 +94,7 @@ class vllmMM(BaseModel):
             vllm_inputs.append(
                 {
                     'prompt': prompt,
-                    'multi_modal_data': {f"{input.metadata}": mm_data},
+                    'multi_modal_data': {f'{input.metadata}': mm_data},
                     'mm_processor_kwargs': mm_processor_kwargs,
                 }
             )

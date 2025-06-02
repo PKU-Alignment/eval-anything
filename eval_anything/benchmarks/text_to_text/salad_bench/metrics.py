@@ -24,7 +24,7 @@ def eval_auprc(targets, preds, print_=False):
     precision, recall, thresholds = precision_recall_curve(targets, preds)
     auprc = auc(recall, precision)
     if print_:
-        print(f"AUPRC: {np.round(auprc, 4)}")
+        print(f'AUPRC: {np.round(auprc, 4)}')
     # TODO: do not round return values
     return auprc
 
@@ -44,10 +44,10 @@ def eval_f1(targets, preds, print_=False):
     recal = recall_score(targets, preds)
     f1 = f1_score(targets, preds)
     if print_:
-        print(f"Accuracy: {np.round(accuracy, 4)}")
-        print(f"Precision: {np.round(precision, 4)}")
-        print(f"Recall: {np.round(recal, 4)}")
-        print(f"F1: {np.round(f1, 4)}")
+        print(f'Accuracy: {np.round(accuracy, 4)}')
+        print(f'Precision: {np.round(precision, 4)}')
+        print(f'Recall: {np.round(recal, 4)}')
+        print(f'F1: {np.round(f1, 4)}')
     # TODO: do not round return values
     # TODO: move print to outside
     # TODO: consider using a dict or namedtuple

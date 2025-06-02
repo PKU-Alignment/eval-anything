@@ -11,13 +11,13 @@ from eval_anything.third_party.SPOC.utils.type_utils import REGISTERED_TASK_PARA
 
 
 def convert_string_to_byte(str_to_encode, max_len):
-    return np.array([str_to_encode], dtype=f"S{max_len}").view('uint8')
+    return np.array([str_to_encode], dtype=f'S{max_len}').view('uint8')
 
 
 def convert_byte_to_string(bytes_to_decode: np.ndarray, max_len: Optional[int] = None):
     if max_len is None:
         max_len = bytes_to_decode.shape[-1]
-    return (bytes_to_decode.view(f"S{max_len}")[0]).decode()
+    return (bytes_to_decode.view(f'S{max_len}')[0]).decode()
 
 
 def json_templated_task_string(task_info):

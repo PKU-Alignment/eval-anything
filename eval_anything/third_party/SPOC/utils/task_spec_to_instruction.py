@@ -151,7 +151,7 @@ def find_det(text):
 
 def choose_det(text):
     """e.g. `a basketball` or `an icecream`"""
-    return f"{find_det(normalize(text).split()[0])} {text}"
+    return f'{find_det(normalize(text).split()[0])} {text}'
 
 
 def make_source_obj(task_params):
@@ -169,9 +169,9 @@ def make_rel_attribute(task_params):
     rel_attr = task_params['rel_attribute']
     if isinstance(rel_attr, (tuple, list)):
         from_to = 'to' if normalize(rel_attr[0]) in ['closest'] else 'from'
-        return f"{normalize(object_type)} {normalize(rel_attr[0])} {from_to} the {normalize(rel_attr[1])}"
+        return f'{normalize(object_type)} {normalize(rel_attr[0])} {from_to} the {normalize(rel_attr[1])}'
     else:
-        return f"{normalize(rel_attr)} {normalize(object_type)}"
+        return f'{normalize(rel_attr)} {normalize(object_type)}'
 
 
 def make_local_ref(task_params):
@@ -204,38 +204,38 @@ def fetch_type(task_params: Dict[str, Any]):
     """e.g. go to an apple and get that apple"""
     src = make_source_obj(task_params)
     return normalize(
-        f"{random.choice(GOTO_VERBS)} {choose_det(src)} and {random.choice(PICKUP_VERBS)} that {src}"
+        f'{random.choice(GOTO_VERBS)} {choose_det(src)} and {random.choice(PICKUP_VERBS)} that {src}'
     )
 
 
 def pickup_type(task_params: Dict[str, Any]):
     """e.g. grab an apple"""
     src = make_source_obj(task_params)
-    return normalize(f"{random.choice(PICKUP_VERBS)} {choose_det(src)}")
+    return normalize(f'{random.choice(PICKUP_VERBS)} {choose_det(src)}')
 
 
 def room_visit(task_params: Dict[str, Any]):
     """e.g. go to all 3 rooms in the house. indicate when you have seen a new room and when you are done"""
     return normalize(
         f"Go to all {task_params['num_rooms_in_house']} rooms in the house."
-        f" Indicate when you have seen a new room and when you are done"
+        f' Indicate when you have seen a new room and when you are done'
     )
 
 
 def object_nav_type(task_params: Dict[str, Any]):
     """e.g. navigate to a basketball"""
-    return normalize(f"{random.choice(GOTO_VERBS)} {choose_det(make_source_obj(task_params))}")
+    return normalize(f'{random.choice(GOTO_VERBS)} {choose_det(make_source_obj(task_params))}')
 
 
 def bpe_object_nav_type(task_params: Dict[str, Any]):
     """e.g. navigate to a basketball"""
-    return normalize(f"{random.choice(GOTO_VERBS)} {choose_det(make_source_obj(task_params))}")
+    return normalize(f'{random.choice(GOTO_VERBS)} {choose_det(make_source_obj(task_params))}')
 
 
 def object_nav_room(task_params: Dict[str, Any]):
     """e.g. navigate to a garbage can in the bedroom"""
     return normalize(
-        f"{random.choice(GOTO_VERBS)} {choose_det(make_source_obj(task_params))} {make_room(task_params)}"
+        f'{random.choice(GOTO_VERBS)} {choose_det(make_source_obj(task_params))} {make_room(task_params)}'
     )
 
 
@@ -252,16 +252,16 @@ def object_nav_multi(task_params: Dict[str, Any]):
 
     verb = random.choice(GOTO_VERBS)
     if len(sources) == 2:
-        res = f"{verb} {choose_det(normalize(sources[0]))} and {choose_det(normalize(sources[1]))}"
+        res = f'{verb} {choose_det(normalize(sources[0]))} and {choose_det(normalize(sources[1]))}'
     elif len(sources) >= 3:
         res = (
             f"{verb} {', '.join([choose_det(normalize(source)) for source in sources[:-1]])},"
-            f" and {choose_det(normalize(sources[-1]))}"
+            f' and {choose_det(normalize(sources[-1]))}'
         )
     else:
-        raise ValueError(f"Sources {sources} has length < 2 in object_nav_multi")
+        raise ValueError(f'Sources {sources} has length < 2 in object_nav_multi')
 
-    return normalize(f"{res}, in that order")
+    return normalize(f'{res}, in that order')
 
 
 def bpe_object_nav_multi(task_params: Dict[str, Any]):
@@ -270,22 +270,22 @@ def bpe_object_nav_multi(task_params: Dict[str, Any]):
 
     verb = random.choice(GOTO_VERBS)
     if len(sources) == 2:
-        res = f"{verb} {choose_det(normalize(sources[0]))} and {choose_det(normalize(sources[1]))}"
+        res = f'{verb} {choose_det(normalize(sources[0]))} and {choose_det(normalize(sources[1]))}'
     elif len(sources) >= 3:
         res = (
             f"{verb} {', '.join([choose_det(normalize(source)) for source in sources[:-1]])},"
-            f" and {choose_det(normalize(sources[-1]))}"
+            f' and {choose_det(normalize(sources[-1]))}'
         )
     else:
-        raise ValueError(f"Sources {sources} has length < 2 in object_nav_multi")
+        raise ValueError(f'Sources {sources} has length < 2 in object_nav_multi')
 
-    return normalize(f"{res}, in that order")
+    return normalize(f'{res}, in that order')
 
 
 def object_nav_rel_attribute(task_params: Dict[str, Any]):
     """e.g. go to the chair furthest from the fridge in the kitchen"""
     return normalize(
-        f"{random.choice(GOTO_VERBS)} the {make_rel_attribute(task_params)} {make_room(task_params)}"
+        f'{random.choice(GOTO_VERBS)} the {make_rel_attribute(task_params)} {make_room(task_params)}'
     )
 
 
@@ -293,13 +293,13 @@ def object_nav_local_ref(task_params: Dict[str, Any]):
     """e.g. find an alarmclock near a laptop and a basketball"""
     ref = make_local_ref(task_params)
     return normalize(
-        f"{random.choice(GOTO_VERBS)} {choose_det(make_source_obj(task_params))} {ref}"
+        f'{random.choice(GOTO_VERBS)} {choose_det(make_source_obj(task_params))} {ref}'
     )
 
 
 def object_nav_affordance(task_params: Dict[str, Any]):
     """e.g. go to a lighting fixture that can best be used for lounging and relaxing"""
-    return normalize(f"{random.choice(GOTO_VERBS)} {choose_det(make_affordance(task_params))}")
+    return normalize(f'{random.choice(GOTO_VERBS)} {choose_det(make_affordance(task_params))}')
 
 
 def clean_description(desc):
@@ -359,7 +359,7 @@ def clean_description(desc):
 
     # `what remains of ...` doesn't need `the`, nor seeking for verbs
     if desc.split()[0] not in ['the', 'what']:
-        desc = f"the {desc}"
+        desc = f'the {desc}'
 
     if desc.split()[0] == 'the':
         words = desc.split()
@@ -367,7 +367,7 @@ def clean_description(desc):
         for it, word in enumerate(words):
             if word in ['is', 'are', 'shows', 'contains', 'has', 'have']:
                 if not constraint_seen:
-                    desc = ' '.join(words[:it] + [f"that {word}"] + words[it + 1 :])
+                    desc = ' '.join(words[:it] + [f'that {word}'] + words[it + 1 :])
                 break
             elif (
                 word in ['that', 'who', 'with', 'which', 'where', 'but', 'and']
@@ -392,17 +392,17 @@ def clean_description(desc):
 
 def object_nav_description(task_params: Dict[str, Any]):
     desc = clean_description(get_objaverse_annotations()[task_params['uid']]['description'])
-    return normalize(f"{random.choice(GOTO_VERBS)} {desc}")
+    return normalize(f'{random.choice(GOTO_VERBS)} {desc}')
 
 
 def go_to_point(task_params: Dict[str, Any]):
     """e.g. navigate to a x,z"""
-    return normalize(f"{random.choice(GOTO_POINT_VERBS)} point")
+    return normalize(f'{random.choice(GOTO_POINT_VERBS)} point')
 
 
 def go_near_point(task_params: Dict[str, Any]):
     """e.g. navigate to a x,z"""
-    return normalize(f"{random.choice(GOTO_POINT_VERBS)} object")
+    return normalize(f'{random.choice(GOTO_POINT_VERBS)} object')
 
 
 REGISTERED_INSTRUCTION_TYPES = dict(
@@ -429,11 +429,11 @@ REGISTERED_INSTRUCTION_TYPES = dict(
 for key in REGISTERED_INSTRUCTION_TYPES:
     assert (
         key in REGISTERED_TASK_PARAMS
-    ), f"{key} from REGISTERED_INSTRUCTION_TYPES unknown in REGISTERED_TASK_PARAMS"
+    ), f'{key} from REGISTERED_INSTRUCTION_TYPES unknown in REGISTERED_TASK_PARAMS'
 
 for key in REGISTERED_TASK_PARAMS:
     assert (
         key in REGISTERED_INSTRUCTION_TYPES
-    ), f"{key} from REGISTERED_TASK_PARAMS unknown in REGISTERED_INSTRUCTION_TYPES"
+    ), f'{key} from REGISTERED_TASK_PARAMS unknown in REGISTERED_INSTRUCTION_TYPES'
 
 _ = load_synset_lemmas()

@@ -205,7 +205,7 @@ def unsafe_execute(problem: Dict, completion: str, timeout: float, result):
         except TimeoutException:
             result.append('timed out')
         except BaseException as e:
-            result.append(f"failed: {e}")
+            result.append(f'failed: {e}')
 
         # Needed for cleaning up.
         shutil.rmtree = rmtree
@@ -568,7 +568,7 @@ def remove_boxed(s):
 def read_jsonlgz(path: str, max_lines: Optional[int] = None):
     with gzip.open(path, 'r') as f:
         lines = []
-        for line in tqdm(f, desc=f"Loading {path}"):
+        for line in tqdm(f, desc=f'Loading {path}'):
             lines.append(line)
             if max_lines is not None and len(lines) >= max_lines:
                 break
@@ -576,11 +576,11 @@ def read_jsonlgz(path: str, max_lines: Optional[int] = None):
 
 
 def process_and_load_data(task_type, path):
-    filename = f"{task_type.lower()}.jsonl.gz"
+    filename = f'{task_type.lower()}.jsonl.gz'
     full_path = os.path.join(path, filename)
     print(path, filename, full_path)
     with gzip.open(full_path, 'rt') as f:
-        tasks = [line for line in tqdm(f, desc=f"Loading {full_path}")]
+        tasks = [line for line in tqdm(f, desc=f'Loading {full_path}')]
 
     return tasks
 
@@ -611,7 +611,7 @@ class Metadataset:
 
     def __repr__(self):
         """Return a string representation of the dataset."""
-        return 'Dataset(\n' f"    dataset={self.dataset},\n" f"    size={len(self.data)},\n" ')'
+        return 'Dataset(\n' f'    dataset={self.dataset},\n' f'    size={len(self.data)},\n' ')'
 
     def __str__(self):
         """Return a string representation of the dataset."""

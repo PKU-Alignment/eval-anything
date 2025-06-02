@@ -56,7 +56,7 @@ def create_welcome_panel() -> Panel:
     version_text = Text()
     version_text.append('Welcome to ', style='title')
     version_text.append('Eval-Anything\n', style='title bold')
-    version_text.append(f"Version: {get_version_string()}\n", style='version')
+    version_text.append(f'Version: {get_version_string()}\n', style='version')
     version_text.append(f"Author: {info['author']}\n", style='info')
     version_text.append(f"License: {info['license']}", style='subtitle')
 
@@ -99,15 +99,15 @@ def show_usage():
 
 
 def show_error(message: str):
-    console.print(f"[error]Error: {message}")
+    console.print(f'[error]Error: {message}')
 
 
 def show_warning(message: str):
-    console.print(f"[warning]Warning: {message}")
+    console.print(f'[warning]Warning: {message}')
 
 
 def show_info(message: str):
-    console.print(f"[info]{message}")
+    console.print(f'[info]{message}')
 
 
 def run_eval(config_path: Optional[str] = None):
@@ -133,9 +133,9 @@ def clean_cache(cache_dir: str = 'cache'):
     if os.path.exists(cache_dir):
         for file in os.listdir(cache_dir):
             os.remove(os.path.join(cache_dir, file))
-        print(f"Cleaned up cache folder: {cache_dir}")
+        print(f'Cleaned up cache folder: {cache_dir}')
     else:
-        print(f"Cache folder not found: {cache_dir}")
+        print(f'Cache folder not found: {cache_dir}')
 
 
 def main():
@@ -160,7 +160,7 @@ def main():
             parser.add_argument('--debug', action='store_true', help='Enable debug mode')
             args = parser.parse_args(sys.argv[2:])
 
-            show_info(f"Starting evaluation with config: {args.config}")
+            show_info(f'Starting evaluation with config: {args.config}')
             if args.debug:
                 show_info('Debug mode enabled')
 
@@ -178,7 +178,7 @@ def main():
             show_usage()
 
         else:
-            show_error(f"Unknown command: {command}")
+            show_error(f'Unknown command: {command}')
             console.print()
             show_usage()
 

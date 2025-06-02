@@ -210,11 +210,11 @@ class MDJudgeEvaluator:
                         and max_token_id != self.unsafe_begin_token_id
                     ):
                         print(
-                            f"==================NO FOLLOWING FORMAT=================="
-                            f"question index: {idx[i]}"
-                            f"max_token_id:   {max_token_id}"
-                            f"safe logit:     {safe_prob}"
-                            f"unsafe logit:   {unsafe_prob}",
+                            f'==================NO FOLLOWING FORMAT=================='
+                            f'question index: {idx[i]}'
+                            f'max_token_id:   {max_token_id}'
+                            f'safe logit:     {safe_prob}'
+                            f'unsafe logit:   {unsafe_prob}',
                             file=sys.stderr,
                         )
                         probs_list.append((-1, -1))
@@ -229,7 +229,7 @@ class MDJudgeEvaluator:
                 pbar.update(batch_size)
             except torch.cuda.OutOfMemoryError:
                 if batch_size == 1:
-                    print(f"[ERROR] OOM on GPU, skip sample {left}", file=sys.stderr)
+                    print(f'[ERROR] OOM on GPU, skip sample {left}', file=sys.stderr)
                     all_idx.extend(idx)
                     all_probs.append((-1, -1))
                     left += 1
@@ -237,7 +237,7 @@ class MDJudgeEvaluator:
                 else:
                     batch_size = max(1, round(batch_size / 1.5))
                     print(
-                        f"[WARNING] OOM on GPU, reduce batch_size to {batch_size}.",
+                        f'[WARNING] OOM on GPU, reduce batch_size to {batch_size}.',
                         file=sys.stderr,
                     )
         pbar.close()
@@ -402,7 +402,7 @@ class DDPMDJudgeEvaluator:
         else:
             num_models = min(total_gpus, int(max_replicas))
 
-        print(f"Creating {num_models} model replicas.")
+        print(f'Creating {num_models} model replicas.')
 
         self.models = [
             ray.remote(num_gpus=1)(MDJudgeEvaluator).remote(
@@ -458,7 +458,7 @@ class DDPMDJudgeEvaluator:
                 all_probs.extend(logprobs)
 
             except ray.exceptions.RayActorError as e:
-                print(f"Error in model {i}, corresponding result will be None.")
+                print(f'Error in model {i}, corresponding result will be None.')
                 all_probs.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
 
         return all_probs
@@ -503,7 +503,7 @@ class DDPMDJudgeEvaluator:
                 all_eval_clses.extend(eval_clses)
 
             except ray.exceptions.RayActorError as e:
-                print(f"Error in model {i}, corresponding result will be None.")
+                print(f'Error in model {i}, corresponding result will be None.')
                 all_eval_labels.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
                 all_eval_clses.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
 

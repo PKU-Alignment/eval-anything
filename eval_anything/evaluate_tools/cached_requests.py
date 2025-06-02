@@ -127,17 +127,17 @@ class CachedRequestsTool(BaseTool):
         }
         uuid = self.uuid_generator(cache_key_data)
 
-        cache_path = os.path.join(self.cache_dir, f"{uuid}.json")
+        cache_path = os.path.join(self.cache_dir, f'{uuid}.json')
 
         # Check if cached result exists
         if os.path.exists(cache_path):
             try:
                 with open(cache_path, encoding='utf-8') as f:
                     result = json.load(f)
-                    self.logger.log('info', f"Retrieved cached response from {cache_path}")
+                    self.logger.log('info', f'Retrieved cached response from {cache_path}')
                     return result
             except json.JSONDecodeError:
-                self.logger.log('warning', f"Invalid cache file {cache_path}, removing it")
+                self.logger.log('warning', f'Invalid cache file {cache_path}, removing it')
                 os.remove(cache_path)
 
         # Make API request with retries
@@ -146,7 +146,7 @@ class CachedRequestsTool(BaseTool):
             try:
                 headers = {'Content-Type': 'application/json', 'Connection': 'close'}
                 if api_key:
-                    headers['Authorization'] = f"Bearer {api_key}"
+                    headers['Authorization'] = f'Bearer {api_key}'
 
                 response = requests.post(
                     api_base,
@@ -170,18 +170,18 @@ class CachedRequestsTool(BaseTool):
                         json.dump(response_text, f, ensure_ascii=False)
 
                     self.logger.log(
-                        'info', f"API request successful, cached response to {cache_path}"
+                        'info', f'API request successful, cached response to {cache_path}'
                     )
                     return response_text
                 else:
                     if response.status_code == 400:
                         error_detail = response.json()['error']['message']
-                        err_msg = f"API error, status code: {response.status_code}\nresponse: {error_detail}"
+                        err_msg = f'API error, status code: {response.status_code}\nresponse: {error_detail}'
                     else:
-                        err_msg = f"API error, status code: {response.status_code}, error: {response.text}"
+                        err_msg = f'API error, status code: {response.status_code}, error: {response.text}'
                     self.logger.log('error', err_msg)
             except Exception as e:
-                self.logger.log('error', f"Request failed: {str(e)}")
+                self.logger.log('error', f'Request failed: {str(e)}')
 
             time.sleep(3)
             max_try -= 1
@@ -276,7 +276,7 @@ def test_cached_requests_tool():
         uuid1 = tool.uuid_generator(cache_key_data)
         uuid2 = tool.uuid_generator(cache_key_data)
         assert uuid1 == uuid2, 'UUIDs should be consistent for same parameters'
-        print(f"✓ UUID generation consistent: {uuid1}")
+        print(f'✓ UUID generation consistent: {uuid1}')
 
         # Test 3: Cache directory creation
         print('Test 3: Cache directory creation...')
@@ -308,7 +308,7 @@ def test_cached_requests_tool():
 
         # Test 5: Cache file operations (mock)
         print('Test 5: Cache file operations...')
-        cache_path = os.path.join(test_cache_dir, f"{uuid1}.json")
+        cache_path = os.path.join(test_cache_dir, f'{uuid1}.json')
 
         # Manually create a cache file
         test_response = "Hello! I'm doing well, thank you for asking."
@@ -342,13 +342,13 @@ def test_cached_requests_tool():
         print('\n🎉 All tests passed successfully!')
 
     except Exception as e:
-        print(f"\n❌ Test failed with error: {str(e)}")
+        print(f'\n❌ Test failed with error: {str(e)}')
         raise
     finally:
         # Clean up test cache directory
         if os.path.exists(test_cache_dir):
             shutil.rmtree(test_cache_dir)
-            print(f"✓ Cleaned up test cache directory: {test_cache_dir}")
+            print(f'✓ Cleaned up test cache directory: {test_cache_dir}')
 
 
 if __name__ == '__main__':

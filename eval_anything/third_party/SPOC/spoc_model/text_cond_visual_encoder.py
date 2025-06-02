@@ -47,7 +47,7 @@ class Dinov2(nn.Module):
         # 7. 保存图像
         file_path_manual = 'output_image_manual.png'
         pil_image_manual.save(file_path_manual)
-        assert x.shape[-2:] == (224, 384), f"Expected shape is 224x384; got {x.shape}"
+        assert x.shape[-2:] == (224, 384), f'Expected shape is 224x384; got {x.shape}'
         with torch.no_grad():
             x = self.model.forward_features(x[:, :, :, 3:-3])['x_norm_patchtokens']
             B, _, D = x.shape  # Bx432x384
@@ -161,7 +161,7 @@ class TextCondMultiCameraVisualEncoder(nn.Module):
         for sensor in self.visual_sensors:
             setattr(
                 self,
-                f"visual_sensor_token_{sensor}",
+                f'visual_sensor_token_{sensor}',
                 nn.Parameter(0.1 * torch.rand(cfg.fusion_xformer.d_model)),
             )
 
@@ -211,7 +211,7 @@ class TextCondMultiCameraVisualEncoder(nn.Module):
         concatenated_feats = []
 
         for k in self.visual_sensors:
-            corresponding_camera_token = getattr(self, f"visual_sensor_token_{k}")
+            corresponding_camera_token = getattr(self, f'visual_sensor_token_{k}')
             concatenated_feats.append(all_img_features[k] + corresponding_camera_token)
 
         concatenated_feats = torch.cat(concatenated_feats, dim=1)

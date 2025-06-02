@@ -56,7 +56,7 @@ def parse_version() -> Tuple[int, ...]:
     try:
         return tuple(map(int, version.split('.')))
     except ValueError:
-        print(f"Failed to parse version number: {version}")
+        print(f'Failed to parse version number: {version}')
         return (0, 0, 0)
 
 
@@ -67,7 +67,7 @@ def get_version_string() -> str:
         Formatted version string.
     """
     status = 'Release' if __release__ else 'Development'
-    return f"{__version__} ({status})"
+    return f'{__version__} ({status})'
 
 
 if not __release__:

@@ -64,7 +64,7 @@ class SPOCObject(dict):
             self._cache[item] = f"undescribed THOR item, type {self._thor_obj['objectType']}"
 
         else:
-            raise ValueError(f"Unknown key {item}")
+            raise ValueError(f'Unknown key {item}')
 
         return self._cache[item]
 
@@ -117,10 +117,10 @@ class SPOCObject(dict):
     # noinspection PyStatementEffect
     def __repr__(self):
         return (
-            f"SPOCObject(dict("
+            f'SPOCObject(dict('
             f"objectId='{self['objectId']}',"
             f" objectType='{self['objectType']}',"
             f" assetId='{self['assetId']}',"
             f" isObjaverse={self['isObjaverse']},"
-            f"))"
+            f'))'
         )

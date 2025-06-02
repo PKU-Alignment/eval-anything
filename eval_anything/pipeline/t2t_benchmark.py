@@ -56,7 +56,7 @@ class T2TBenchmark(BaseBenchmark):
             for input, output in details:
                 save_details.append({'input': input.to_dict(), 'output': output.to_dict()})
             with open(
-                os.path.join(output_dir, f"details_{task}.jsonl"), 'a', encoding='utf-8'
+                os.path.join(output_dir, f'details_{task}.jsonl'), 'a', encoding='utf-8'
             ) as f:
                 for detail in save_details:
                     f.write(json.dumps(detail, ensure_ascii=False) + '\n')

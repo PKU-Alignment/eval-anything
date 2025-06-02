@@ -809,7 +809,7 @@ class NumPixelsVisible(Sensor):
     def __init__(
         self, which_camera: Literal['nav', 'manip'], uuid: str = 'num_pixels_visible'
     ) -> None:
-        uuid = f"{uuid}_{which_camera}"
+        uuid = f'{uuid}_{which_camera}'
         self.which_camera = which_camera
         observation_space = self._get_observation_space()
         super().__init__(**prepare_locals_for_super(locals()))

@@ -74,7 +74,7 @@ class TV2ACTBenchmark(BaseBenchmark):
         video_dir = os.path.join(output_dir, datetime_str)
         os.makedirs(video_dir, exist_ok=True)
         with open(
-            os.path.join(video_dir, f"details_{self.task_type}.jsonl"), 'a', encoding='utf-8'
+            os.path.join(video_dir, f'details_{self.task_type}.jsonl'), 'a', encoding='utf-8'
         ) as f:
             for result in results_lst:
                 f.write(json.dumps(result, ensure_ascii=False) + '\n')
@@ -116,7 +116,7 @@ class TV2ACTBenchmark(BaseBenchmark):
 
             topdown_view_path = os.path.join(task_dir, detail['name'] + '_topdown.png')
             plt.imsave(fname=topdown_view_path, arr=detail['top_down_frame'])
-        print(f"Saved video to {save_path}")
+        print(f'Saved video to {save_path}')
 
     def calculate_overall_metrics(self, result):
         avg_succ = 0
@@ -159,12 +159,12 @@ class TV2ACTBenchmark(BaseBenchmark):
         try:
             object_type = task.task_info['synsets'][0]
 
-            metrics[f"extra/{object_type}/success"] = metrics['success']
-            metrics[f"extra/{object_type}/eps_len"] = metrics['eps_len']
+            metrics[f'extra/{object_type}/success'] = metrics['success']
+            metrics[f'extra/{object_type}/eps_len'] = metrics['eps_len']
             if metrics['success'] < 0.1:
-                metrics[f"extra/{object_type}/eps_len_failed"] = metrics['eps_len']
+                metrics[f'extra/{object_type}/eps_len_failed'] = metrics['eps_len']
             else:
-                metrics[f"extra/{object_type}/eps_len_success"] = metrics['eps_len']
+                metrics[f'extra/{object_type}/eps_len_success'] = metrics['eps_len']
 
         except (KeyboardInterrupt, SystemExit):
             raise
@@ -246,7 +246,7 @@ class TV2ACTBenchmark(BaseBenchmark):
         print('-' * column_width + '-+-' + '-' * column_width)
 
         for key, value in overall_result.items():
-            print(f"{str(key):<{column_width}}| {str(value):<{column_width}}")
+            print(f'{str(key):<{column_width}}| {str(value):<{column_width}}')
 
     @property
     def task_sampler(self) -> MultiTaskSampler:
@@ -324,7 +324,7 @@ class TV2ACTBenchmark(BaseBenchmark):
             num_tasks += 1
             succ_sum += output['metrics']['success']
 
-        print(f"evaluate processed {num_tasks} tasks")
+        print(f'evaluate processed {num_tasks} tasks')
         return result_lst, detail_result_list
 
     def evaluate_on_task(self, input_task: InferenceInput, agent: AbstractAgent):

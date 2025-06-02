@@ -69,7 +69,7 @@ class MultiModalData:
         elif isinstance(self.file, np.ndarray):
             return ModalityType.AUDIO
         else:
-            raise ValueError(f"Unsupported file type: {type(self.file)}")
+            raise ValueError(f'Unsupported file type: {type(self.file)}')
 
 
 @dataclass

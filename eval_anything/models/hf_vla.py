@@ -34,7 +34,7 @@ class AccelerateVLAModel(BaseModel):
         if self.model_class:
             self.model = getattr(self.model_class, 'from_pretrained')(self.model_name_or_path)
         else:
-            raise ValueError(f"Model class {self.ModelForConditionalGeneration} not found.")
+            raise ValueError(f'Model class {self.ModelForConditionalGeneration} not found.')
 
         self.agent_class = globals().get(self.ModelForConditionalGeneration + 'Agent')
 

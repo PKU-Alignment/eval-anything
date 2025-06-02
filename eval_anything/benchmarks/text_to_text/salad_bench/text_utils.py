@@ -18,7 +18,7 @@ def extract_label_from_content(resp: str):
         and not resp.startswith('Unsafe')
     ):
         label = -1
-        print(f"=========================RESP========================\n{resp}")
+        print(f'=========================RESP========================\n{resp}')
     else:
         if re.search(unsafe_target_pattern, resp) or re.search(unsafe_target_pattern2, resp):
             label = 1

@@ -364,7 +364,7 @@ class RegexMatchMultiOpen(RegexMatch):
 
             return [process_single_response(response) for response in data]
         except Exception as e:
-            print(f"Error processing responses: {e}")
+            print(f'Error processing responses: {e}')
             return None
 
     def __call__(self, data: Union[List, Iterable]) -> Union[List, None]:
@@ -557,7 +557,7 @@ class RegexMatchLatexMath(RegexMatch):
 
             return [process_single_response(response) for response in data]
         except Exception as e:
-            print(f"Error processing responses: {e}")
+            print(f'Error processing responses: {e}')
             return None
 
     def __call__(self, data: Union[List, Iterable]) -> Union[List, None]:
@@ -667,7 +667,7 @@ class JudgeLatexEqual(BaseTool):
                             for sub in sl
                         ]
                     )
-                    return f"({s})"
+                    return f'({s})'
 
                 elif s[0] == '[' and s[-1] == ']' and len(sl) > 1:
                     s = ','.join(
@@ -680,7 +680,7 @@ class JudgeLatexEqual(BaseTool):
                             for sub in sl
                         ]
                     )
-                    return f"[{s}]"
+                    return f'[{s}]'
 
             except Exception:
                 return s

@@ -20,13 +20,13 @@ OBJAVERSE_ANNOTATIONS_PATH = os.environ.get(
 
 for var_name in ['OBJAVERSE_ASSETS_DIR', 'OBJAVERSE_ANNOTATIONS_PATH']:
     if locals()[var_name] is None:
-        warnings.warn(f"{var_name} is not set.")
+        warnings.warn(f'{var_name} is not set.')
     else:
         locals()[var_name] = os.path.abspath(locals()[var_name])
 
 
 print(
-    f"Using"
+    f'Using'
     f" '{OBJAVERSE_ASSETS_DIR}' for objaverse assets,"
     f" '{OBJAVERSE_ANNOTATIONS_PATH}' for objaverse annotations,"
 )

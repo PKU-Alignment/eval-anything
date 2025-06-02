@@ -70,13 +70,13 @@ class MMMUDataset(BaseMMDataset):
 
                 for idx, option in enumerate(options):
                     option_letter = chr(ord('A') + idx)
-                    example += f"({option_letter}) {option}\n"
+                    example += f'({option_letter}) {option}\n'
                     letter_to_option[option_letter] = option
 
                 formatted_prompt = f"{question}\n\n{example}\n\nAnswer with the option's letter from the given choices directly."
             else:
                 formatted_prompt = (
-                    f"{question}\n\nAnswer the question using a single word or phrase."
+                    f'{question}\n\nAnswer the question using a single word or phrase.'
                 )
 
             image_ids = self.get_image_indice(formatted_prompt)
@@ -124,7 +124,7 @@ class MMAUDataset(BaseMMDataset):
 
             answer_letter = re.search(r'\(([A-Z])\)', item['answer']).group(1)
 
-            formatted_choice = ''.join([f"{choice}\n" for choice in choices])
+            formatted_choice = ''.join([f'{choice}\n' for choice in choices])
             formatted_prompt = f"{question}\n\n{formatted_choice}\n\nAnswer with the option's letter from the given choices directly."
 
             audio_manager = MMDataManagerRegistry.get_mm_data_manager('audio')
@@ -174,7 +174,7 @@ class mathvisionDataset(BaseMMDataset):
             # input = f"{question}\n{options}\nAnswer the question using a single word or phrase."
             formatted_prompt = (
                 'Please solve the problem step by step and put your answer in one "\\boxed{}". If it is a multiple choice question, only one letter is allowed in the "\\boxed{}".\n'
-                + f"{question}\n{options}"
+                + f'{question}\n{options}'
             )
             formatted_prompt = (
                 formatted_prompt + '<image 1>'
@@ -228,7 +228,7 @@ class MMVUDataset(BaseMMDataset):
             question_type = item['question_type']
 
             if question_type == 'multiple-choice':
-                formatted_options = [f"({key}): {value}" for key, value in item['choices'].items()]
+                formatted_options = [f'({key}): {value}' for key, value in item['choices'].items()]
                 options_text = '\n'.join(formatted_options)
 
                 prompt_template = (
@@ -259,7 +259,7 @@ class MMVUDataset(BaseMMDataset):
                 formatted_prompt = prompt_template.format(question=question)
 
             else:
-                raise ValueError(f"Invalid question type: {question_type}")
+                raise ValueError(f'Invalid question type: {question_type}')
 
             video_manager = MMDataManagerRegistry.get_mm_data_manager('video')
             conversation = video_manager.prompt_to_conversation(

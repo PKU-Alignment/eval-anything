@@ -76,7 +76,7 @@ class StretchController:
         if initialize_controller:
             self.controller = Controller(**kwargs)
             self.initialization_args = kwargs
-            print(f"Using Controller commit id: {self.controller._build.commit_id}")
+            print(f'Using Controller commit id: {self.controller._build.commit_id}')
             assert STRETCH_COMMIT_ID in self.controller._build.commit_id
 
             if 'scene' in kwargs:
@@ -269,7 +269,7 @@ class StretchController:
             }
             assert set(kwargs.keys()).issubset(
                 allowed_keys
-            ), f"Invalid arguments for teleport_agent: {set(kwargs.keys()) - allowed_keys}"
+            ), f'Invalid arguments for teleport_agent: {set(kwargs.keys()) - allowed_keys}'
 
         return self.step(
             action='__Teleport__',
@@ -821,7 +821,7 @@ class StretchController:
         rp_event = self.controller.step(action='GetReachablePositions', gridSize=grid_size)
         if not rp_event:
             # NOTE: Skip scenes where GetReachablePositions fails
-            warnings.warn(f"GetReachablePositions failed in {self.current_scene_json}")
+            warnings.warn(f'GetReachablePositions failed in {self.current_scene_json}')
             return []
         reachable_positions = rp_event.metadata['actionReturn']
         return reachable_positions

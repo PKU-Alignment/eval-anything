@@ -18,9 +18,9 @@ def download_datasets(repo_id, files, local_dir):
                 local_dir=local_dir,
                 local_dir_use_symlinks=False,
             )
-            logger.info(f"Downloaded {file_name} to {file_path}")
+            logger.info(f'Downloaded {file_name} to {file_path}')
         except Exception as e:
-            logger.error(f"Failed to download {file_name}: {e}")
+            logger.error(f'Failed to download {file_name}: {e}')
 
 
 if __name__ == '__main__':

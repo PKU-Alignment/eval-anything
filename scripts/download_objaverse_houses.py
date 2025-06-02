@@ -21,8 +21,8 @@ def download_and_rename_file(info):
         )
         destination_folder = os.path.join(save_dir, 'houses_2023_07_28')
         os.makedirs(destination_folder, exist_ok=True)
-        destination_dir = os.path.join(destination_folder, f"{subset}.jsonl.gz")
-        command = f"mv {tmp_save_path} {destination_dir}"
+        destination_dir = os.path.join(destination_folder, f'{subset}.jsonl.gz')
+        command = f'mv {tmp_save_path} {destination_dir}'
         print('Running:', command)
         subprocess.call(command, shell=True)
 
@@ -44,7 +44,7 @@ def main():
     elif args.subset == 'val':
         data_link = 'https://pub-5932b61898254419952f5b13d42d82ab.r2.dev/procthor_objaverse%2F2023_07_28%2Fval.jsonl.gz'
     else:
-        raise ValueError(f"Unknown subset: {args.subset}")
+        raise ValueError(f'Unknown subset: {args.subset}')
 
     download_and_rename_file(dict(url=data_link, save_dir=args.save_dir, subset=args.subset))
 

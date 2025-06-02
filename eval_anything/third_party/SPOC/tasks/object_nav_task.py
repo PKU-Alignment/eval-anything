@@ -107,7 +107,7 @@ class ObjectNavTask(AbstractSafeTask):
             )
         if min_dist == float('inf'):
             get_logger().error(
-                f"No target object among {target_object_ids} found"
+                f'No target object among {target_object_ids} found'
                 f" in house {self.task_info['house_index']}."
             )
             return -1.0

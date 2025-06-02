@@ -47,7 +47,7 @@ def gpt_evaluate(
         for item in judge_prompt_list:
             if item['cate-idx'] == idx:
                 return item['judge_prompt']
-        raise ValueError(f"No judge prompt found for index {idx}")
+        raise ValueError(f'No judge prompt found for index {idx}')
 
     def _single_request(inference_input: InferenceInput, inference_output: InferenceOutput) -> str:
         question = inference_input.metadata['prompt']

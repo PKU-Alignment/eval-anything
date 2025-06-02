@@ -243,8 +243,8 @@ class VideoLogging:
         if camera_seen is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + (TEXT_OFFSET_H + 180), IMAGE_BORDER * 1 + 105),
-                # f"Ingore objects(Unity Bug)",
-                f"Camera Seen Objects",
+                # f"Ignore objects(Unity Bug)",
+                f'Camera Seen Objects',
                 font=full_font_load,
                 fill='black',
                 anchor='lm',
@@ -259,7 +259,7 @@ class VideoLogging:
                         IMAGE_BORDER * 2 + agent_width + (TEXT_OFFSET_H + 180),
                         IMAGE_BORDER * 1 + 120 + i * 13,
                     ),
-                    f"{obj}",
+                    f'{obj}',
                     font=full_font_load,
                     fill='red' if flag else 'gray',
                     anchor='lm',
@@ -320,7 +320,7 @@ class VideoLogging:
         # 3. 目标任务
         img_draw.text(
             (IMAGE_BORDER * 2 + agent_width, IMAGE_BORDER * 1 + 90),
-            f" Task: {task_desc}",
+            f' Task: {task_desc}',
             font=full_font_load,  # ImageFont.truetype(font_to_use, 14),
             fill='gray',
             anchor='lm',
@@ -360,7 +360,7 @@ class VideoLogging:
             error_obj = error_message
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + TEXT_OFFSET_H - 20, IMAGE_BORDER * 1 + 130),
-                f"Error: {error_obj}",
+                f'Error: {error_obj}',
                 font=full_font_load,  # ImageFont.truetype(font_to_use, 14),
                 fill='red',
                 anchor='lm',
@@ -369,7 +369,7 @@ class VideoLogging:
         if sum_robot is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + TEXT_OFFSET_H - 20, IMAGE_BORDER * 1 + 145),
-                f"Robot Cost: {sum_robot}",
+                f'Robot Cost: {sum_robot}',
                 font=full_font_load,
                 fill='red',
                 anchor='lm',
@@ -377,7 +377,7 @@ class VideoLogging:
         if sum_object is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + TEXT_OFFSET_H - 20, IMAGE_BORDER * 1 + 160),
-                f"Object Cost: {sum_object}",
+                f'Object Cost: {sum_object}',
                 font=full_font_load,
                 fill='red',
                 anchor='lm',
@@ -386,7 +386,7 @@ class VideoLogging:
         if sum_cost is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + TEXT_OFFSET_H - 20, IMAGE_BORDER * 1 + 175),
-                f"Total Cost: {sum_cost}",
+                f'Total Cost: {sum_cost}',
                 font=full_font_load,
                 fill='red',
                 anchor='lm',
@@ -394,7 +394,7 @@ class VideoLogging:
         if sum_corner is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + TEXT_OFFSET_H - 20, IMAGE_BORDER * 1 + 190),
-                f"Corner Cost: {sum_corner}",
+                f'Corner Cost: {sum_corner}',
                 font=full_font_load,
                 fill='red',
                 anchor='lm',
@@ -402,7 +402,7 @@ class VideoLogging:
         if sum_blind is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + TEXT_OFFSET_H - 20, IMAGE_BORDER * 1 + 205),
-                f"Blind Spot Cost: {sum_blind}",
+                f'Blind Spot Cost: {sum_blind}',
                 font=full_font_load,
                 fill='red',
                 anchor='lm',
@@ -425,7 +425,7 @@ class VideoLogging:
         if sum_fragile is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + TEXT_OFFSET_H - 20, IMAGE_BORDER * 1 + 235),
-                f"Fragile Cost: {sum_fragile}",
+                f'Fragile Cost: {sum_fragile}',
                 font=full_font_load,
                 fill='red',
                 anchor='lm',
@@ -457,7 +457,7 @@ class VideoLogging:
         if last_objects_causing_cost_list is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + TEXT_OFFSET_H + 400, IMAGE_BORDER * 1),
-                f"Fragile Objects",
+                f'Fragile Objects',
                 font=full_font_load,
                 fill='black',
                 anchor='lm',
@@ -478,8 +478,7 @@ class VideoLogging:
         if ignore_objects_name is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + (TEXT_OFFSET_H + 580), IMAGE_BORDER * 1),
-                # f"Ingore objects(Unity Bug)",
-                f"Ignore Objects",
+                f'Ignore Objects',
                 font=full_font_load,
                 fill='black',
                 anchor='lm',
@@ -490,7 +489,7 @@ class VideoLogging:
                         IMAGE_BORDER * 2 + agent_width + (TEXT_OFFSET_H + 580),
                         IMAGE_BORDER * 1 + 13 + i * 13,
                     ),
-                    f"{obj}",
+                    f'{obj}',
                     font=full_font_load,
                     fill='gray',
                     anchor='lm',
@@ -499,8 +498,7 @@ class VideoLogging:
         if ignore_objects_name is not None:
             img_draw.text(
                 (IMAGE_BORDER * 2 + agent_width + (TEXT_OFFSET_H + 720), IMAGE_BORDER * 1),
-                # f"Ingore objects(Unity Bug)",
-                f"Cost Objects",
+                f'Cost Objects',
                 font=full_font_load,
                 fill='black',
                 anchor='lm',
@@ -511,7 +509,7 @@ class VideoLogging:
                         IMAGE_BORDER * 2 + agent_width + (TEXT_OFFSET_H + 720),
                         IMAGE_BORDER * 1 + 13 + i * 13,
                     ),
-                    f"{obj[0]} {obj[2]}",
+                    f'{obj[0]} {obj[2]}',
                     font=full_font_load,
                     fill='gray',
                     anchor='lm',

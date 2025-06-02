@@ -30,7 +30,7 @@ class BinaryCache:
 
     def _get_cache_path(self, key: Dict[str, Any]) -> Path:
         """Get cache file path from key"""
-        return self.cache_dir / f"{self.uuid_generator(key)}.pkl"
+        return self.cache_dir / f'{self.uuid_generator(key)}.pkl'
 
     def is_cached(self, key: Dict[str, Any]) -> bool:
         """Check if the key is cached"""
@@ -47,11 +47,11 @@ class BinaryCache:
             with open(cache_path, 'rb') as f:
                 data = pickle.load(f)
             self.logger.log(
-                'info', f"Get inference outputs from cache: {os.path.join(__file__, cache_path)}"
+                'info', f'Get inference outputs from cache: {os.path.join(__file__, cache_path)}'
             )
             return data
         except Exception as e:
-            self.logger.log('error', f"Failed to load cached object with key {key}. Error: {e}")
+            self.logger.log('error', f'Failed to load cached object with key {key}. Error: {e}')
             return None
 
     def put(self, key: Dict[str, Any], value: Any) -> bool:
@@ -61,11 +61,11 @@ class BinaryCache:
             with open(cache_path, 'wb') as f:
                 pickle.dump(value, f)
             self.logger.log(
-                'info', f"Save inference outputs to cache: {os.path.join(__file__, cache_path)}"
+                'info', f'Save inference outputs to cache: {os.path.join(__file__, cache_path)}'
             )
             return True
         except Exception as e:
-            self.logger.log('error', f"Failed to cache object with key {key}. Error: {e}")
+            self.logger.log('error', f'Failed to cache object with key {key}. Error: {e}')
             return False
 
     def clear(self):
@@ -78,9 +78,9 @@ class BinaryCache:
             except Exception as e:
                 self.logger.log(
                     'error',
-                    f"Failed to delete cache file {os.path.join(__file__, cache_file)}. Error: {e}",
+                    f'Failed to delete cache file {os.path.join(__file__, cache_file)}. Error: {e}',
                 )
-        self.logger.log('info', f"Cleared {count} cache files from {self.cache_dir}")
+        self.logger.log('info', f'Cleared {count} cache files from {self.cache_dir}')
 
 
 class CacheManager:
@@ -107,7 +107,7 @@ class CacheManager:
     def _normalize_value(self, value: any) -> str:
         """Normalize values for consistent hashing"""
         if isinstance(value, float):
-            return f"{value:.6f}"
+            return f'{value:.6f}'
         return str(value)
 
     def save(self, cache_key: str, outputs: List[InferenceOutput]) -> None:

@@ -314,10 +314,10 @@ class BaseBenchmark(ABC):
         )
         self.logger.log('info', '++++++++++++++++++++++++++++++++++++')
         self.logger.log('info', f'Benchmark: {benchmark_name}')
-        self.logger.log('info', f"model_id: {self.model_cfgs.model_id},")
-        self.logger.log('info', f"num_fewshot: {self.eval_cfgs.n_shot._asdict()[benchmark_name]},")
+        self.logger.log('info', f'model_id: {self.model_cfgs.model_id},')
+        self.logger.log('info', f'num_fewshot: {self.eval_cfgs.n_shot._asdict()[benchmark_name]},')
         self.logger.log(
-            'info', f"chain_of_thought: {self.eval_cfgs.cot._asdict()[benchmark_name]},"
+            'info', f'chain_of_thought: {self.eval_cfgs.cot._asdict()[benchmark_name]},'
         )
         self.logger.log('info', '++++++++++++++++++++++++++++++++++++')
 

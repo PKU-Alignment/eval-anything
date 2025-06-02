@@ -52,7 +52,7 @@ def gpt_eval(questions, responses, cate_idxs):
         for item in judge_prompt_list:
             if item['cate-idx'] == idx:
                 return item['judge_prompt']
-        raise ValueError(f"No judge prompt found for index {idx}")
+        raise ValueError(f'No judge prompt found for index {idx}')
 
     def judger(cate_index, QApairs):
         reasons = []

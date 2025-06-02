@@ -19,7 +19,6 @@ from abc import abstractmethod
 from collections import defaultdict
 from typing import Dict, List
 
-
 from eval_anything.utils.data_type import InferenceInput
 
 

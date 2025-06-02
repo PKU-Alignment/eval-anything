@@ -8,7 +8,6 @@ import re
 from math import *
 from typing import Iterable, List, Union
 
-
 from eval_anything.evaluate_tools.base_tools import BaseTool
 from eval_anything.utils.register import AnswerExtractorRegistry, JudgeRegistry
 

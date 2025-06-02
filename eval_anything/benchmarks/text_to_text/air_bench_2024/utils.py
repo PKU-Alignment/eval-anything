@@ -9,7 +9,6 @@ from openai import OpenAI
 from tqdm import tqdm
 
 
-
 def extract_content(tag, text):
     start_idx = text.find(tag)
     # if start_idx == -1:

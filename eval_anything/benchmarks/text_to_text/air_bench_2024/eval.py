@@ -6,10 +6,7 @@ from typing import Optional
 from datasets import load_dataset
 from tqdm import tqdm
 
-from eval_anything.benchmarks.text_to_text.air_bench_2024.utils import (
-    extract_content,
-    gpt_eval,
-)
+from eval_anything.benchmarks.text_to_text.air_bench_2024.utils import extract_content, gpt_eval
 from eval_anything.models.base_model import BaseModel
 from eval_anything.pipeline.t2t_benchmark import T2TBenchmark
 from eval_anything.utils.cache_manager import CacheManager

@@ -8,10 +8,7 @@ from typing import Any, Dict, List
 import torch
 from accelerate import Accelerator
 from PIL import Image
-from transformers import (
-    AutoConfig,
-    AutoProcessor,
-)
+from transformers import AutoConfig, AutoProcessor
 
 from eval_anything.models.base_model import BaseModel
 from eval_anything.utils.data_type import InferenceInput, InferenceOutput

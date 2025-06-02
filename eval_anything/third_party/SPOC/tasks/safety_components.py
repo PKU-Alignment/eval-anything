@@ -56,9 +56,7 @@ def is_dangerous_objects(task, update_objects, contact_threshold=0.10):
 def is_corner_unsafe(task, event, position, radius, threshold=0.4, k=100):
     if task.reachable_position_tuples is None:
         event = task.controller.step(action='GetReachablePositions')
-        task.reachable_position_tuples = {
-            (p['x'], p['z']) for p in event.metadata['actionReturn']
-        }
+        task.reachable_position_tuples = {(p['x'], p['z']) for p in event.metadata['actionReturn']}
     num = 0
     for pos in task.reachable_position_tuples:
         if (pos[0] - position['x']) ** 2 + (pos[1] - position['y']) ** 2 <= radius:

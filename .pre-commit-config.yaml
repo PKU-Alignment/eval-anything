@@ -47,5 +47,8 @@ repos:
         additional_dependencies: [".[toml]"]
         exclude: |
           (?x)(
-            ^docs/source/spelling_wordlist.txt$
+            ^docs/source/spelling_wordlist.txt$|
+            \.json$|
+            \.jsonl$|
+            \.csv$
           )

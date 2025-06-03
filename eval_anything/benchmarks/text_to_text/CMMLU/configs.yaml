@@ -13,7 +13,7 @@ dataset:
   name: CMMLU
   path: /aifs4su/yaodong/panrui/pr/dataset/cmmlu
   split: test
-  size: 
+  size:
   modality: text-to-text
   fewshot_data_path: /aifs4su/yaodong/panrui/pr/dataset/cmmlu
   fewshot_data_file: null
@@ -187,4 +187,3 @@ overall_metrics:
     function: null
     args:
       null
-  

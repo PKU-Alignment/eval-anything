@@ -13,7 +13,7 @@ dataset:
   name: CEval
   path: ceval/ceval-exam
   split: val
-  size: 
+  size:
   modality: text-to-text
   fewshot_data_path: ceval/ceval-exam
   fewshot_data_file: null
@@ -157,4 +157,3 @@ overall_metrics:
     function: null
     args:
       null
-  

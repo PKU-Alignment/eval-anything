@@ -39,7 +39,7 @@
 
 - `cache_manager.py`: cache机制设计
 
-- `regiser.py`: 实现了常用的注册表（template, metric, benchmark...）
+- `register.py`: 实现了常用的注册表（template, metric, benchmark...）
 
 - `logger.py`: 实现了log机制的开发
 

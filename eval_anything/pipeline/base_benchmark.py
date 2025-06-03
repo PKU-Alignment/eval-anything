@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List
 from collections import namedtuple
+from typing import Dict, List
 
-from eval_anything.utils.logger import EvalLogger
-from eval_anything.utils.data_type import InferenceInput, InferenceOutput, EvaluationResult
 from eval_anything.evaluate_tools.metrics import MetricCalculator, OverallMetricCalculator
-from eval_anything.evaluate_tools.metrics import MetricCalculator, OverallMetricCalculator
-from eval_anything.utils.utils import read_cfgs_from_yaml, pair_data_via_uuid, dict_to_namedtuple
-from eval_anything.utils.cache_manager import CacheManager
 from eval_anything.models.base_model import BaseModel
-from eval_anything.utils.register import BenchmarkRegistry, AnswerExtractorRegistry
+from eval_anything.utils.cache_manager import CacheManager
+from eval_anything.utils.data_type import EvaluationResult, InferenceInput, InferenceOutput
+from eval_anything.utils.logger import EvalLogger
+from eval_anything.utils.register import AnswerExtractorRegistry, BenchmarkRegistry
+from eval_anything.utils.utils import dict_to_namedtuple, pair_data_via_uuid, read_cfgs_from_yaml
+
 
 BENCHMARK_MODALITY_MAP = {
     'gsm8k': 'text_to_text',
@@ -40,15 +40,17 @@ BENCHMARK_MODALITY_MAP = {
     # 来自 my-dev 的新增映射
     'advbench': 'text_to_text',
     'beavertails': 'text_to_text',
+    'dice': 'text_to_text',
+    'bad': 'text_to_text',
     'cona': 'text_to_text',
     'cyberattackassistance': 'text_to_text',
     'cdialbias': 'text_to_text',
     'bbq': 'text_to_text',
-    'anthropics': 'text_to_text'
+    'anthropics': 'text_to_text',
 }
 
 
-@BenchmarkRegistry.register("base")
+@BenchmarkRegistry.register('base')
 class BaseBenchmark(ABC):
 
     def __init__(
@@ -69,7 +71,7 @@ class BaseBenchmark(ABC):
         self.logger = logger
         self.cache_manager = cache_manager
         self.enable_cache = True if cache_manager else False
-        self.benchmark_name = "base"
+        self.benchmark_name = 'base'
 
     def get_benchmark_cfgs(self, benchmark_name: str) -> dict:
         """Get benchmark configs from yaml file in benchmark folder
@@ -97,7 +99,6 @@ class BaseBenchmark(ABC):
         Returns:
             dataloader (BaseDataLoader): dataloader
         """
-        pass
 
     def to_InferenceInput(self, task_list: list[str]) -> dict[str, list[InferenceInput]]:
         """Convert a task list to a InferenceInput dict instances"""
@@ -314,10 +315,10 @@ class BaseBenchmark(ABC):
         )
         self.logger.log('info', '++++++++++++++++++++++++++++++++++++')
         self.logger.log('info', f'Benchmark: {benchmark_name}')
-        self.logger.log('info', f"model_id: {self.model_cfgs.model_id},")
-        self.logger.log('info', f"num_fewshot: {self.eval_cfgs.n_shot._asdict()[benchmark_name]},")
+        self.logger.log('info', f'model_id: {self.model_cfgs.model_id},')
+        self.logger.log('info', f'num_fewshot: {self.eval_cfgs.n_shot._asdict()[benchmark_name]},')
         self.logger.log(
-            'info', f"chain_of_thought: {self.eval_cfgs.cot._asdict()[benchmark_name]},"
+            'info', f'chain_of_thought: {self.eval_cfgs.cot._asdict()[benchmark_name]},'
         )
         self.logger.log('info', '++++++++++++++++++++++++++++++++++++')
 
@@ -336,4 +337,3 @@ class BaseBenchmark(ABC):
             inputs (dict[str, List[InferenceInput]]): evaluation inputs
             results (dict[str, List[EvaluationResult]]): evaluation results
         """
-        pass

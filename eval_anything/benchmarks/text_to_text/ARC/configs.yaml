@@ -13,7 +13,7 @@ dataset:
   name: ARC
   path: allenai/ai2_arc
   split: test
-  size: 
+  size:
   modality: text-to-text
   fewshot_data_path: allenai/ai2_arc
   fewshot_data_file: null
@@ -23,12 +23,12 @@ dataset:
   cot_fewshot_data_split: null
   max_shot: 5
   default_task_list: ["ARC-Challenge", "ARC-Easy"]
-task: 
+task:
   - name: ARC-Challenge
     type: MultiChoice
     data_files: ["ARC-Challenge/test*.parquet"]
     question_key: question
-    answer_key: 
+    answer_key:
       choices: ""
       text: ""
     ground_truth_key: answerKey
@@ -38,7 +38,7 @@ task:
     type: MultiChoice
     data_files: ["ARC-Easy/test*.parquet"]
     question_key: question
-    answer_key: 
+    answer_key:
       choices: ""
       text: ""
     ground_truth_key: answerKey
@@ -59,4 +59,3 @@ overall_metrics:
     function: null
     args:
       null
-  

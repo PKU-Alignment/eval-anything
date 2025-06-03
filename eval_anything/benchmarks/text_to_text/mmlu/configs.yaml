@@ -228,4 +228,3 @@ overall_metrics:
     function: average_across_tasks
     args:
       null
-  

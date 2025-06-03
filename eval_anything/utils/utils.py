@@ -1,20 +1,21 @@
-from abc import ABC, abstractmethod
-from typing import Optional
-from eval_anything.utils.data_type import InferenceInput, InferenceOutput, EvaluationResult
-import os
-import yaml
-from typing import Any, Dict, Optional, Union, List
-from collections import namedtuple
-from pathlib import Path
-import numpy as np
 import contextlib
 import faulthandler
 import io
+import itertools
 import multiprocessing
+import os
 import platform
 import signal
 import tempfile
-import itertools 
+from collections import namedtuple
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+import numpy as np
+import yaml
+
+from eval_anything.utils.data_type import EvaluationResult, InferenceInput, InferenceOutput
+
 
 def read_cfgs_from_yaml(yaml_relative_dir: str, yaml_name: str) -> dict[str, Any]:
     current_file_path = os.path.abspath(__file__)
@@ -28,6 +29,7 @@ def read_cfgs_from_yaml(yaml_relative_dir: str, yaml_name: str) -> dict[str, Any
 
     return configs
 
+
 def update_dict(total_dict: dict[str, Any], item_dict: dict[str, Any]) -> dict[str, Any]:
     for key, value in total_dict.items():
         if key in item_dict:
@@ -36,12 +38,14 @@ def update_dict(total_dict: dict[str, Any], item_dict: dict[str, Any]) -> dict[s
             update_dict(value, item_dict)
     return total_dict
 
+
 def is_convertible_to_float(s: str) -> bool:
     try:
         float(s)
         return True
     except ValueError:
         return False
+
 
 def custom_cfgs_to_dict(key_list: str, value: Any) -> dict[str, Any]:
     """This function is used to convert the custom configurations to dict."""
@@ -68,6 +72,7 @@ def custom_cfgs_to_dict(key_list: str, value: Any) -> dict[str, Any]:
     for key in reversed(keys_split[:-1]):
         return_dict = {key.replace('-', '_'): return_dict}
 
+
 def dict_to_namedtuple(dic):
     def convert(value):
         if isinstance(value, dict):
@@ -86,6 +91,7 @@ def dict_to_namedtuple(dic):
     cfgs = EnhancedNamedTuple(**{k: convert(v) for k, v in dic.items()})
     return cfgs
 
+
 def namedtuple_to_dict(obj):
     if hasattr(obj, '_asdict'):
         return {k: namedtuple_to_dict(v) for k, v in obj._asdict().items()}
@@ -93,6 +99,7 @@ def namedtuple_to_dict(obj):
         return [namedtuple_to_dict(i) for i in obj]
     else:
         return obj
+
 
 def parse_unknown_args(args):
     """
@@ -114,9 +121,13 @@ def parse_unknown_args(args):
             i += 1
     return unknown_args
 
-def pair_data_via_uuid(inputs: list[InferenceInput], outputs: list[InferenceOutput | EvaluationResult]):
+
+def pair_data_via_uuid(
+    inputs: list[InferenceInput], outputs: list[InferenceOutput | EvaluationResult]
+):
     def get_uuid_key(item: Union[InferenceInput, InferenceOutput]):
         return item.uuid
+
     uuid_inputs = {get_uuid_key(item): item for item in inputs}
     results = []
     for output in outputs:
@@ -125,30 +136,33 @@ def pair_data_via_uuid(inputs: list[InferenceInput], outputs: list[InferenceOutp
             results.append((uuid_inputs[uuid_key], output))
     return results
 
+
 def get_messages(modality, prompt):
     messages = {
-        "t2t": [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt},
+        't2t': [
+            {'role': 'system', 'content': 'You are a helpful assistant.'},
+            {'role': 'user', 'content': prompt},
         ],
-        "ti2t": [
+        'ti2t': [
             {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image"},
+                'role': 'user',
+                'content': [
+                    {'type': 'text', 'text': prompt},
+                    {'type': 'image'},
                 ],
             }
         ],
     }
     return messages.get(modality, [])
 
+
 def get_project_root():
     current = Path(__file__).resolve()
     for parent in current.parents:
-        if (parent / ".git").exists() or (parent / "pyproject.toml").exists():
+        if (parent / '.git').exists() or (parent / 'pyproject.toml').exists():
             return parent
     return None
+
 
 def unsafe_execute(problem: Dict, completion: str, timeout: float, result):
     with create_tempdir():
@@ -166,11 +180,7 @@ def unsafe_execute(problem: Dict, completion: str, timeout: float, result):
 
         # Construct the check program and run it.
         check_program = (
-            completion
-            + "\n"
-            + problem["test"]
-            + "\n"
-            + f"check({problem['entry_point']})"
+            completion + '\n' + problem['test'] + '\n' + f"check({problem['entry_point']})"
         )
 
         try:
@@ -188,11 +198,11 @@ def unsafe_execute(problem: Dict, completion: str, timeout: float, result):
                     # Once you have read this disclaimer and taken appropriate precautions,
                     # uncomment the following line and proceed at your own risk:
                     exec(check_program, exec_globals)
-            result.append("passed")
+            result.append('passed')
         except TimeoutException:
-            result.append("timed out")
+            result.append('timed out')
         except BaseException as e:
-            result.append(f"failed: {e}")
+            result.append(f'failed: {e}')
 
         # Needed for cleaning up.
         shutil.rmtree = rmtree
@@ -208,14 +218,14 @@ def check_correctness(
     suite provided in the problem.
     """
     # Set tokenizer parallelism before creating new process
-    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+    os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
     manager = multiprocessing.Manager()
     result = manager.list()
 
     def worker_init():
         # Ensure child processes also have tokenizer parallelism disabled
-        os.environ["TOKENIZERS_PARALLELISM"] = "false"
+        os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
     p = multiprocessing.Process(target=unsafe_execute, args=(problem, completion, timeout, result))
     p.start()
@@ -224,11 +234,11 @@ def check_correctness(
         p.kill()
 
     if not result:
-        result.append("timed out")
+        result.append('timed out')
 
     return dict(
-        task_id=problem["task_id"],
-        passed=result[0] == "passed",
+        task_id=problem['task_id'],
+        passed=result[0] == 'passed',
         result=result[0],
         completion_id=completion_id,
     )
@@ -237,7 +247,7 @@ def check_correctness(
 @contextlib.contextmanager
 def time_limit(seconds: float):
     def signal_handler(signum, frame):
-        raise TimeoutException("Timed out!")
+        raise TimeoutException('Timed out!')
 
     signal.setitimer(signal.ITIMER_REAL, seconds)
     signal.signal(signal.SIGALRM, signal_handler)
@@ -271,13 +281,13 @@ class WriteOnlyStringIO(io.StringIO):
     """StringIO that throws an exception when it's read from"""
 
     def read(self, *args, **kwargs):
-        raise IOError
+        raise OSError
 
     def readline(self, *args, **kwargs):
-        raise IOError
+        raise OSError
 
     def readlines(self, *args, **kwargs):
-        raise IOError
+        raise OSError
 
     def readable(self, *args, **kwargs):
         """Returns True if the IO object can be read."""
@@ -285,12 +295,12 @@ class WriteOnlyStringIO(io.StringIO):
 
 
 class redirect_stdin(contextlib._RedirectStream):  # type: ignore
-    _stream = "stdin"
+    _stream = 'stdin'
 
 
 @contextlib.contextmanager
 def chdir(root):
-    if root == ".":
+    if root == '.':
         yield
         return
     cwd = os.getcwd()
@@ -321,7 +331,7 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
 
         resource.setrlimit(resource.RLIMIT_AS, (maximum_memory_bytes, maximum_memory_bytes))
         resource.setrlimit(resource.RLIMIT_DATA, (maximum_memory_bytes, maximum_memory_bytes))
-        if not platform.uname().system == "Darwin":
+        if not platform.uname().system == 'Darwin':
             resource.setrlimit(resource.RLIMIT_STACK, (maximum_memory_bytes, maximum_memory_bytes))
 
     faulthandler.disable()
@@ -333,7 +343,7 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
 
     import os
 
-    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ['OMP_NUM_THREADS'] = '1'
 
     os.kill = None
     os.system = None
@@ -373,20 +383,21 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
 
     subprocess.Popen = None  # type: ignore
 
-    __builtins__["help"] = None
+    __builtins__['help'] = None
 
     import sys
 
-    sys.modules["ipdb"] = None
-    sys.modules["joblib"] = None
-    sys.modules["resource"] = None
-    sys.modules["psutil"] = None
-    sys.modules["tkinter"] = None
+    sys.modules['ipdb'] = None
+    sys.modules['joblib'] = None
+    sys.modules['resource'] = None
+    sys.modules['psutil'] = None
+    sys.modules['tkinter'] = None
+
 
 def estimate_pass_at_k(
     num_samples: Union[int, List[int], np.ndarray],
     num_correct: Union[List[int], np.ndarray],
-    k: int
+    k: int,
 ) -> np.ndarray:
     """
     Estimates pass@k of each problem and returns them in an array.
@@ -408,14 +419,15 @@ def estimate_pass_at_k(
 
     return np.array([estimator(int(n), int(c), k) for n, c in zip(num_samples_it, num_correct)])
 
+
 def _fix_fracs(string):
-    substrs = string.split("\\frac")
+    substrs = string.split('\\frac')
     new_str = substrs[0]
     if len(substrs) > 1:
         substrs = substrs[1:]
         for substr in substrs:
-            new_str += "\\frac"
-            if substr[0] == "{":
+            new_str += '\\frac'
+            if substr[0] == '{':
                 new_str += substr
             else:
                 try:
@@ -424,106 +436,127 @@ def _fix_fracs(string):
                     return string
                 a = substr[0]
                 b = substr[1]
-                if b != "{":
+                if b != '{':
                     if len(substr) > 2:
                         post_substr = substr[2:]
-                        new_str += "{" + a + "}{" + b + "}" + post_substr
+                        new_str += '{' + a + '}{' + b + '}' + post_substr
                     else:
-                        new_str += "{" + a + "}{" + b + "}"
+                        new_str += '{' + a + '}{' + b + '}'
                 else:
                     if len(substr) > 2:
                         post_substr = substr[2:]
-                        new_str += "{" + a + "}" + b + post_substr
+                        new_str += '{' + a + '}' + b + post_substr
                     else:
-                        new_str += "{" + a + "}" + b
+                        new_str += '{' + a + '}' + b
     string = new_str
     return string
 
+
 def _fix_a_slash_b(string):
-    if len(string.split("/")) != 2:
+    if len(string.split('/')) != 2:
         return string
-    a = string.split("/")[0]
-    b = string.split("/")[1]
+    a = string.split('/')[0]
+    b = string.split('/')[1]
     try:
         a = int(a)
         b = int(b)
-        assert string == "{}/{}".format(a, b)
-        new_string = "\\frac{" + str(a) + "}{" + str(b) + "}"
+        assert string == f'{a}/{b}'
+        new_string = '\\frac{' + str(a) + '}{' + str(b) + '}'
         return new_string
     except:
         return string
 
+
 def _remove_right_units(string):
-    if "\\text{ " in string:
-        splits = string.split("\\text{ ")
+    if '\\text{ ' in string:
+        splits = string.split('\\text{ ')
         assert len(splits) == 2
         return splits[0]
     else:
         return string
 
+
 def _fix_sqrt(string):
-    if "\\sqrt" not in string:
+    if '\\sqrt' not in string:
         return string
-    splits = string.split("\\sqrt")
+    splits = string.split('\\sqrt')
     new_string = splits[0]
     for split in splits[1:]:
-        if split[0] != "{":
+        if split[0] != '{':
             a = split[0]
-            new_substr = "\\sqrt{" + a + "}" + split[1:]
+            new_substr = '\\sqrt{' + a + '}' + split[1:]
         else:
-            new_substr = "\\sqrt" + split
+            new_substr = '\\sqrt' + split
         new_string += new_substr
     return new_string
+
 
 def _strip_string(string):
     if string is None:
         return string
 
-    string = string.replace("\n", "").replace("\\!", "").replace("\\\\", "\\").replace("tfrac", "frac").replace("dfrac", "frac").replace("\\left", "").replace("\\right", "").replace("^{\\circ}", "").replace("^\\circ", "").replace("\\$", "")
+    string = (
+        string.replace('\n', '')
+        .replace('\\!', '')
+        .replace('\\\\', '\\')
+        .replace('tfrac', 'frac')
+        .replace('dfrac', 'frac')
+        .replace('\\left', '')
+        .replace('\\right', '')
+        .replace('^{\\circ}', '')
+        .replace('^\\circ', '')
+        .replace('\\$', '')
+    )
     string = _remove_right_units(string)
-    string = string.replace("\\%", "").replace("\%", "").replace(" .", " 0.").replace("{.", "{0.")
+    string = string.replace('\\%', '').replace(r'\%', '').replace(' .', ' 0.').replace('{.', '{0.')
 
     if len(string) == 0:
         return string
-    if string[0] == ".":
-        string = "0" + string
+    if string[0] == '.':
+        string = '0' + string
 
-    if len(string.split("=")) == 2:
-        if len(string.split("=")[0]) <= 2:
-            string = string.split("=")[1]
+    if len(string.split('=')) == 2:
+        if len(string.split('=')[0]) <= 2:
+            string = string.split('=')[1]
 
     string = _fix_sqrt(string)
-    string = string.replace(" ", "")
+    string = string.replace(' ', '')
     string = _fix_fracs(string)
 
-    if string == "0.5":
-        string = "\\frac{1}{2}"
+    if string == '0.5':
+        string = '\\frac{1}{2}'
     string = _fix_a_slash_b(string)
 
     return string
 
-def remove_few_shot_prefix(string:str):
-    prefix_list = ["The answer is therefore", "答案是", "The answer is"]
+
+def remove_few_shot_prefix(string: str):
+    prefix_list = ['The answer is therefore', '答案是', 'The answer is']
     for prefix in prefix_list:
         if string.startswith(prefix):
-            string = string[len(prefix):].strip()
+            string = string[len(prefix) :].strip()
         elif prefix in string:
             index = string.rfind(prefix)
             if index >= 0:
-                string = string[index + len(prefix):].strip()
+                string = string[index + len(prefix) :].strip()
     return string
 
+
 def remove_boxed(s):
-    idx = max(s.rfind("\\boxed"), s.rfind("\\fbox"))
+    idx = max(s.rfind('\\boxed'), s.rfind('\\fbox'))
     if idx < 0:
         return None
 
     num_left_braces_open = 0
     for i in range(idx, len(s)):
-        if s[i] == "{":
+        if s[i] == '{':
             num_left_braces_open += 1
-        elif s[i] == "}" and num_left_braces_open and not (num_left_braces_open := num_left_braces_open - 1):
-            answer = s[idx:i + 1]
-            answer = answer[len("\\boxed{"):-1] if answer.startswith("\\boxed{") else answer
-            return answer.split("=")[-1].lstrip(" ") if "=" in answer else answer
+        elif (
+            s[i] == '}'
+            and num_left_braces_open
+            and not (num_left_braces_open := num_left_braces_open - 1)
+        ):
+            answer = s[idx : i + 1]
+            answer = answer[len('\\boxed{') : -1] if answer.startswith('\\boxed{') else answer
+            return answer.split('=')[-1].lstrip(' ') if '=' in answer else answer
     return None

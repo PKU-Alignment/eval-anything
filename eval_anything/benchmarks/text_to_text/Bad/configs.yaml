@@ -1,0 +1,10 @@
+dataset:
+  name: Bad
+  path: eval-anything/eval_anything/benchmarks/safedata/bad.jsonl
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["Bad"]
+  # /share/project/znh/eval/eval_anything/data
+task:
+  - name: Bad

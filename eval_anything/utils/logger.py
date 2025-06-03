@@ -101,16 +101,16 @@ class EvalLogger:
             for metrics in data.values():
                 all_metrics.update(metrics.keys())
             all_metrics = sorted(all_metrics)  # 确保列顺序一致
-            columns = [""]
+            columns = ['']
             rows = []
-            table.add_column("", style="bold")
+            table.add_column('', style='bold')
             # table.add_column("Task Name")
             for metric in all_metrics:
                 columns.append(metric)
                 table.add_column(metric)
-            
+
             for row_label, subdict in data.items():
-                row = [row_label] + [str(subdict.get(col, "")) for col in all_metrics]
+                row = [row_label] + [str(subdict.get(col, '')) for col in all_metrics]
                 rows.append(row)
                 table.add_row(*row)
 

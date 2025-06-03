@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import math
 from dataclasses import dataclass
 from typing import List, Literal, Tuple

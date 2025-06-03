@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 # ref: https://github.com/OpenSafetyLab/SALAD-BENCH/blob/main/saladbench/evaluator.py
 
 """The MD-Judge Evaluator and its data parallel implementation."""
@@ -263,7 +278,7 @@ class MDJudgeEvaluator:
         tokenizer = self._load_tokenizer()
         hf_model = self._load_hf_model()
         gen_config = GenerationConfig(
-            do_sample=False, temerature=0.0, max_new_tokens=max_new_tokens
+            do_sample=False, temperature=0.0, max_new_tokens=max_new_tokens
         )
         for prompt in tqdm(queries, desc='Evaluating', disable=not use_tqdm):
             inputs = tokenizer(prompt, add_special_tokens=True, return_tensors='pt')

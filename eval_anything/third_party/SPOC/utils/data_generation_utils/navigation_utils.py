@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import math
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple
 

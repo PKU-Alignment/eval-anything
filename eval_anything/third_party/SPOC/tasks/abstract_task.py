@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import time
 from abc import abstractmethod
 from collections import deque

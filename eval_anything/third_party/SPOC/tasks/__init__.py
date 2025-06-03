@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 from importlib import import_module
 from inspect import isclass
 from pathlib import Path

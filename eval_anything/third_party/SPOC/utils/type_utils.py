@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import sys
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union

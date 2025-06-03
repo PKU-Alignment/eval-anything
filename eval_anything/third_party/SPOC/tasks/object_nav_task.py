@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from allenact.utils.misc_utils import prepare_locals_for_super

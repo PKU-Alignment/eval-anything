@@ -99,7 +99,7 @@ class MMDataLoader(BaseDataLoader):
             except:
                 self.logger.log(
                     'error',
-                    f"Chain of thought fewshot is not supported for task {self.bench_cfgs.dataset.name}: {task}",
+                    f'Chain of thought fewshot is not supported for task {self.bench_cfgs.dataset.name}: {task}',
                 )
                 raise
         else:
@@ -134,6 +134,6 @@ class MMDataLoader(BaseDataLoader):
             except:
                 self.logger.log(
                     'error',
-                    f"Fewshot is not supported for task {self.bench_cfgs.dataset.name}: {task}",
+                    f'Fewshot is not supported for task {self.bench_cfgs.dataset.name}: {task}',
                 )
                 raise

@@ -36,6 +36,8 @@ BENCHMARK_MODALITY_MAP = {
     'jbb_behaviors': 'text_to_text',
     'salad_bench': 'text_to_text',
     'air_bench_2024': 'text_to_text',
+    'aegis_aicontent_safety_dataset': 'text_to_text',
+    's_eval': 'text_to_text',
     'chores': 'text_vision_to_action',
     # 来自 my-dev 的新增映射
     'advbench': 'text_to_text',

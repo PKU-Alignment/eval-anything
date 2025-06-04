@@ -33,6 +33,8 @@ benchmark_modules = [
     'benchmarks.text_to_text.jbb_behaviors.eval',
     'benchmarks.text_to_text.salad_bench.eval',
     'benchmarks.text_to_text.air_bench_2024.eval',
+    'benchmarks.text_to_text.aegis_aicontent_safety_dataset.eval',
+    'benchmarks.text_to_text.s_eval.eval',
     # 共同模块
     'benchmarks.text_image_to_text.mmmu.eval',
     'benchmarks.text_image_to_text.mathvision.eval',

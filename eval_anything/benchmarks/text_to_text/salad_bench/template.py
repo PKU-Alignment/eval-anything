@@ -1,7 +1,6 @@
 # ref: https://github.com/OpenSafetyLab/SALAD-BENCH/blob/main/saladbench/template.py
 
-"""Templates and helper used for MD-judge evaluator.
-"""
+"""Templates and helper used for MD-judge evaluator."""
 
 from typing import List
 

@@ -1,0 +1,9 @@
+dataset:
+  name: s_eval
+  path:
+  split: train
+  size:
+  modality: text-to-text
+  default_task_list: ["s_eval"]
+task:
+  - name: s_eval

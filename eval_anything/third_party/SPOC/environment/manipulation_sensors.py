@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import gym
 import numpy as np
 from allenact.base_abstractions.sensor import Sensor

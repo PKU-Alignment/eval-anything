@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from typing import Dict, List
@@ -31,6 +46,8 @@ BENCHMARK_MODALITY_MAP = {
     'redeval': 'text_to_text',
     'hexphi': 'text_to_text',
     'latentjailbreak': 'text_to_text',
+    'maliciousinstruct': 'text_to_text',
+    'maliciousinstructions': 'text_to_text',
     'gptfuzzer': 'text_to_text',
     'llm_jailbreak_study': 'text_to_text',
     'jbb_behaviors': 'text_to_text',

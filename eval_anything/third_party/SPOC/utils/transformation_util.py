@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import random
 
 import ai2thor.controller

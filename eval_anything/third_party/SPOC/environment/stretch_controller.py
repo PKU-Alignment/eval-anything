@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import copy
 import math
 import pdb

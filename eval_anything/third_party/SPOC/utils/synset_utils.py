@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 from functools import lru_cache
 from typing import List, Set, Union
 

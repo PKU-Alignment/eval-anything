@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import random
 from dataclasses import dataclass, field
 from typing import List, Tuple

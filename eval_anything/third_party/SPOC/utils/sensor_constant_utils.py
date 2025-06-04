@@ -1,3 +1,7 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
+
 class AbstractSensor:
     sensor_uuid = 'sensor_name'
 

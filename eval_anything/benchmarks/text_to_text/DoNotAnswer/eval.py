@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 import os
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -108,15 +123,11 @@ class DoNotAnswerEvaluator(T2TBenchmark):
 
     def to_InferenceInput(self, task_list: list[str]) -> dict[str, list[InferenceInput]]:
         """Convert a task list to a list of InferenceInput dict instances"""
-        # dataset = load_dataset(
-        #     path="Libr-AI/do-not-answer",
-        #     split="train",
-        # )
         dataset = load_dataset(
-            'csv',
-            data_files='eval_anything/benchmarks/local_safe_eval_data/DoNotAnswer_data_en.csv',
+            path='Libr-AI/do-not-answer',
             split='train',
         )
+
         inference_inputs = []
         for item in dataset:
             inference_inputs.append(

@@ -48,7 +48,7 @@ This subsection introduces core frameworks and interfaces in this project and ho
 
 ## General Guidelines
 
-1. Create a directory under the `benchmarks` folder
+1. Create a directory under the `benchmarks` folder.
    - Write a configuration file `configs.yaml`. Here is an [example](eval_anything/benchmarks/text_to_text/gsm8k/configs.yaml).
    - Develop `eval.py` after inheriting from the corresponding benchmark base class.
 2. (Optional) Create `metrics.py` and `tools.py` and make registers for new metrics and evaluation tools. Here is an [example](eval-anything/eval_anything/benchmarks/text_to_text/TruthfulQA).

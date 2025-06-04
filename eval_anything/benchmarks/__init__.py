@@ -52,6 +52,7 @@ benchmark_modules = [
     'benchmarks.text_to_text.air_bench_2024.eval',
     'benchmarks.text_to_text.aegis_aicontent_safety_dataset.eval',
     'benchmarks.text_to_text.s_eval.eval',
+    'benchmarks.text_to_text.FakeAlignment.eval',
     # 共同模块
     'benchmarks.text_image_to_text.mmmu.eval',
     'benchmarks.text_image_to_text.mathvision.eval',

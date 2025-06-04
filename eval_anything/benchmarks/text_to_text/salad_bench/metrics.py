@@ -59,8 +59,11 @@ def eval_f1(targets, preds, print_=False):
     recall = recall_score(targets, preds)
     f1 = f1_score(targets, preds)
     if print_:
-        print(f"Accuracy: {np.round(accuracy, 4)}")
-        print(f"Precision: {np.round(precision, 4)}")
-        print(f"Recall: {np.round(recall, 4)}")
-        print(f"F1: {np.round(f1, 4)}")
-    return (accuracy, precision, recall, f1)
+        print(f'Accuracy: {np.round(accuracy, 4)}')
+        print(f'Precision: {np.round(precision, 4)}')
+        print(f'Recall: {np.round(recal, 4)}')
+        print(f'F1: {np.round(f1, 4)}')
+    # TODO: do not round return values
+    # TODO: move print to outside
+    # TODO: consider using a dict or namedtuple
+    return (accuracy, precision, recal, f1)

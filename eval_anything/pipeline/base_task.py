@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 """
 任务基类，不直接使用，而是继承后实现具体任务的逻辑
 
@@ -14,7 +29,8 @@ from collections import namedtuple
 
 import gradio as gr
 import pandas as pd
-
+import eval_anything.benchmarks
+import eval_anything.utils.prompt_builders
 from eval_anything.models.base_model import CLASS_MAP, MODEL_MAP
 from eval_anything.utils.cache_manager import CacheManager
 from eval_anything.utils.logger import EvalLogger
@@ -75,8 +91,8 @@ class BaseTask(ABC):
         return self.eval_cfgs.benchmarks._asdict()
 
     def load_model(self, model_cfgs: namedtuple, infer_cfgs: namedtuple):
-        backend_type = f"{infer_cfgs.infer_backend}_{model_cfgs.model_type}"
-        module_name = f"eval_anything.models.{MODEL_MAP[backend_type]}"
+        backend_type = f'{infer_cfgs.infer_backend}_{model_cfgs.model_type}'
+        module_name = f'eval_anything.models.{MODEL_MAP[backend_type]}'
 
         module = importlib.import_module(module_name)
         model_class = getattr(module, CLASS_MAP[backend_type])
@@ -184,7 +200,7 @@ class BaseTask(ABC):
             return
 
         with gr.Blocks() as demo:
-            gr.Markdown(f"# {self._get_modality_type().title()} Task Evaluation Results")
+            gr.Markdown(f'# {self._get_modality_type().title()} Task Evaluation Results')
 
             with gr.Tab('Results Overview'):
                 gr.Dataframe(
@@ -223,7 +239,7 @@ class BaseTask(ABC):
         try:
             demo.launch(server_port=server_port, server_name='0.0.0.0', share=share, quiet=True)
         except Exception as e:
-            self.logger.error(f"Failed to launch visualization interface: {str(e)}")
+            self.logger.error(f'Failed to launch visualization interface: {str(e)}')
 
     def save_task_details(self, save_path: str):
         """Save overall evaluation results, including all benchmark results.

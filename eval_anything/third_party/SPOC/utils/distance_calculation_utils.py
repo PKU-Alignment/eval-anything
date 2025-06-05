@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import math
 from typing import Literal
 
@@ -24,7 +27,7 @@ def position_dist(
             + (p0['z'] - p1['z']) ** 2
         )
     else:
-        raise NotImplementedError('dist_fn must be in {"l1", "l2"}.' f" You gave {dist_fn}")
+        raise NotImplementedError('dist_fn must be in {"l1", "l2"}.' f' You gave {dist_fn}')
 
 
 def sum_dist_path(path):

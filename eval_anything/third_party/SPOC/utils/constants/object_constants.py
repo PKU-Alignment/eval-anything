@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 OBJNAV_TYPES_THOR = [
     'AlarmClock',
     'Apple',

@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 from typing import Any, Dict, List, Optional
 
 from allenact.utils.misc_utils import prepare_locals_for_super
@@ -79,7 +82,7 @@ class FetchTask(AbstractSafeTask):
             )
         if min_dist == float('inf'):
             get_logger().error(
-                f"No target object among {target_object_ids} found"
+                f'No target object among {target_object_ids} found'
                 f" in house {self.task_info['house_index']}."
             )
             return -1.0

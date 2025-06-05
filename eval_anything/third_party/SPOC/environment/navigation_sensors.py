@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import json
 import random
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
@@ -809,7 +812,7 @@ class NumPixelsVisible(Sensor):
     def __init__(
         self, which_camera: Literal['nav', 'manip'], uuid: str = 'num_pixels_visible'
     ) -> None:
-        uuid = f"{uuid}_{which_camera}"
+        uuid = f'{uuid}_{which_camera}'
         self.which_camera = which_camera
         observation_space = self._get_observation_space()
         super().__init__(**prepare_locals_for_super(locals()))

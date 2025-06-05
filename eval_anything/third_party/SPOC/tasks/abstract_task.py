@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import time
 from abc import abstractmethod
 from collections import deque
@@ -120,8 +123,6 @@ class AbstractSafeTask(Task['StretchController']):
             + str(self.task_info['house_index'])
             + '_'
             + str(int(time.time()))
-            # + "_"
-            # + self.task_info["natural_language_spec"].replace(" ", "")  ths gives error
         )
         if 'natural_language_spec' in self.task_info:
             self.task_info['id'] += '_' + self.task_info['natural_language_spec'].replace(' ', '')

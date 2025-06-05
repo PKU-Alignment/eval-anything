@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 """
 t2t任务基类，不直接使用，而是继承后实现具体任务的逻辑
 输入：
@@ -56,7 +71,7 @@ class T2TBenchmark(BaseBenchmark):
             for input, output in details:
                 save_details.append({'input': input.to_dict(), 'output': output.to_dict()})
             with open(
-                os.path.join(output_dir, f"details_{task}.jsonl"), 'a', encoding='utf-8'
+                os.path.join(output_dir, f'details_{task}.jsonl'), 'a', encoding='utf-8'
             ) as f:
                 for detail in save_details:
                     f.write(json.dumps(detail, ensure_ascii=False) + '\n')

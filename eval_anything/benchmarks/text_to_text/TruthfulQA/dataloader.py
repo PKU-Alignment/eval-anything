@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 from collections import namedtuple
 from typing import Optional
 
@@ -136,12 +151,12 @@ class MultiChoiceAutoLabelPromptBuilder:
 
         if ground_truth.isdigit():
             ground_truth = [candidate_labels[int(ground_truth)]]
-        prompt = f"{question}\n"
+        prompt = f'{question}\n'
         for label, answer in zip(candidate_labels, candidate_answers):
-            prompt += f"({label}) {answer} "
+            prompt += f'({label}) {answer} '
 
         if ground_truth:
-            answer = f"\nAnswer: ({ground_truth})"
+            answer = f'\nAnswer: ({ground_truth})'
         else:
             answer = ''
 
@@ -159,9 +174,9 @@ class MultiChoiceAutoLabelPromptBuilder:
             ):
                 prompt += self.marge_QA(q, c, str(a))
 
-        prompt += f"{self.multi_choice_prompt}\n\n"
+        prompt += f'{self.multi_choice_prompt}\n\n'
 
         prompt += self.marge_QA(question, candidate_answers)
         if self.enable_cot:
-            prompt += f"\n{self.cot_context}"
+            prompt += f'\n{self.cot_context}'
         return prompt

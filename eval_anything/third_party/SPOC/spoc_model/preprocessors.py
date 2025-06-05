@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import random
 from dataclasses import dataclass, field
 from typing import List, Tuple
@@ -264,7 +267,7 @@ class Preprocessor:
                 output[sensor] = self.process_task_relevant_bbox(batch, sensor)
             else:
                 if sensor not in ['initial_agent_location', 'templated_task_type']:
-                    raise NotImplementedError(f"Sensor {sensor} not implemented")
+                    raise NotImplementedError(f'Sensor {sensor} not implemented')
 
         if 'actions' in batch_keys:
             key_to_look_at = 'actions'

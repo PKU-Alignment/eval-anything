@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 import argparse
 import os
 import subprocess
@@ -21,8 +36,8 @@ def download_and_rename_file(info):
         )
         destination_folder = os.path.join(save_dir, 'houses_2023_07_28')
         os.makedirs(destination_folder, exist_ok=True)
-        destination_dir = os.path.join(destination_folder, f"{subset}.jsonl.gz")
-        command = f"mv {tmp_save_path} {destination_dir}"
+        destination_dir = os.path.join(destination_folder, f'{subset}.jsonl.gz')
+        command = f'mv {tmp_save_path} {destination_dir}'
         print('Running:', command)
         subprocess.call(command, shell=True)
 
@@ -44,7 +59,7 @@ def main():
     elif args.subset == 'val':
         data_link = 'https://pub-5932b61898254419952f5b13d42d82ab.r2.dev/procthor_objaverse%2F2023_07_28%2Fval.jsonl.gz'
     else:
-        raise ValueError(f"Unknown subset: {args.subset}")
+        raise ValueError(f'Unknown subset: {args.subset}')
 
     download_and_rename_file(dict(url=data_link, save_dir=args.save_dir, subset=args.subset))
 

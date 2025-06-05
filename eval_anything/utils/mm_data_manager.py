@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 """
 Utility functions for multi-modal data.
 - Handle the conversion between multi-modal data and the required format.
@@ -51,7 +66,7 @@ class ImageManager(BaseMMDataManager):
             return image.convert('RGB')
 
         except Exception as e:
-            raise ValueError(f"Failed to decode base64 image: {str(e)}")
+            raise ValueError(f'Failed to decode base64 image: {str(e)}')
 
     @classmethod
     def encode_image_to_base64(cls, image: Union[str, 'PIL.Image']) -> str:
@@ -76,7 +91,7 @@ class ImageManager(BaseMMDataManager):
             return base64_data
 
         except Exception as e:
-            raise ValueError(f"Failed to encode image to base64: {str(e)}")
+            raise ValueError(f'Failed to encode image to base64: {str(e)}')
 
     @classmethod
     def _has_transparency(cls, image: Image.Image) -> bool:
@@ -105,7 +120,7 @@ class ImageManager(BaseMMDataManager):
                             image = cls.decode_base64_to_image(item['image_url'])
                             images.append(image)
                     except Exception as e:
-                        print(f"Warning: Failed to process image in conversation: {str(e)}")
+                        print(f'Warning: Failed to process image in conversation: {str(e)}')
                         continue
         return images, {}
 
@@ -133,7 +148,7 @@ class ImageManager(BaseMMDataManager):
         if matches:
             assert len(images) == len(
                 matches
-            ), f"Number of images ({len(images)}) does not match number of placeholders ({len(matches)}), input user_prompt: {user_prompt}"
+            ), f'Number of images ({len(images)}) does not match number of placeholders ({len(matches)}), input user_prompt: {user_prompt}'
 
             last_end = 0
             for i, match in enumerate(matches):
@@ -144,7 +159,7 @@ class ImageManager(BaseMMDataManager):
                 content_parts.append(
                     {
                         'type': 'image',
-                        'image': f"data:image/jpeg;base64,{cls.encode_image_to_base64(images[i])}",
+                        'image': f'data:image/jpeg;base64,{cls.encode_image_to_base64(images[i])}',
                     }
                 )
                 last_end = match.end()
@@ -156,7 +171,7 @@ class ImageManager(BaseMMDataManager):
                 [
                     {
                         'type': 'image',
-                        'image': f"data:image/jpeg;base64,{cls.encode_image_to_base64(img)}",
+                        'image': f'data:image/jpeg;base64,{cls.encode_image_to_base64(img)}',
                     }
                     for img in images
                 ]
@@ -223,7 +238,7 @@ class AudioManager(BaseMMDataManager):
             return sample_rate, audio_array
 
         except Exception as e:
-            raise ValueError(f"Failed to decode base64 audio: {str(e)}")
+            raise ValueError(f'Failed to decode base64 audio: {str(e)}')
 
     @classmethod
     def encode_audio_to_base64(cls, audio_array: np.ndarray, sample_rate: int = 16000) -> str:
@@ -292,7 +307,7 @@ class AudioManager(BaseMMDataManager):
         if matches:
             assert len(audios) == len(
                 matches
-            ), f"Number of audios ({len(audios)}) does not match number of placeholders ({len(matches)}), input user_prompt: {user_prompt}"
+            ), f'Number of audios ({len(audios)}) does not match number of placeholders ({len(matches)}), input user_prompt: {user_prompt}'
 
             last_end = 0
             for i, match in enumerate(matches):
@@ -304,7 +319,7 @@ class AudioManager(BaseMMDataManager):
                     {
                         'type': 'audio_url',
                         'audio_url': {
-                            'url': f"data:audio/wav;base64,{cls.encode_audio_to_base64(audios[i], sample_rates[i])}"
+                            'url': f'data:audio/wav;base64,{cls.encode_audio_to_base64(audios[i], sample_rates[i])}'
                         },
                     }
                 )
@@ -318,7 +333,7 @@ class AudioManager(BaseMMDataManager):
                     {
                         'type': 'audio_url',
                         'audio_url': {
-                            'url': f"data:audio/wav;base64,{cls.encode_audio_to_base64(audio, sample_rate)}"
+                            'url': f'data:audio/wav;base64,{cls.encode_audio_to_base64(audio, sample_rate)}'
                         },
                     }
                     for audio, sample_rate in zip(audios, sample_rates)
@@ -352,7 +367,7 @@ class AudioManager(BaseMMDataManager):
                                 sample_rate, audio_array = cls.decode_base64_to_audio(audio_url)
                                 audios.append((audio_array, sample_rate))
                             except ValueError as e:
-                                print(f"Warning: Failed to decode audio: {str(e)}")
+                                print(f'Warning: Failed to decode audio: {str(e)}')
         # TODO: Currently vllm only supports one audio, so return the first audio. When vllm supports multiple audios, return all audios.
         return audios[0], {}
 
@@ -433,7 +448,7 @@ class VideoManager(BaseMMDataManager):
             return frames
 
         except Exception as e:
-            raise ValueError(f"Failed to decode base64 video: {str(e)}")
+            raise ValueError(f'Failed to decode base64 video: {str(e)}')
 
     @classmethod
     def encode_video_to_base64(
@@ -537,7 +552,7 @@ class VideoManager(BaseMMDataManager):
             return ','.join(base64_frames)
 
         except Exception as e:
-            raise ValueError(f"Failed to encode video to base64: {str(e)}")
+            raise ValueError(f'Failed to encode video to base64: {str(e)}')
 
     @classmethod
     def extract_videos_from_conversation(
@@ -577,7 +592,7 @@ class VideoManager(BaseMMDataManager):
                             fps = item.get('fps', 1.0)
                             video_sample_fps_list.append(fps)
                     except Exception as e:
-                        print(f"Warning: Failed to process video in conversation: {str(e)}")
+                        print(f'Warning: Failed to process video in conversation: {str(e)}')
                         continue
 
         video_kwargs = {'fps': video_sample_fps_list}
@@ -630,7 +645,7 @@ class VideoManager(BaseMMDataManager):
         if matches:
             assert len(videos) == len(
                 matches
-            ), f"Number of videos ({len(videos)}) does not match number of placeholders ({len(matches)}), input user_prompt: {user_prompt}"
+            ), f'Number of videos ({len(videos)}) does not match number of placeholders ({len(matches)}), input user_prompt: {user_prompt}'
 
             last_end = 0
             for i, match in enumerate(matches):
@@ -643,13 +658,13 @@ class VideoManager(BaseMMDataManager):
                 content_parts.append(
                     {
                         'type': 'video_url',
-                        'video_url': {'url': f"data:video/jpeg;base64,{video_base64}"},
+                        'video_url': {'url': f'data:video/jpeg;base64,{video_base64}'},
                         'fps': fps_list[i],
                     }
                 )
 
                 # Placeholder for video. Currently, the QWenVL series of models can only recognize placeholders through the key 'video', unlike in the image domain where they support recognizing 'image_url'.
-                # TODO: Remove this placeholder when the framwork support inference backend serving
+                # TODO: Remove this placeholder when the framework support inference backend serving
                 content_parts.append({'type': 'video', 'video': ''})
 
                 last_end = match.end()
@@ -663,13 +678,13 @@ class VideoManager(BaseMMDataManager):
                 content_parts.append(
                     {
                         'type': 'video_url',
-                        'video_url': {'url': f"data:video/jpeg;base64,{video_base64}"},
+                        'video_url': {'url': f'data:video/jpeg;base64,{video_base64}'},
                         'fps': fps_list[i],
                     }
                 )
 
                 # Placeholder for video. Currently, the QWenVL series of models can only recognize placeholders through the key 'video', unlike in the image domain where they support recognizing 'image_url'.
-                # TODO: Remove this placeholder when the framwork support inference backend serving
+                # TODO: Remove this placeholder when the framework support inference backend serving
                 content_parts.append({'type': 'video', 'video': ''})
 
             if user_prompt:

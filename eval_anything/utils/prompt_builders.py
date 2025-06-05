@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 from typing import Optional, Union
 
 from eval_anything.evaluate_tools.base_tools import PromptBuilder
@@ -28,12 +43,12 @@ class MultiChoicePromptBuilder(PromptBuilder):
         # Handle the ground_truth label mapping
         if ground_truth.isdigit():
             ground_truth = [self.candidate_labels[int(ground_truth)]]
-        prompt = f"{question}\n"
+        prompt = f'{question}\n'
         for label, answer in zip(self.candidate_labels, candidate_answers):
-            prompt += f"({label}) {answer} "
+            prompt += f'({label}) {answer} '
 
         if ground_truth:
-            answer = f"\nAnswer: ({ground_truth})"
+            answer = f'\nAnswer: ({ground_truth})'
         else:
             answer = ''
 
@@ -59,7 +74,7 @@ class MultiChoicePromptBuilder(PromptBuilder):
             ):
                 prompt += self.marge_QA(q, c, str(a)) + '\n'
 
-        prompt += f"{self.multi_choice_prompt}\n\n"
+        prompt += f'{self.multi_choice_prompt}\n\n'
 
         if isinstance(answer_key, tuple):
             answer_key = answer_key._asdict()
@@ -75,7 +90,7 @@ class MultiChoicePromptBuilder(PromptBuilder):
         # Add the current question
         prompt += self.marge_QA(question, candidate_answers)
         if self.enable_cot:
-            prompt += f"\n{self.cot_context}"
+            prompt += f'\n{self.cot_context}'
         prompt += (
             'Please enclose your answer in parentheses. For example, (A) or (B) or (C) or (D).'
         )
@@ -105,12 +120,12 @@ class MultiChoiceAutoLabelPromptBuilder(PromptBuilder):
 
         if ground_truth.isdigit():
             ground_truth = [candidate_labels[int(ground_truth)]]
-        prompt = f"{question}\n"
+        prompt = f'{question}\n'
         for label, answer in zip(candidate_labels, candidate_answers):
-            prompt += f"({label}) {answer} "
+            prompt += f'({label}) {answer} '
 
         if ground_truth:
-            answer = f"\nAnswer: ({ground_truth})"
+            answer = f'\nAnswer: ({ground_truth})'
         else:
             answer = ''
 
@@ -128,11 +143,11 @@ class MultiChoiceAutoLabelPromptBuilder(PromptBuilder):
             ):
                 prompt += self.marge_QA(q, c, str(a))
 
-        prompt += f"{self.multi_choice_prompt}\n\n"
+        prompt += f'{self.multi_choice_prompt}\n\n'
 
         prompt += self.marge_QA(question, candidate_answers)
         if self.enable_cot:
-            prompt += f"\n{self.cot_context}"
+            prompt += f'\n{self.cot_context}'
         return prompt
 
 
@@ -158,12 +173,12 @@ class MultiChoicePromptChineseBuilder(PromptBuilder):
         # Handle the ground_truth label mapping
         if ground_truth.isdigit():
             ground_truth = [self.candidate_labels[int(ground_truth)]]
-        prompt = f"{question}\n"
+        prompt = f'{question}\n'
         for label, answer in zip(self.candidate_labels, candidate_answers):
-            prompt += f"({label}) {answer} "
+            prompt += f'({label}) {answer} '
 
         if ground_truth:
-            answer = f"\n答案: ({ground_truth})"
+            answer = f'\n答案: ({ground_truth})'
         else:
             answer = ''
 
@@ -209,7 +224,7 @@ class MultiChoicePromptChineseBuilder(PromptBuilder):
                 ):
                     prompt += self.marge_QA(q, c, str(a))
 
-        prompt += f"{self.multi_choice_prompt}\n\n"
+        prompt += f'{self.multi_choice_prompt}\n\n'
 
         if isinstance(answer_key, tuple):
             answer_key = answer_key._asdict()
@@ -224,7 +239,7 @@ class MultiChoicePromptChineseBuilder(PromptBuilder):
 
         prompt += self.marge_QA(question, candidate_answers)
         if self.enable_cot:
-            prompt += f"\n{self.cot_context}"
+            prompt += f'\n{self.cot_context}'
         return prompt
 
 
@@ -241,11 +256,11 @@ class DialoguePromptBuilder(PromptBuilder):
         self.enable_cot = cot
 
     def marge_QA(self, question: str, ground_truth: str = '') -> str:
-        prompt = f"Question: {question}\n"
+        prompt = f'Question: {question}\n'
         answer = (
-            f"Answer: {self.cot_context} {ground_truth}"
+            f'Answer: {self.cot_context} {ground_truth}'
             if self.enable_cot
-            else f"Answer: {ground_truth}"
+            else f'Answer: {ground_truth}'
         )
         return prompt + answer
 
@@ -259,7 +274,7 @@ class DialoguePromptBuilder(PromptBuilder):
             context = context + '\n' if context else ''
 
         question = self.marge_QA(input_question)
-        prompt = f"{context}{question}"
+        prompt = f'{context}{question}'
         return prompt
 
 
@@ -276,11 +291,11 @@ class DialoguePromptChineseBuilder(PromptBuilder):
         self.enable_cot = cot
 
     def marge_QA(self, question: str, ground_truth: str = '') -> str:
-        prompt = f"问题: {question}\n"
+        prompt = f'问题: {question}\n'
         answer = (
-            f"\n答案: {self.cot_context} {ground_truth}"
+            f'\n答案: {self.cot_context} {ground_truth}'
             if self.enable_cot
-            else f"\n答案: {ground_truth}"
+            else f'\n答案: {ground_truth}'
         )
         return prompt + answer
 
@@ -294,7 +309,7 @@ class DialoguePromptChineseBuilder(PromptBuilder):
             context = context + '\n' if context else ''
 
         question = self.marge_QA(input)
-        prompt = f"{context}{question}"
+        prompt = f'{context}{question}'
         return prompt
 
 
@@ -319,10 +334,10 @@ class CodesGenerationPromptBuilder(PromptBuilder):
         answer = (
             f'Canonical_solution:\n ```{self.language}\n{ground_truth}\n```' if with_answer else ''
         )
-        return f"Function description:\n{question}\n{answer}"
+        return f'Function description:\n{question}\n{answer}'
 
     def build_prompt(self, question: str, ground_truth: str) -> str:
-        prompt = f"{self.code_generation_prompt}\n\n"
+        prompt = f'{self.code_generation_prompt}\n\n'
         if self.few_shot_examples:
             for few_shot_question, few_shot_ground_truth in zip(
                 self.few_shot_examples['prompt'], self.few_shot_examples['canonical_solution']
@@ -331,7 +346,7 @@ class CodesGenerationPromptBuilder(PromptBuilder):
             prompt += 'Now, please provide solution for the following function description:\n'
 
         prompt += self.build_example_prompt(question, ground_truth, with_answer=False)
-        prompt += f"\nPlease provide your solution in a code block using ```{self.language}\n...\n``` format."
+        prompt += f'\nPlease provide your solution in a code block using ```{self.language}\n...\n``` format.'
         if self.enable_cot:
-            prompt += f"\n{self.cot_context}"
+            prompt += f'\n{self.cot_context}'
         return prompt

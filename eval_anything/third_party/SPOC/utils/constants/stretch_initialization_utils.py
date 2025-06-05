@@ -1,3 +1,6 @@
+# Copyright 2024 Allen Institute for AI
+# ==============================================================================
+
 import os
 
 import ai2thor.fifo_server
@@ -17,8 +20,8 @@ try:
 except ImportError:
     raise ImportError(
         'Cannot import `ProceduralAssetHookRunner`. Please install the appropriate version of ai2thor:\n'
-        f"```\npip install --extra-index-url https://ai2thor-pypi.allenai.org"
-        f" ai2thor==0+{STRETCH_COMMIT_ID}\n```"
+        f'```\npip install --extra-index-url https://ai2thor-pypi.allenai.org'
+        f' ai2thor==0+{STRETCH_COMMIT_ID}\n```'
     )
 
 AGENT_ROTATION_DEG = 30

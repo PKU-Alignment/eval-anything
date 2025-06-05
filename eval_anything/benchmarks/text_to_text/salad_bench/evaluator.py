@@ -1,3 +1,18 @@
+# Copyright 2025 PKU-Alignment Team. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 # ref: https://github.com/OpenSafetyLab/SALAD-BENCH/blob/main/saladbench/evaluator.py
 
 """The MD-Judge Evaluator and its data parallel implementation."""
@@ -210,11 +225,11 @@ class MDJudgeEvaluator:
                         and max_token_id != self.unsafe_begin_token_id
                     ):
                         print(
-                            f"==================NO FOLLOWING FORMAT=================="
-                            f"question index: {idx[i]}"
-                            f"max_token_id:   {max_token_id}"
-                            f"safe logit:     {safe_prob}"
-                            f"unsafe logit:   {unsafe_prob}",
+                            f'==================NO FOLLOWING FORMAT=================='
+                            f'question index: {idx[i]}'
+                            f'max_token_id:   {max_token_id}'
+                            f'safe logit:     {safe_prob}'
+                            f'unsafe logit:   {unsafe_prob}',
                             file=sys.stderr,
                         )
                         probs_list.append((-1, -1))
@@ -229,7 +244,7 @@ class MDJudgeEvaluator:
                 pbar.update(batch_size)
             except torch.cuda.OutOfMemoryError:
                 if batch_size == 1:
-                    print(f"[ERROR] OOM on GPU, skip sample {left}", file=sys.stderr)
+                    print(f'[ERROR] OOM on GPU, skip sample {left}', file=sys.stderr)
                     all_idx.extend(idx)
                     all_probs.append((-1, -1))
                     left += 1
@@ -237,7 +252,7 @@ class MDJudgeEvaluator:
                 else:
                     batch_size = max(1, round(batch_size / 1.5))
                     print(
-                        f"[WARNING] OOM on GPU, reduce batch_size to {batch_size}.",
+                        f'[WARNING] OOM on GPU, reduce batch_size to {batch_size}.',
                         file=sys.stderr,
                     )
         pbar.close()
@@ -263,7 +278,7 @@ class MDJudgeEvaluator:
         tokenizer = self._load_tokenizer()
         hf_model = self._load_hf_model()
         gen_config = GenerationConfig(
-            do_sample=False, temerature=0.0, max_new_tokens=max_new_tokens
+            do_sample=False, temperature=0.0, max_new_tokens=max_new_tokens
         )
         for prompt in tqdm(queries, desc='Evaluating', disable=not use_tqdm):
             inputs = tokenizer(prompt, add_special_tokens=True, return_tensors='pt')
@@ -402,7 +417,7 @@ class DDPMDJudgeEvaluator:
         else:
             num_models = min(total_gpus, int(max_replicas))
 
-        print(f"Creating {num_models} model replicas.")
+        print(f'Creating {num_models} model replicas.')
 
         self.models = [
             ray.remote(num_gpus=1)(MDJudgeEvaluator).remote(
@@ -458,7 +473,7 @@ class DDPMDJudgeEvaluator:
                 all_probs.extend(logprobs)
 
             except ray.exceptions.RayActorError as e:
-                print(f"Error in model {i}, corresponding result will be None.")
+                print(f'Error in model {i}, corresponding result will be None.')
                 all_probs.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
 
         return all_probs
@@ -503,7 +518,7 @@ class DDPMDJudgeEvaluator:
                 all_eval_clses.extend(eval_clses)
 
             except ray.exceptions.RayActorError as e:
-                print(f"Error in model {i}, corresponding result will be None.")
+                print(f'Error in model {i}, corresponding result will be None.')
                 all_eval_labels.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
                 all_eval_clses.extend([None] * (min((i + 1) * chunk_size, len_) - i * chunk_size))
 

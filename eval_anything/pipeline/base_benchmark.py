@@ -61,6 +61,8 @@ BENCHMARK_MODALITY_MAP = {
     'cyberattackassistance': 'text_to_text',
     'cdialbias': 'text_to_text',
     'bbq': 'text_to_text',
+    'confaide': 'text_to_text',
+    'decodingtrust': 'text_to_text',
     'anthropics': 'text_to_text',
     'chores': 'text_vision_to_action',
 }

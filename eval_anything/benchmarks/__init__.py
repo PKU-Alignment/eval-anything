@@ -37,6 +37,10 @@ benchmark_modules = [
     'benchmarks.text_to_text.CDialBias.eval',
     'benchmarks.text_to_text.Cona.eval',
     'benchmarks.text_to_text.CyberAttackAssistance.eval',
+    'benchmarks.text_to_text.Dice.eval',
+    'benchmarks.text_to_text.Confaide.eval',
+    'benchmarks.text_to_text.DecodingTrust.eval',
+    'benchmarks.text_to_text.Bad.eval',
     # 来自 main 的模块
     'benchmarks.text_to_text.DoNotAnswer.eval',
     'benchmarks.text_to_text.HarmBench.eval',
@@ -64,4 +68,5 @@ if script_name == 'eval_vla.sh':
     ]
 
 for module in benchmark_modules:
+    # print(f"Importing: {module}")
     importlib.import_module(module)

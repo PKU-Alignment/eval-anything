@@ -19,6 +19,10 @@ from eval_anything.pipeline.base_task import BaseTask
 from eval_anything.utils.utils import parse_unknown_args
 
 
+# import eval_anything.benchmarks.text_to_text.DecodingTrust.eval
+# print("DecodingTrust module imported!")
+
+
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # parser.add_argument('--eval_info', type=str, required=True, default='evaluate.yaml', help="YAML filename for evaluation configurations in eval-anything/configs/.")

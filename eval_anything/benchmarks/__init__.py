@@ -52,6 +52,7 @@ benchmark_modules = [
     'benchmarks.text_to_text.air_bench_2024.eval',
     'benchmarks.text_to_text.Flames.eval',
     'benchmarks.text_to_text.XSafety.eval',
+    'benchmarks.text_to_text.jade_db.eval',
     # 共同模块
     'benchmarks.text_image_to_text.mmmu.eval',
     'benchmarks.text_image_to_text.mathvision.eval',

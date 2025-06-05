@@ -43,6 +43,7 @@ from eval_anything.utils.utils import (
     update_dict,
 )
 
+__all__=['eval_anything.benchmarks', 'eval_anything.utils.prompt_builders']
 
 class BaseTask(ABC):
     def __init__(self, overall_cfgs_name: str, **kwargs):

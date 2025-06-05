@@ -1,4 +1,11 @@
+<div align="center">
+  <img src="assets/logo.png" width="390"/>
+  <div>&nbsp;</div>
+
+
 [![Organization](https://img.shields.io/badge/Organization-PKU--Alignment-blue)](https://github.com/PKU-Alignment) [![License](https://img.shields.io/github/license/PKU-Alignment/eval-anything?label=license)](#license)
+
+</div>
 
 # Introduction
 
@@ -26,13 +33,13 @@
 
 [Contents](#Contents)
 
-[Tasks and Datasets](#Tasks and Datasets)
+[Tasks and Datasets](#Tasks-and-Datasets)
 
-[Quick Start](#Quick Start)
+[Quick Start](#Quick-Start)
 
-[Contributing a New Bench](#Contributing a New Bench)
+[Contributing a New Bench](#Contributing-a-New-Bench)
 
-[Reporting Issues](#Reporting Issues)
+[Reporting Issues](#Reporting-Issues)
 
 [Acknowledgements](#Acknowledgements)
 
@@ -112,4 +119,3 @@ If you have any questions in the process of using align-anything, don't hesitate
 This repository benefits from multiple open-source projects. Thanks for their wonderful works and their efforts for promoting the LLM research. 
 
 This work is supported by the Beijing Academy of Artificial Intelligence, Peking University and Beijing University of Posts and Telecommunications.
-

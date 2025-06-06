@@ -258,8 +258,8 @@ class JadeDbEvaluator(T2TBenchmark):
             inference_outputs,
             {
                 'jade_db': {
-                    'Safety Rate': {'default': safe_rate},
-                    'Following Rate': {'default': following_rate},
+                    'Safety Rate': safe_rate,
+                    'Following Rate': following_rate,
                 }
             },
             {},

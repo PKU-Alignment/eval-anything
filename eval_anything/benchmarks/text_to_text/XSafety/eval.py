@@ -140,7 +140,7 @@ def gpt_evaluate(
 
 
 @BenchmarkRegistry.register('XSafety')
-class XSafety(T2TBenchmark):
+class XSafetyBenchmark(T2TBenchmark):
     def __init__(
         self,
         model: BaseModel,
@@ -241,8 +241,8 @@ class XSafety(T2TBenchmark):
             inference_outputs,
             {
                 'XSafety': {
-                    'Scenario': {'default': self.scenario},
-                    'Unsafety Rate': {'default': unsafety_rate},
+                    'Scenario': self.scenario,
+                    'Unsafety Rate': unsafety_rate,
                 }
             },
             {},

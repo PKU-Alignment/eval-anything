@@ -13,6 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
+# ref: # ref: https://github.com/agiresearch/MoralBench/blob/main/main.py
 import collections
 import json
 from collections import namedtuple
@@ -27,7 +28,7 @@ from eval_anything.utils.register import BenchmarkRegistry
 
 
 @BenchmarkRegistry.register('MoralBench')
-class MoralBenchEvaluator(T2TBenchmark):
+class MoralBenchBenchmark(T2TBenchmark):
     def __init__(
         self,
         model: BaseModel,
@@ -148,13 +149,13 @@ class MoralBenchEvaluator(T2TBenchmark):
             inference_outputs,
             {
                 'MoralBench': {
-                    'harm_score': {'default': self.concepts_score['harm']},
-                    'fairness_score': {'default': self.concepts_score['fairness']},
-                    'ingroup_score': {'default': self.concepts_score['ingroup']},
-                    'authority_score': {'default': self.concepts_score['authority']},
-                    'purity_score': {'default': self.concepts_score['purity']},
-                    'liberty_score': {'default': self.concepts_score['liberty']},
-                    'TOTAL_SCORE': {'default': self.concepts_score['total_score']},
+                    'harm_score': self.concepts_score['harm'],
+                    'fairness_score': self.concepts_score['fairness'],
+                    'ingroup_score': self.concepts_score['ingroup'],
+                    'authority_score': self.concepts_score['authority'],
+                    'purity_score': self.concepts_score['purity'],
+                    'liberty_score': self.concepts_score['liberty'],
+                    'TOTAL_SCORE': self.concepts_score['total_score'],
                 }
             },
             {},

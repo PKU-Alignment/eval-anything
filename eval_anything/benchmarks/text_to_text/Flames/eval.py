@@ -27,7 +27,7 @@ from eval_anything.utils.register import BenchmarkRegistry
 
 
 @BenchmarkRegistry.register('Flames')
-class Flames(T2TBenchmark):
+class FlamesBenchmark(T2TBenchmark):
     def __init__(
         self,
         model: BaseModel,
@@ -74,9 +74,6 @@ class Flames(T2TBenchmark):
         """Convert a InferenceInput dict instances to a InferenceOutput dict instances"""
         inference_outputs = super().to_InferenceOutput(inference_inputs)
 
-        # questions = [input.metadata['prompt'] for input in jailbreak_questions]
-        # responses = [output.response[0] for output in llm_responses]
-
         h_i, s_i, h_dim, s_dim = evaluate_flames(inference_inputs, inference_outputs)
         """
         harmless_rate: h_i
@@ -114,9 +111,9 @@ class Flames(T2TBenchmark):
             inference_outputs,
             {
                 'Flames': {
-                    'harmless_rate': {'default': self.h_i},
+                    'harmless_rate': self.h_i,
                     'harmless_rate_each_dim': self.h_dim,
-                    'harmless_score': {'default': self.s_i},
+                    'harmless_score': self.s_i,
                     'harmless_score_each_dim': self.s_dim,
                 }
             },

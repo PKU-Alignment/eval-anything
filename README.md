@@ -1,4 +1,17 @@
+<div align="center">
+  <img src="assets/logo.png" width="390"/>
+  <div>&nbsp;</div>
+
 [![Organization](https://img.shields.io/badge/Organization-PKU--Alignment-blue)](https://github.com/PKU-Alignment) [![License](https://img.shields.io/github/license/PKU-Alignment/eval-anything?label=license)](#license)
+
+
+
+[📘Benchmark List](#Tasks-and-Datasets) |
+[🛠️Quick Start](#Quick-Start) |
+[💡Contributing a New Bench](#Contributing-a-New-Bench) |
+[🤔Reporting Issues](#Reporting-Issues)
+
+</div>
 
 # Introduction
 
@@ -26,13 +39,13 @@
 
 [Contents](#Contents)
 
-[Tasks and Datasets](#Tasks and Datasets)
+[Tasks and Datasets](#Tasks-and-Datasets)
 
-[Quick Start](#Quick Start)
+[Quick Start](#Quick-Start)
 
-[Contributing a New Bench](#Contributing a New Bench)
+[Contributing a New Bench](#Contributing-a-New-Bench)
 
-[Reporting Issues](#Reporting Issues)
+[Reporting Issues](#Reporting-Issues)
 
 [Acknowledgements](#Acknowledgements)
 
@@ -101,15 +114,19 @@ bash scripts/run_vla.sh
 
 # Contributing a New Bench
 
-We are accepting PRs for new benchmarks. Please read the [development document]() carefully before you contribute your benchmark.
+We are accepting PRs for new benchmarks. Please read the [development document](development.md) carefully before you contribute your benchmark.
 
 # Reporting Issues
 
 If you have any questions in the process of using align-anything, don't hesitate to ask your questions on [the GitHub issue page](https://github.com/PKU-Alignment/eval-anything/issues/new/choose), we will reply to you in 2-3 working days.
+
+# License
+
+Eval-anything is released under [Apache License 2.0](LICENSE).
+
 
 # Acknowledgements
 
 This repository benefits from multiple open-source projects. Thanks for their wonderful works and their efforts for promoting the LLM research. 
 
 This work is supported by the Beijing Academy of Artificial Intelligence, Peking University and Beijing University of Posts and Telecommunications.
-

@@ -54,12 +54,17 @@ benchmark_modules = [
     'benchmarks.text_to_text.aegis_aicontent_safety_dataset.eval',
     'benchmarks.text_to_text.s_eval.eval',
     'benchmarks.text_to_text.FakeAlignment.eval',
+    'benchmarks.text_to_text.DeceptionBench.eval',
+    'benchmarks.text_to_text.Flames.eval',
+    'benchmarks.text_to_text.XSafety.eval',
+    'benchmarks.text_to_text.jade_db.eval',
+    'benchmarks.text_to_text.MoralBench.eval',
     # 共同模块
     'benchmarks.text_image_to_text.mmmu.eval',
     'benchmarks.text_image_to_text.mathvision.eval',
     'benchmarks.text_audio_to_text.mmau.eval',
     'benchmarks.text_video_to_text.mmvu.eval',
-    'benchmarks.text_vision_to_action.chores.eval',
+    # 'benchmarks.text_vision_to_action.chores.eval',
 ]
 script_name = os.path.basename(sys.argv[0])
 if script_name == 'eval_vla.sh':

@@ -130,3 +130,16 @@ Eval-anything is released under [Apache License 2.0](LICENSE).
 This repository benefits from multiple open-source projects. Thanks for their wonderful works and their efforts for promoting the LLM research. 
 
 This work is supported by the Beijing Academy of Artificial Intelligence, Peking University and Beijing University of Posts and Telecommunications.
+
+
+
+<div align="center">
+    <img src="https://www.baai.ac.cn/desktop/img/logo.png" style="filter: invert(1);" width="450"/></div>
+
+<div align="center">
+    <img src="https://www.pku.edu.cn/Uploads/Picture/2019/12/02/s5de51be2e86a0.png" width="450"/></div>
+
+<div align="center">
+    <img src="https://www.bupt.edu.cn/__local/C/8E/F7/EE902059AE32E0E6325EFEE8F46_B2D41D06_CD58.png" width="450"/></div>
+
+

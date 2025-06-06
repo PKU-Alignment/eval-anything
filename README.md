@@ -53,6 +53,8 @@
 
 # Tasks and Datasets
 
+Eval-anything integrated a diversity of open-source/self-developed benchmarks on LM safety. See [benchmark document](eval_anything/benchmarks/benchmark.md) for more information.
+
 # Quick Start
 
 * Step1: Install `eval-anything` by:

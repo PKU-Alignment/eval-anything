@@ -2,7 +2,7 @@
   <img src="assets/logo.png" width="390"/>
   <div>&nbsp;</div>
 
-[![Organization](https://img.shields.io/badge/Organization-PKU--Alignment-blue)](https://github.com/PKU-Alignment) [![License](https://img.shields.io/github/license/JackSimbol/eval-anything?label=license)](#license)
+[![Organization](https://img.shields.io/badge/Organization-PKU--Alignment-blue)](https://github.com/PKU-Alignment) [![License](https://img.shields.io/github/license/PKU-Alignment/eval-anything?label=license)](#license)
 
 
 

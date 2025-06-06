@@ -16,8 +16,6 @@
 import os
 import time
 from collections import namedtuple
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Optional
 
 from datasets import load_dataset
 from openai import OpenAI
@@ -30,7 +28,6 @@ from eval_anything.benchmarks.text_to_text.s_eval.utils import (
 from eval_anything.models.base_model import BaseModel
 from eval_anything.pipeline.t2t_benchmark import T2TBenchmark
 from eval_anything.utils.cache_manager import CacheManager
-from eval_anything.utils.cached_requests import cached_requests
 from eval_anything.utils.data_type import EvaluationResult, InferenceInput, InferenceOutput
 from eval_anything.utils.logger import EvalLogger
 from eval_anything.utils.register import BenchmarkRegistry
@@ -77,76 +74,8 @@ def gpt_eval(questions, responses, categorys):
     return eval_responses
 
 
-def gpt_evaluate(
-    inference_inputs: list[InferenceInput],
-    inference_outputs: list[InferenceOutput],
-    model: str = 'gpt-4o-mini',
-    api_key: Optional[str] = None,
-    api_base: Optional[str] = None,
-    cache_dir: Optional[str] = None,
-) -> str:
-    """
-    Extract an answer from a model response for a specific item.
-
-    Args:
-        question: Question(jailbreak question)
-        response: Model's response
-        model: Name of the extractor model (e.g., "gpt-4o-mini")
-        api_key: API key for the extractor model
-        api_base: Base URL for the extractor model API
-        cache_dir: Cache directory for the extractor model
-    Returns:
-        Extracted answer
-    """
-    api_key = os.getenv('API_KEY')
-    api_base = os.getenv('API_BASE')
-    num_workers = int(os.getenv('NUM_WORKERS', 32))
-
-    def _single_request(inference_input: InferenceInput, inference_output: InferenceOutput) -> str:
-        question = inference_input.metadata['prompt']
-        category = inference_input.metadata['category']
-        response = inference_output.response[0]
-        user_prompt = EN_EVALUATE_PROMPT.format(
-            category=category, question=question, response=response
-        )
-
-        messages = [{'role': 'user', 'content': user_prompt}]
-
-        extraction = cached_requests(
-            messages=messages,
-            model=model,
-            max_completion_tokens=64,
-            temperature=0.0,
-            api_key=api_key,
-            api_base=api_base,
-            cache_dir=cache_dir,
-            timeout=300,
-        )
-        return extraction
-
-    results = {}
-    max_workers = min(len(inference_inputs), num_workers)
-
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_index = {
-            executor.submit(_single_request, inference_input, inference_output): idx
-            for idx, (inference_input, inference_output) in enumerate(
-                zip(inference_inputs, inference_outputs)
-            )
-        }
-
-        for future in tqdm(
-            as_completed(future_to_index), total=len(inference_inputs), desc='Evaluating responses'
-        ):
-            idx = future_to_index[future]
-            result = future.result()
-            results[idx] = result
-
-    return [results[i] for i in range(len(inference_inputs))]
-
-
 @BenchmarkRegistry.register('s_eval')
-class s_eval(T2TBenchmark):
+class SEvalBenchmark(T2TBenchmark):
     def __init__(
         self,
         model: BaseModel,
@@ -168,7 +97,7 @@ class s_eval(T2TBenchmark):
 
         dataset = load_dataset('IS2Lab/S-Eval', 'base_risk_set_en_small', split='train')
         dataset = dataset.rename_column('risk_type', 'category')
-        dataset = dataset.shuffle(seed=42).select(range(200))  # Limit to 200 samples for testing
+        # dataset = dataset.shuffle(seed=42).select(range(200))  # Limit to 200 samples for testing
 
         inference_inputs = []
         for item in dataset:
@@ -194,7 +123,6 @@ class s_eval(T2TBenchmark):
 
         jailbreak_question = inference_inputs['s_eval']
         llm_response = inference_outputs['s_eval']
-        # eval_responses = gpt_evaluate(jailbreak_question, llm_response, cache_dir=self.eval_cfgs.cache_dir)
 
         questions = [input.metadata['prompt'] for input in jailbreak_question]
         categorys = [input.metadata['category'] for input in jailbreak_question]

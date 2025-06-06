@@ -15,7 +15,7 @@
 
 dataset:
   name: FakeAlignment
-  path: TrustAIRLab/in-the-wild-jailbreak-prompts
+  path:
   split: train
   size:
   modality: text-to-text

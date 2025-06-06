@@ -8,7 +8,7 @@
 
 [📘Benchmark List](#Tasks-and-Datasets) |
 [🛠️Quick Start](#Quick-Start) |
-[💡Contributing a New Benchmark](#Contributing-a-New-Benchmark) |
+[💡Contributing a New Bench](#Contributing-a-New-Bench) |
 [🤔Reporting Issues](#Reporting-Issues)
 
 </div>

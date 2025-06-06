@@ -58,9 +58,9 @@ def gpt_evaluate(
     num_workers = int(os.getenv('NUM_WORKERS', 32))
 
     def _single_request(inference_input: InferenceInput, inference_output: InferenceOutput) -> str:
-        category = inference_input.metadata['category']
+        question = inference_input.metadata['prompt']
         response = inference_output.response
-        user_prompt = EVALUATE_PROMPT.format(category=category, response=response)
+        user_prompt = EVALUATE_PROMPT.format(question=question, response=response)
 
         messages = [{'role': 'user', 'content': user_prompt}]
 
@@ -118,7 +118,7 @@ class LatentJailbreakEvaluator(T2TBenchmark):
         """Convert a task list to a list of InferenceInput dict instances"""
         dataset = load_dataset(
             'json',
-            data_dir='eval-anything/eval_anything/benchmarks/local_safe_eval_data/',
+            data_dir='eval-anything/eval_anything/eval-anything-local/data/',
             data_files='latent_jailbreak_data.json',
             split='train',
         )

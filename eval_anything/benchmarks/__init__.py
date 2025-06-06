@@ -45,6 +45,7 @@ benchmark_modules = [
     'benchmarks.text_to_text.LatentJailbreak.eval',
     'benchmarks.text_to_text.MaliciousInstruct.eval',
     'benchmarks.text_to_text.MaliciousInstructions.eval',
+    'benchmarks.text_to_text.HarmfulQ.eval',
     'benchmarks.text_to_text.gptfuzzer.eval',
     'benchmarks.text_to_text.llm_jailbreak_study.eval',
     'benchmarks.text_to_text.jbb_behaviors.eval',

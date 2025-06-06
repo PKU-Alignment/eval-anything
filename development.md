@@ -1,102 +1,129 @@
+# Development Document
 
-# 开发文档
+We are accepting PRs for new benchmarks. Please read this document carefully before you contribute your benchmark.
 
-## 项目简介
+## Project Brief
 
-### 评测任务流
+This subsection introduces core frameworks and interfaces in this project and how developers are advised to utilize them.
 
-- `eval_anything/pipeline/base_task.py`: 实现了从读取评测参数到保存评测结果的全流程，一般不做改动
+### Pipeline
 
-### benchmark相关
+- `eval_anything/pipeline/base_task.py` provides the entire process from reading the evaluation parameters to saving the evaluation results. Do not change this file.
 
-- `eval_anything/benchmark/text-to-text/gsm8k/eval.py`: 继承自`t2t_benchmark.py`中的`T2TBenchmark`基类，实现每个benchmark评测流程的适配，包括读取benchmark设置、读取数据集、模型推理、结果评测、结果保存。一般而言只需根据需要重写部分函数。
+### Benchmark
 
-- `eval_anything/benchmark/text-to-text/gsm8k/configs.yaml`: 包含了benchmark相关的各种设置
+- `eval_anything/benchmark/text-to-text/gsm8k/eval.py` inherits from the `T2TBenchmark` base class in `t2t_benchmark.py`. The code adapts to text-to-text benchmark evaluation processes, including reading benchmark configurations, loading datasets, running model inference and evaluation, and saving results. You can rewrite some functions in this file.
 
-### dataloader相关
+- `eval_anything/benchmark/text-to-text/gsm8k/configs.yaml` contains various benchmark configurations.
 
-- `eval_anything/dataloader/t2t_dataloader.py`: 继承自`base_dataloader.py`中的`BaseDataLoader`基类，实现评测数据的读取、拼接等操作
+### Dataloader
 
-- `eval_anything/dataloader/mm_dataloader.py`: 继承自`base_dataloder.py`中的`BaseDataLoader`基类，实现评测数据的读取、拼接等操作
+- `eval_anything/dataloader/t2t_dataloader.py` inherits from the `BaseDataLoader` base class in  `base_dataloader.py`. It implements the reading and splicing of text-to-text evaluation data.
+  - `eval_anything/dataloader/mm_dataloader.py`: inherits from the `BaseDataLoader` base class in `base_dataloder.py`.  It implements the reading and splicing of multimodal evaluation data.
 
-- `eval_anything/dataloader/format_mm_dataset.py`: 鉴于多模态数据集的数据复杂度较高，在此实现原数据集的预处理，以便后续数据加载
+- `eval_anything/dataloader/format_mm_dataset.py` implements the preprocessing of multimodal datasets for subsequent data loading, given the high complexity of multimodal data.
 
-### inference相关
+### Inference
 
-- `eval_anything/models`: 文件夹下实现了不同backend的infer
+- `eval_anything/models`: Various backend inferences are implemented under this path.
 
-### evaluate相关
+### Evaluation
 
-- `eval_anything/evaluate_tools/metrics.py`: 实现了常用的metric计算，若有相关需求直接使用现成的，否则请在metric中进行添加（尽量不要在benchmark中单独实现metric）
+- `eval_anything/evaluate_tools/metrics.py` contains commonly used metric calculation. We recommend you add your new metrics here rather than in the benchmark separately.
+- `eval_anything/evaluate_tools/t2t_tools.py` integrates common evaluation tools such as regular expression matching and judgment of similarity, etc. New tools should be integrated in an object-oriented manner and considering the versatility of the tools.
 
-- `eval_anything/evaluate_tools/t2t_tools.py`: 实现了常用评测工具的集成，例如正则匹配、判断相同等，若有相关需求直接使用现成的，否则考虑该需求的泛用性，尽量以面向对象的形式集成进去
+### Utils
 
-### 其他（`eval_anything/utils/`）
+- `utils.py`: Common toolkits for project development.
 
-- `utils.py`: 项目开发常用工具包
+- `data_type.py`: Common data types for data transfer between different modules
 
-- `data_type.py`: 常用数据类型，用来实现不同模块之间的数据传递
+- `cache_manager.py`: Cache mechanisms
 
-- `cache_manager.py`: cache机制设计
+- `regiser.py`: Commonly used registry（template, metric, benchmark...）
 
-- `regiser.py`: 实现了常用的注册表（template, metric, benchmark...）
+- `logger.py`: Log mechanisms
 
-- `logger.py`: 实现了log机制的开发
+- `mm_data_manager`: The format conversion and conversation compilation of various modal data
 
-- `mm_data_manager`: 实现了各类模态数据的格式转换与conversation编制
+## General Guidelines
 
-## 通用开发指南
+1. Create a directory under the `benchmarks` folder.
+   - Write a configuration file `configs.yaml`. Here is an [example](eval_anything/benchmarks/text_to_text/gsm8k/configs.yaml).
+   - Develop `eval.py` after inheriting from the corresponding benchmark base class.
+2. (Optional) Create `metrics.py` and `tools.py` and make registers for new metrics and evaluation tools. Here is an [example](eval-anything/eval_anything/benchmarks/text_to_text/TruthfulQA).
+3. Configure your evaluation tasks in `eval_anything/configs/evaluate.yaml`.
+4. Run `eval_anything/scripts/run.sh` to test your benchmark.
 
-1. 在`benchmarks`文件夹下进行相关文件夹创建
-    - 配置参数文件 `configs.yaml`，[参考示例](eval_anything/benchmarks/text_to_text/gsm8k/configs.yaml)
-    - 评测代码 `eval.py`: 继承自benchmark基类进行开发
-2. 如有新的metric以及evaluate_tools请在新增的benchmark子文件夹下新增`metrics.py`和`tools.py`并分别进行register，[参考示例](eval-anything/eval_anything/benchmarks/text_to_text/TruthfulQA)
-3. 在`eval_anything/configs/evaluate.yaml`文件夹下进行评测任务配置
-4. 运行`eval_anything/scripts/run.sh`进行测试
+## Configuring Any-to-text Datasets
 
-## any2t数据集配置
-在进行多模态数据集开发时，可能会遇到多模态数据加载方式难以统一的问题，请依照以下步骤进行数据集预处理：
+When developing multimodal datasets, you may encounter difficulty to unify the loading methods of multimodal data. Please follow the steps below for dataset preprocessing:
 
-1. 在`dataloader/format_mm_dataset.py`中注册数据集
-2. 在`dataloader/format_mm_dataset.py`中处理benchmark-specific的键值对和Prompt构造，以便完成数据加载。尽量使用已有的PromptBuilder，如有需要，请在`_to_InferenceInput`方法中定制
-3. 运用`utils/mm_data_manager.py`中的工具类实现图片、音频、视频向`base64`的转换，以便嵌入到conversation中
-4. 运用`utils/mm_data_manager.py`中的工具类为此模态任务定制conversation的形式，例如，`ImageManager.prompt_to_conversation`实现了常见图文输入的conversation构造
-5. 数据加载完成后，推理与评测部分与此前开发过程相同
+1. Register your dataset in `dataloader/format_mm_dataset.py`
+2. Process benchmark-specific key-value pairs and construct prompts in `dataloader/format_mm_dataset.py` with predefined PromptBuilders. You may customize your own PromptBuilder in the `_to_InferenceInput` method if necessary.
+3. Convert images, audios and videos to `base64` with `utility classes` in `utils/mm_data_manager.py` for conversation embedding.
+4. Use the utility classes in `utils/mm_data_manager.py` to customize the form of conversation for this  task. For example, `ImageManager.prompt_to_conversation` implements the conversation construction for common graphic and text inputs.
+5. The inference and evaluation part is the same as introduced in [General Guidelines](##General Guidelines)
 
-## VLA相关
+## Pre-commit
 
-1. 配置`objaverse`资源
-```
-python -m objathor.dataset.download_annotations --version 2023_07_28 --path /path/to/objaverse_assets
-python -m objathor.dataset.download_assets --version 2023_07_28 --path /path/to/objaverse_assets
-```
-2. 配置`house`资源
-```
-python scripts/download_objaverse_houses.py --save_dir /path/to/objaverse_houses --subset val
-```
-or
-```
-python scripts/download_objaverse_houses.py --save_dir /path/to/objaverse_houses --subset train
+This project uses pre-commit to ensure code quality and consistency. Pre-commit will automatically run the configured inspection tool before each commit.
+
+### Installation
+
+1. Install pre-commit
+
+```bash
+pip install pre-commit
 ```
 
-3. 数据集
-```
-python scripts/download_dataset.py --save_dir /path/to/dataset
+2. Initialize pre-commit in the root directory
+
+```bash
+pre-commit install
 ```
 
-4. 环境
+### Usage
+
+Before each code submission, pre-commit will run automatically. It is also possible to run the check manually:
+
+```bash
+# check all files
+pre-commit run --all-files
+
+# check temporary files
+pre-commit run
 ```
-pip install -e .[vla]
-pip install --extra-index-url https://ai2thor-pypi.allenai.org ai2thor==0+966bd7758586e05d18f6181f459c0e90ba318bec
-pip install -e "git+https://github.com/allenai/allenact.git@d055fc9d4533f086e0340fe0a838ed42c28d932e#egg=allenact&subdirectory=allenact" --no-deps
-pip install -e "git+https://github.com/allenai/allenact.git@d055fc9d4533f086e0340fe0a838ed42c28d932e#egg=allenact_plugins[all]&subdirectory=allenact_plugins" --no-deps
+
+If there are unsolved problems, pre-commit will prevent the commit and display error messages. After fixing the problem, re-add the file and submit it:
+
+```bash
+git add .
+git commit -m "MESSAGE"
+git push
 ```
-5. 运行
+
+To skip the check and commit directly:
+
+```bash
+git commit -m "MESSAGE" --no-verify
 ```
-bash scripts/run_vla.sh
-```
+
+### Inspection tools
+
+The following inspection tools are configured for this project:
+
+- **pre-commit-hooks**: Basic file checks (line end Spaces, file endings, YAML/TOML formats, large file checks, etc.)
+- **isort**: Sorting Python import statements
+- **black**: Python code formatting
+- **pyupgrade**: Upgrade the Python syntax to a later version
+- **autoflake**: Remove unused imports and variables
+- **codespell**: spell check
+
+See `.pre-commit-config.yaml` for detailed configuration.
+
 ## Tips
 
-- 尽量遵循奥卡姆剃刀原则进行开发，减少对现有函数的重写
-- 如有需要新增的依赖库，请在`pyproject.toml`中进行添加
-- 对现有基类有任何建议欢迎提出!
+- Please follow *Occam's Razor* principle in development and minimize the rewriting of existing functions
+- please add new dependency libraries needed in `pyproject.toml`.
+- We welcome any suggestions regarding current base classes!

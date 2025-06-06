@@ -114,11 +114,16 @@ bash scripts/run_vla.sh
 
 # Contributing a New Bench
 
-We are accepting PRs for new benchmarks. Please read the [development document]() carefully before you contribute your benchmark.
+We are accepting PRs for new benchmarks. Please read the [development document](development.md) carefully before you contribute your benchmark.
 
 # Reporting Issues
 
 If you have any questions in the process of using align-anything, don't hesitate to ask your questions on [the GitHub issue page](https://github.com/PKU-Alignment/eval-anything/issues/new/choose), we will reply to you in 2-3 working days.
+
+# License
+
+Eval-anything is released under [Apache License 2.0](LICENSE).
+
 
 # Acknowledgements
 
